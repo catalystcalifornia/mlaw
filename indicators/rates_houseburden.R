@@ -84,7 +84,7 @@ df[sapply(df, is.nan)] <- NA
 ##### Calculate percentiles ---------------------
 
 df<-df%>%
-  mutate(pctile=percent_rank(rentburden_rate))
+  mutate(houseburden_pctile=percent_rank(rentburden_rate))
 
 #### Finalize and push to postgres---------------
 
@@ -130,7 +130,7 @@ COMMENT ON COLUMN rates_houseburden.rentburden_cv IS 'Total renter occupied hous
 COMMENT ON COLUMN rates_houseburden.rentburden_rate IS 'Percentage of renter occupied units that are rent burdened out of total renter occupied units by zcta';
 COMMENT ON COLUMN rates_houseburden.rentburden_rate_moe IS 'MOE of the percentage of renter occupied units that are rent burdened';
 COMMENT ON COLUMN rates_houseburden.rentburden_rate_cv IS 'CV of the percentage of renter occupied units that are rent burdened';
-COMMENT ON COLUMN rates_houseburden.pctile IS 'Percent rank of the estimate -rentburden_rate';
+COMMENT ON COLUMN rates_houseburden.houseburden_pctile IS 'Percent rank of the estimate -rentburden_rate';
 
 
 
