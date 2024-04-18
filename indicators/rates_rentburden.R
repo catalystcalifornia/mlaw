@@ -1,5 +1,6 @@
 # MLAW LA City Equity Index
 # Rent burden rates by LA City ZIP Code
+# Data Source: ACS B25070 5-year estimates 2018-22
 
 ##### Set Up Workspace #####
 library(dplyr)
@@ -22,23 +23,23 @@ con2<-connect_to_db("rda_shared_data")
 drv <- dbDriver("PostgreSQL")
 
 # Download ACS table B25070 (Rent burden data from the census) and add into postgres-------------------------
-
-# Set source for ACS 5-Yr table update fx
-source("W:\\RDA Team\\R\\ACS Updates\\acs_rda_shared_tables.R") # This fx also creates or imports the correct vintage CA CBF ZCTA list
-
-# Script file path, for postgres table comment
-filepath <- "W:\\Project\\ECI\\MLAW\\R\\rates_houseburden.R"
-
-# Define arguments for ACS table update fx
-yr <- 2022 # update for the ACS data/ZCTA vintage needed
-
-### If you add a new table, you must also update table_vars below
-table <- list(
-  "B25070"
-) 
-
-## Run fx to get updates ACS table(s)
-update_acs(yr=yr, acs_tables=table,filepath)
+# 
+# # Set source for ACS 5-Yr table update fx
+# source("W:\\RDA Team\\R\\ACS Updates\\acs_rda_shared_tables.R") # This fx also creates or imports the correct vintage CA CBF ZCTA list
+# 
+# # Script file path, for postgres table comment
+# filepath <- "W:\\Project\\ECI\\MLAW\\R\\rates_houseburden.R"
+# 
+# # Define arguments for ACS table update fx
+# yr <- 2022 # update for the ACS data/ZCTA vintage needed
+# 
+# ### If you add a new table, you must also update table_vars below
+# table <- list(
+#   "B25070"
+# ) 
+# 
+# ## Run fx to get updates ACS table(s)
+# update_acs(yr=yr, acs_tables=table,filepath)
 
 
 # Read in tables for analysis-----------------------
@@ -84,7 +85,7 @@ df[sapply(df, is.nan)] <- NA
 ##### Calculate percentiles ---------------------
 
 df<-df%>%
-  mutate(houseburden_pctile=percent_rank(rentburden_rate))
+  mutate(rentburden_pctile=percent_rank(rentburden_rate))
 
 #### Finalize and push to postgres---------------
 
@@ -104,33 +105,33 @@ charvect <- replace(charvect, c(1), c("varchar"))
 
 names(charvect) <- colnames(df)
 
-table_name <- "rates_houseburden"
+table_name <- "rates_rentburden"
 
 # push to postgres
 
-dbWriteTable(con,  table_name, df,
-             overwrite = TRUE, row.names = FALSE,
-             field.types = charvect)
+# dbWriteTable(con,  table_name, df,
+#              overwrite = TRUE, row.names = FALSE,
+#              field.types = charvect)
 
 # add meta data
 
-table_comment <- paste0("COMMENT ON TABLE rates_houseburden  IS 'Rate and estimates of renter units that are 
+table_comment <- paste0("COMMENT ON TABLE rates_rentburden  IS 'Rate and estimates of renter units that are 
 rent burdened aggregated to the zcta level. Data is only for zctas in LA City. Rent burden is defined by more than 30% or more 
 of income on rent.
-R script: W:\\Project\\ECI\\MLAW\\R\\rates_houseburden.R
+R script: W:\\Project\\ECI\\MLAW\\R\\rates_rentburden.R
 QA document: 
 W:\\Project\\ECI\\MLAW\\Documentation\\QA_rates_houseburden.docx';
 
-COMMENT ON COLUMN rates_houseburden.geoid IS 'zcta';
-COMMENT ON COLUMN rates_houseburden.pop IS 'Total renter occupied housing units';
-COMMENT ON COLUMN rates_houseburden.pop_moe IS 'Total renter occupied housing units MOE';
-COMMENT ON COLUMN rates_houseburden.rentburden IS 'Total renter occupied housing units that are rent burdened. This is defined as spending 30% or more of total income on rent';
-COMMENT ON COLUMN rates_houseburden.rentburden_moe IS 'Total renter occupied housing units that are rent burdened MOE';
-COMMENT ON COLUMN rates_houseburden.rentburden_cv IS 'Total renter occupied housing units that are rent burdened CV';
-COMMENT ON COLUMN rates_houseburden.rentburden_rate IS 'Percentage of renter occupied units that are rent burdened out of total renter occupied units by zcta';
-COMMENT ON COLUMN rates_houseburden.rentburden_rate_moe IS 'MOE of the percentage of renter occupied units that are rent burdened';
-COMMENT ON COLUMN rates_houseburden.rentburden_rate_cv IS 'CV of the percentage of renter occupied units that are rent burdened';
-COMMENT ON COLUMN rates_houseburden.houseburden_pctile IS 'Percent rank of the estimate -rentburden_rate';
+COMMENT ON COLUMN rates_rentburden.geoid IS 'zcta';
+COMMENT ON COLUMN rates_rentburden.pop IS 'Total renter occupied housing units';
+COMMENT ON COLUMN rates_rentburden.pop_moe IS 'Total renter occupied housing units MOE';
+COMMENT ON COLUMN rates_rentburden.rentburden IS 'Total renter occupied housing units that are rent burdened. This is defined as spending 30% or more of total income on rent';
+COMMENT ON COLUMN rates_rentburden.rentburden_moe IS 'Total renter occupied housing units that are rent burdened MOE';
+COMMENT ON COLUMN rates_rentburden.rentburden_cv IS 'Total renter occupied housing units that are rent burdened CV';
+COMMENT ON COLUMN rates_rentburden.rentburden_rate IS 'Percentage of renter occupied units that are rent burdened out of total renter occupied units by zcta';
+COMMENT ON COLUMN rates_rentburden.rentburden_rate_moe IS 'MOE of the percentage of renter occupied units that are rent burdened';
+COMMENT ON COLUMN rates_rentburden.rentburden_rate_cv IS 'CV of the percentage of renter occupied units that are rent burdened';
+COMMENT ON COLUMN rates_rentburden.rentburden_pctile IS 'Percent rank of the estimate -rentburden_rate';
 
 
 
@@ -138,5 +139,5 @@ COMMENT ON COLUMN rates_houseburden.houseburden_pctile IS 'Percent rank of the e
 ")
 
 # send table comment + column metadata
-dbSendQuery(conn = con, table_comment)
+# dbSendQuery(conn = con, table_comment)
 
