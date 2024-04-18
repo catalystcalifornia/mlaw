@@ -1,6 +1,6 @@
 # MLAW LA City Equity Index
 # Per capita income rates by LA City ZIP Code
-
+# Data source: ACS B19301 5-year estimates 2018-22
 
 ##### Set Up Workspace #####
 library(dplyr)
@@ -64,9 +64,9 @@ names(charvect) <- colnames(df)
 
 # push to postgres
 
-dbWriteTable(con,  "rates_percapincome", df, 
-             overwrite = TRUE, row.names = FALSE,
-             field.types = charvect)
+# dbWriteTable(con,  "rates_percapincome", df, 
+#              overwrite = TRUE, row.names = FALSE,
+#              field.types = charvect)
 
 # add meta data
 
@@ -83,4 +83,4 @@ COMMENT ON COLUMN rates_percapincome.pctile IS 'Percent rank of the estimate -pe
 ")
  
 # send table comment + column metadata
-dbSendQuery(conn = con, table_comment)
+# dbSendQuery(conn = con, table_comment)
