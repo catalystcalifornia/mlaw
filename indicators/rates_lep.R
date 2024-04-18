@@ -1,6 +1,6 @@
 # MLAW LA City Equity Index
 # Limited English Speaking household rates by LA City ZIP Code
-# Data source: S1602 ACS 5-year estimates ZCTA table 2017-21
+# Data source: S1602 ACS 5-year estimates ZCTA table 2018-22
 
 
 ##### Set Up Workspace #####

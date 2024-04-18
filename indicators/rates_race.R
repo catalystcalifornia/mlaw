@@ -1,5 +1,6 @@
 # MLAW LA City Equity Index
-# Race estimates and rates by LA City ZIP COde
+# Race estimates and rates by LA City ZIP Code
+# Data Source: ACS DP05 5-year estimates 2018-22
 
 ##### Set Up Workspace #####
 library(dplyr)
@@ -35,7 +36,7 @@ race<-dbGetQuery(con, "SELECT * FROM acs_5yr_dp05_multigeo_2022 WHERE geolevel =
 
 ##### Calculate Race rates at ZIP Code level ####
 
-# Take race data and filter for only tracts and zipcodes in LA County
+# Take race data and filter for only zipcodes in LA City
 
 race<-race%>%
   filter(geoid %in% la_zips)
@@ -127,9 +128,9 @@ table_name <- "rates_race"
 
 # push to postgres
 
-dbWriteTable(con,  table_name, df,
-             overwrite = TRUE, row.names = FALSE,
-             field.types = charvect)
+# dbWriteTable(con,  table_name, df,
+#              overwrite = TRUE, row.names = FALSE,
+#              field.types = charvect)
 
 # add meta data
 
@@ -175,4 +176,4 @@ COMMENT ON COLUMN rates_race.nhpi_pct_cv IS 'Percentage of population that is NH
 ")
 
 # send table comment + column metadata
-dbSendQuery(conn = con, table_comment)
+# dbSendQuery(conn = con, table_comment)
