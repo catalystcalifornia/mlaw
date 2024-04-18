@@ -1,6 +1,7 @@
 # MLAW LA City Equity Index
-# Diabetes rates by zip code for LA City
-
+# Diabetes hospitalization rates by zip code for LA City
+# Data Source: HCAI/OSHPD Patient Discharge database 2017-21
+# Diabetes Hospitalizations/discharges by Patient ZIP. Includes all E11.xx codes. Hospitalizatons for principal diagnosis of diabetes only
 
 ##### Set Up Workspace #####
 library(dplyr)

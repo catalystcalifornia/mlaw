@@ -1,6 +1,8 @@
 # MLAW LA City Equity Index
-# Gun injury rates per 10K by zip code for LA City
-
+# Gun injury (non-fatal) rates per 10K by zip code for LA City
+# Data Source: HCAI/OSHPD Patient Discharge database 2017-21
+# Principal External Cause Code Gun Injury with a Disposition not Died/Expired (NonFatal Gun Injuries)., By Patient ZIP Code.  
+# Includes Code Y38.4 and all codes under X94, W32, W33, W34, X72, X73, X74, X93, X95, Y22, Y23, Y35
 
 ##### Set Up Workspace #####
 library(dplyr)
