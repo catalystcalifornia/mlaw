@@ -25,6 +25,7 @@ drv <- dbDriver("PostgreSQL")
 
 # Read in tables from postgres
 
+# LA City limited census tracts
 library(rgdal)
 # I save the 2010 LA city census tracts in the W drive: W:\Data\Geographies\LA City\Census_Tracts_2010_Population
 # Downloaded from: https://geohub.lacity.org/datasets/lahub::census-tracts-2010-population/explore
@@ -41,7 +42,13 @@ tracts<-st_as_sf(tracts)%>%
 # create vector of la city tracts for filtering later:
 la_tracts<-tracts$ct_geoid
 
-zcta<-st_read(con, query="SELECT * FROM crosswalk_zip_city_2022") #LA City zips
+# Full LA County tracts to have a complete join with ZIP Code geos
+# if we just use the city cut tracts that we miss out on tracts that intersect with part of ZIP Codes included
+library(tigris)
+la_county_tracts <- tracts(state = "CA", county = "Los Angeles", cb = TRUE, year = 2010)
+
+# LA City zips
+zcta<-st_read(con, query="SELECT * FROM crosswalk_zip_city_2022") 
 
 # create vector of la city zipcodes for filtering later:
 la_zips<-zcta$zipcode
@@ -60,33 +67,48 @@ ces<-st_read(con, query= "SELECT * FROM oehha_ces4_tract_2021")
 #####Prep CES data----------------------
 
 # Filter CES data for only tracts in LA City based on 2010 tracts
+# commenting out old join
+# ces<-ces%>%
+#   filter(ct_geoid %in% la_tracts)
 
-ces<-ces%>%
-  filter(ct_geoid %in% la_tracts)
+# Intersect LA City ZIPs to full LA County tracts
+zcta<-st_transform(zcta,3310)
+la_county_tracts<-st_transform(la_county_tracts,3310)
 
+tract_zip<-st_intersection(zcta,la_county_tracts)
+
+# check intersect
+library(mapview)
+mapview(tract_zip)+mapview(zcta)
+# intersect looks good
+
+# get unique tracts
+tract_zip<-tract_zip%>%mutate(ct_geoid=substr(GEO_ID, 10,20))
+la_tracts_list<-unique(tract_zip$ct_geoid) # shorter geoid for ces join
+la_tracts_list_long<-unique(tract_zip$GEO_ID) # longer geoid for joining back to ct shps
 
 ###Rescale the polburdp indicator so that the percentile is at the LA City tract level---------------------
-
-# Now perform a percentile rank of the CES indicators that are within LA County
-## NOTE the other indicators are raw values, not percentiles, and thus do not need to be rescaled
+ces<-ces%>%
+  filter(ct_geoid %in% la_tracts_list)
 
 ces<-ces%>%
   mutate(polburdp = percent_rank(polburdp))
 
-# Select columns of interest
+# Now perform a percentile rank of the CES indicators that are within LA County
+## NOTE the other indicators are raw values, not percentiles, and thus do not need to be rescaled
 
+# Select columns of interest
 ces<-ces%>%
   select(ct_geoid, pm2_5, polburdp, drinkwat, hazwaste, tox_rel)
 
 ### Create xwalk of zctas to tracts --------------------
 
 # code from xwalk function from RC:  W:\Project\RACE COUNTS\2023_v5\API\arei_city_county_district_table.R 
-
-tract_3310 <- st_transform(tracts, 3310) # change projection to 3310
+tract_3310 <- la_county_tracts%>%filter(GEO_ID %in% la_tracts_list_long) # filter just for tracts intersecting with LA City Zips
+tract_3310<-st_transform(tract_3310, 3310) # change projection to 3310
 zcta_3310 <- st_transform(zcta, 3310) # change projection to 3310
 
 # calculate area of tracts and zctas
-
 tract_3310$tract_area <- st_area(tract_3310)
 zcta_3310$zcta_area <- st_area(zcta_3310)
 
@@ -111,7 +133,7 @@ tract_zcta <- as.data.frame(tract_zcta)
 
 xwalk <- tract_zcta%>%
   st_drop_geometry()%>%   # don't need this to be a spatial df anymore
-  select(zipcode, ct_geoid, zcta_area, tract_area, intersect_area, prc_tract_area, prc_zcta_area)
+  select(zipcode, GEO_ID, zcta_area, tract_area, intersect_area, prc_tract_area, prc_zcta_area)
 
 
 # Join zcta-tract xwalk to CES data---------------------
@@ -119,7 +141,7 @@ xwalk <- tract_zcta%>%
 # we will use the Unfiltered xwalk for now
 
 df<-ces%>%
-  left_join(xwalk)%>%
+  left_join(xwalk%>%mutate(ct_geoid=substr(GEO_ID, 10,20)))%>%
   select(-geometry)%>%
   as.data.frame()
 
@@ -174,7 +196,7 @@ names(charvect) <- colnames(df)
 
 # push to postgres
 
-# dbWriteTable(con,  "rates_ces", df, 
+# dbWriteTable(con,  "rates_ces", df,
 #              overwrite = TRUE, row.names = FALSE,
 #              field.types = charvect)
 
