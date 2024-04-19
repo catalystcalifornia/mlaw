@@ -1,5 +1,7 @@
 # MLAW LA City Equity Index
 # Arrest rates by zip code for LA City
+# Data Source: LAPD Arrest Data
+# Link: https://data.lacity.org/Public-Safety/Arrest-Data-from-2020-to-Present/amvf-fr72/about_data
 
 
 ##### Set Up Workspace #####
@@ -67,51 +69,61 @@ arrests_zips <- arrests_sf %>% st_join(zips)
 sum(is.na(arrests_zips$zipcode)) #569 stops don't join, use reporting district for these
 
 # point to polygon join result
-arrests_zips_point <- arrests_sf %>% st_join(zips)%>%filter(!is.na(zipcode))%>%st_drop_geometry%>%select(-gid,-prc_zip_area,-city)
+arrests_zips_point <- arrests_sf %>% st_join(zips)%>%filter(!is.na(zipcode))%>%select(-gid,-prc_zip_area,-city)
+
+# check where these points are, are they only in LA City boundaries or extend to other areas of the ZIP Codes?
+library(mapview)
+mapview(arrests_zips_point)+mapview(zips)
+# they are pretty focused in LA City so keep adjustment for percent of LA City ZIP Code in city boundary
 
 ###### Polygon to polygon join ----
 # arrests that need a polygon to polygon join
-arrests_zips_rep <- arrests_sf %>% st_join(zips)%>%filter(is.na(zipcode))%>%select(-zipcode,-city,-prc_zip_area,-gid)%>%st_drop_geometry
+arrests_zips_rep <- arrests_sf %>% st_join(zips)%>%filter(is.na(zipcode))%>%select(-zipcode,-city,-prc_zip_area,-gid)
 
+# check where these are and if they need to be joined
+mapview(arrests_zips_rep)+mapview(zips)
+# they are on the borders or in other cities so omit
+
+# remove special join by reporting district area given most of these are outside of LA City
 # calculate rep distict area
-repdist$area<-st_area(repdist)
+# repdist$area<-st_area(repdist)
+# 
+# # intersect with zips
+# repdist_zip_intersect<-st_intersection(repdist,zips)
+# 
+# # calculate prc overlap
+# repdist_zip_intersect$intersect_area<-st_area(repdist_zip_intersect)
+# repdist_zip_intersect$prc_area<-repdist_zip_intersect$intersect_area/repdist_zip_intersect$area
+# 
+# # reporting districts are pretty small so keep with highest ranked intersect
+# repdist_zip_join<-repdist_zip_intersect %>% mutate(rank=prc_area)%>%group_by(name) %>% top_n(1, rank)
+# 
+# # drop those that barely intersect
+# repdist_zip_join<-repdist_zip_join%>%filter(as.numeric(prc_area)>.20)
+# 
+# # join rep district to zip code join to the arrests missing zip codes after the point to poly join
+# arrests_zips_rep<-arrests_zips_rep%>%
+#   left_join(repdist_zip_join%>%
+#               select(name,zipcode,prc_area),by=c("reporting_district"="name"))%>%
+#   st_drop_geometry%>%
+#   select(-geom_3310,-prc_area)
+# 
+# # check NAs
+# na<-arrests_zips_rep%>%filter(is.na(zipcode))%>%group_by(reporting_district)%>%summarise(count=n())
+# # looking at top frequency ones
+# # 1944 is mainly san fernando area--we could add back in that zip code if we want
+# # 0459 and 0469 are in boyle heights so on the edge of LA City--might want to expand ZIP Codes to 20% again
+# # 1465 is a portion of Ladera
+# sum(na$count) # 242 out of 61,872 arrests don't join. Okay with that rate though want to make sure some parts of the city aren't being ommitted
+# 
+# # calculate counts per zipcode
+# arrests_zips<-rbind(arrests_zips_rep,arrests_zips_point)
 
-# intersect with zips
-repdist_zip_intersect<-st_intersection(repdist,zips)
-
-# calculate prc overlap
-repdist_zip_intersect$intersect_area<-st_area(repdist_zip_intersect)
-repdist_zip_intersect$prc_area<-repdist_zip_intersect$intersect_area/repdist_zip_intersect$area
-
-# reporting districts are pretty small so keep with highest ranked intersect
-repdist_zip_join<-repdist_zip_intersect %>% mutate(rank=prc_area)%>%group_by(name) %>% top_n(1, rank)
-
-# drop those that barely intersect
-repdist_zip_join<-repdist_zip_join%>%filter(as.numeric(prc_area)>.20)
-
-# join rep district to zip code join to the arrests missing zip codes after the point to poly join
-arrests_zips_rep<-arrests_zips_rep%>%
-  left_join(repdist_zip_join%>%
-              select(name,zipcode,prc_area),by=c("reporting_district"="name"))%>%
-  st_drop_geometry%>%
-  select(-geom_3310,-prc_area)
-
-# check NAs
-na<-arrests_zips_rep%>%filter(is.na(zipcode))%>%group_by(reporting_district)%>%summarise(count=n())
-# looking at top frequency ones
-# 1944 is mainly san fernando area--we could add back in that zip code if we want
-# 0459 and 0469 are in boyle heights so on the edge of LA City--might want to expand ZIP Codes to 20% again
-# 1465 is a portion of Ladera
-sum(na$count) # 242 out of 61,872 arrests don't join. Okay with that rate though want to make sure some parts of the city aren't being ommitted
-
-# calculate counts per zipcode
-arrests_zips<-rbind(arrests_zips_rep,arrests_zips_point)
-
-arrests_zips<-arrests_zips%>%group_by(zipcode)%>%summarise(count=n())
+arrests_zips<-arrests_zips_point%>%st_drop_geometry%>%
+  group_by(zipcode)%>%summarise(count=n())
 
 # Rate calc: # arrests per 1K in zipcode---------------------
 df<-arrests_zips%>%left_join(pop,by=c("zipcode"="geoid"))
-# 90095 is UCLA consider dropping from xwalk and 90090 is dodger stadium, but for now make sure to omit from ranks
 
 # join to crosswalk to make sure we scale population to the part of the ZIP in LA City
 df<-df%>%left_join(zips%>%st_drop_geometry%>%select(zipcode,prc_zip_area)  )
@@ -127,10 +139,8 @@ df_final<-df%>%rename(pop=dp05_0001e,arrest_count=count)%>%
 df_final[sapply(df_final, is.infinite)] <- NA
 
 # Calculate percentiles---------------------
-
 df_final<-df_final%>%
-  filter(!is.na(zipcode))%>%
-  mutate(pctile=percent_rank(arrest_rate))%>%
+  mutate(arrest_pctile=percent_rank(arrest_rate))%>%
   rename("geoid"="zipcode")
 
 
@@ -145,7 +155,7 @@ names(charvect) <- colnames(df_final)
 
 # push to postgres
 # dbWriteTable(con,  "rates_arrests", df_final,
-#              overwrite = FALSE, row.names = FALSE,
+#              overwrite = TRUE, row.names = FALSE,
 #              field.types = charvect)
 
 # add meta data
@@ -160,7 +170,7 @@ COMMENT ON COLUMN rates_arrests.arrest_rate IS 'Rate of arrests in the ZIP Code 
 COMMENT ON COLUMN rates_arrests.arrest_count IS 'Total number of arrests in the ZIP Code by LAPD in 2022';
 COMMENT ON COLUMN rates_arrests.pop IS 'Total population in the ZIP Code';
 COMMENT ON COLUMN rates_arrests.pop_cv IS 'Population cv in percent';
-COMMENT ON COLUMN rates_arrests.pctile IS 'Percent rank of the estimate -rate';
+COMMENT ON COLUMN rates_arrests.arrest_pctile IS 'Percent rank of the estimate -rate';
 
 ")
 
