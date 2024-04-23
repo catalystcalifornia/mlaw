@@ -1,0 +1,953 @@
+---
+title: "MLAW Indicator Maps"
+subtitle: "DRAFT"
+author: "Catalyst California"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    css: "W:\\RDA Team\\R\\cc_brandguide.css"
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(comment = FALSE, message = FALSE, warning = FALSE, echo = FALSE
+)
+
+library(RPostgreSQL)
+library(knitr)
+library(dplyr)
+library(sf)
+library(leaflet)
+library(htmltools)
+library(stringr)
+library(rgdal)
+library(rpostgis)
+library(leaflet)
+library(RColorBrewer)
+library(stringr)
+library(scales)
+library(colorspace)
+library(highcharter) 
+library(devtools)
+library(rmapshaper)
+# library(maptools)
+library(rgeos)
+# install.packages("corrplot")
+library(corrplot)
+# install.packages("Hmisc")
+library(Hmisc)
+options(highcharter.theme = hc_theme_smpl(tooltip = list(valueDecimals = 2)))
+options(scipen=999)
+
+source("W:\\RDA Team\\R\\credentials_source.R")
+
+con2 <- connect_to_db("rda_shared_data")
+con <- connect_to_db("eci_mlaw")
+
+# Read in indicator tables
+arrests<-dbGetQuery(con, "SELECT * FROM rates_arrests")
+
+ces<-dbGetQuery(con, "SELECT * FROM rates_ces")
+
+diabetes<-dbGetQuery(con, "SELECT * FROM rates_diabetes")
+
+ecenrollment<-dbGetQuery(con, "SELECT * FROM rates_ecenrollment")
+
+evictions<-dbGetQuery(con, "SELECT * FROM rates_evictions")
+
+groceryaccess<-dbGetQuery(con, "SELECT * FROM rates_groceryaccess")%>%
+   select(geoid, contains("pctile"))
+  
+guninj<-dbGetQuery(con, "SELECT * FROM rates_guninj")
+
+healthservices<-dbGetQuery(con, "SELECT * FROM rates_healthservices")
+
+houseburden<-dbGetQuery(con, "SELECT * FROM rates_rentburden")
+
+lep<-dbGetQuery(con, "SELECT * FROM rates_lep")
+
+percapincome<-dbGetQuery(con, "SELECT * FROM rates_percapincome")%>%
+  rename(percapincome_pctile=pctile)
+
+transitinjury<-dbGetQuery(con, "SELECT * FROM rates_transitinjury")
+
+imperviousland<-dbGetQuery(con, "SELECT * FROM rates_imperviousland")
+
+voterturnout<-dbGetQuery(con, "SELECT * FROM rates_voterturnout")
+
+race<-dbGetQuery(con, "SELECT * FROM rates_race")
+
+# Read in LA city council districts shape
+cd<-st_read(con2, query="SELECT * FROM geographies_la.lacitygeohub_lacity_council_districts_2023", geom="geom")%>%
+  st_transform(4326)%>%
+  ms_simplify()
+
+# Read in la city zipcode xwalk
+zip_xwalk<-st_read(con, query="SELECT * FROM crosswalk_zip_city_2022", geom="geom")%>%
+  st_transform(4326)%>%
+  ms_simplify()
+
+# Read in zcta population data
+pop<-dbGetQuery(con2, "SELECT geoid, dp05_0001e, dp05_0001m FROM demographics.acs_5yr_dp05_multigeo_2022 
+                WHERE geolevel ILIKE 'zcta'")
+
+# join population data with our zipcode crosswalk so we get population estimates in our pop-ups
+pop_zip<-zip_xwalk%>%
+  left_join(pop, by=c("zipcode"="geoid"))%>%
+  rename("pop"="dp05_0001e",
+         "pop_moe"="dp05_0001m")
+
+```
+
+```{r}
+### Prep race data ###
+
+# Calculate percentiles for each race group----------
+
+race<-race%>%
+  mutate(nh_white_pctile=percent_rank(nh_white_pct),
+         nh_black_pctile=percent_rank(nh_black_pct),
+        nh_asian_pctile=percent_rank(nh_asian_pct),
+        aian_pctile=percent_rank(aian_pct),
+        nhpi_pctile=percent_rank(nhpi_pct),
+        latinx_pctile=percent_rank(lat_pct))
+
+# Calculate a bipoc field which is the average of the BIPOC (latinx, nh_asian, nh_black, aian and nhpi) percentiles
+
+race$bipoc_avg_pctile <- rowMeans(race[ ,29:33], na.rm=TRUE)
+# convert to percent rank
+race<-race%>%mutate(bipoc_pctile=percent_rank(bipoc_avg_pctile))
+
+
+```
+
+```{r}
+
+library(Hmisc)
+
+# Join all the tables together and prep-----------
+
+df_all<-pop_zip%>%rename(geoid=zipcode)%>%
+  select(geoid,pop,prc_zip_area)%>%
+  st_drop_geometry
+          
+df_all<-df_all%>%     
+        left_join(select(race,contains("pctile")|contains("geoid")))%>% # race
+
+  left_join(select(transitinjury,contains("pctile")|contains("geoid")))%>% # domain 1
+      left_join(select(guninj,contains("pctile")|contains("geoid")))%>%
+        left_join(select(arrests,contains("pctile")|contains("geoid")))%>%
+        left_join(select(ces,contains("pctile")|contains("geoid")))%>%
+
+        left_join(select(voterturnout,contains("pctile")|contains("geoid")))%>% # domain 2
+        left_join(select(lep,contains("pctile")|contains("geoid")))%>%
+
+    left_join(select(ecenrollment,contains("pctile")|contains("geoid")))%>% # domain 3
+    left_join(select(evictions,contains("pctile")|contains("geoid")))%>%
+         left_join(select(houseburden,contains("pctile")|contains("geoid")))%>%
+      left_join(select(percapincome,contains("pctile")|contains("geoid")))%>%
+  
+  left_join(select(diabetes,contains("pctile")|contains("geoid")))%>% 
+      left_join(select(imperviousland,contains("pctile")|contains("geoid")))%>%
+      left_join(select(healthservices,contains("pctile")|contains("geoid")))%>%
+      left_join(select(groceryaccess,contains("pctile")|contains("geoid")))
+
+# Select columns for correlation and filter out NA values
+df_corr<-df_all%>%filter_at(vars(1:30),all_vars(!is.na(.)))
+
+ # colSums(is.na(df_corr)) # checks out
+
+df_corr<-df_corr%>%
+    select(contains("pctile"),pop)%>%
+  select(-bipoc_avg_pctile)%>%
+  rename("Population"=pop,
+    "BIPOC" = bipoc_pctile,
+    "Latinx " = latinx_pctile,
+    "Black" = nh_black_pctile,
+    "Asian"=nh_asian_pctile,
+    "NHPI"=nhpi_pctile,
+    "AIAN"=aian_pctile,
+    "White" = nh_white_pctile,
+     "PM 2.5" = pm2_5_pctile_adj,
+    "Proximity to Hazards"=hazwaste_pctile_adj,
+    "Contamined Drinking Water" = drinkwat_pctile_adj,
+    "Toxic Releases"=tox_rel_pctile_adj,
+    "Pollution Burden"=polburdp_pctile_adj,
+    "Transit Injury"=transitinj_pctile,
+    "Arrests" = arrest_pctile,
+    "Gun Injury" = guninj_pctile,
+    "Limited English"=lep_pctile,
+    "ECE"=ecenrollment_pctile,
+    "Income"=percapincome_pctile,
+     "Rent Burden" = rentburden_pctile,
+    "Evictions"=eviction_pctile,
+    "Diabetes"=diabetes_pctile,
+     "Health Services"=healthservice_raw_pctile,
+     "Health Services (adj)"=healthservice_adj_pctile,
+    "Grocery Access" = grocery_access_pctile,
+    "Voter Turnout"=voter_turnout_pctile,
+    "Impervious Land"=imperv_pctile)
+
+
+```
+
+```{r}
+
+### Create leaflet map functions for visualizing ####
+
+# Indicator map function ---------------------------------
+
+indicator_map<-function(df,indicator,direction){
+# add color palette for Indicator Percentiles
+
+pctl.bins <-c(0, 20, 40, 60, 80, 100)
+
+pal <- colorBin( palette = c( "#E2D9FF" ,"#BDAFE9",  "#8E7ACA","#362178","#211447"), bins=pctl.bins, na.color = "#9B9A9A")
+
+# create popup: 
+
+popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-height:200px'> <b>ZIP Code:</b> ", df$zipcode, "</br>",
+ "<b>",indicator," Percentile*: ", round(df$pctile,1),"</b></br>",
+ "<b>Population:</b> ", format(df$pop, big.mark=","), "</br>",
+ "</br>",
+
+"<i>*Percentiles range from 0-100. The higher the percentile score, the ", direction," the need.</i>","</br>",
+"</br></div>")
+
+# create custom legend labels
+
+labels <- c(
+  "LOWEST RATE (0-19th Percentile)",
+  "LOW RATE (20-39th Percentile)",
+  "MODERATE RATE (40-59th Percentile)",
+  "HIGH RATE (60-79th Percentile)",
+"HIGHEST RATE (80-100th Percentile)"
+)
+# map
+
+map<-leaflet(width = "100%", height = "600px")%>%
+  
+  # add base map
+addProviderTiles("CartoDB.PositronNoLabels") %>%
+addProviderTiles("CartoDB.PositronOnlyLabels", options = providerTileOptions(pane = "markerPane")) %>%
+
+# add map panes
+addMapPane("indi_pane", zIndex = 400) %>%
+  addMapPane("cd_pane", zIndex = 400) %>%
+  
+  # set view and layer control
+  setView( -118.353860, 34.068717, zoom = 9.5) %>%
+
+  addLayersControl(overlayGroups = c(indicator, "City Council District"), 
+                   options = layersControlOptions(collapsed = FALSE, autoZIndex = TRUE)) %>%
+  
+     # CD layer
+addPolygons(data = cd, fillOpacity=0, color = '#CEEA01', weight = 2.2, label=~district, group = "City Council District", options = pathOptions(pane = "cd_pane", interactive = FALSE), highlight = highlightOptions(color = "white", weight = 3, bringToFront = TRUE))%>%
+  
+  # Indicator layer
+
+  addPolygons(data=df, fillColor = ~pal(df$pctile), color="white", weight = 1, smoothFactor = 0.5, fillOpacity = .80, highlight = highlightOptions(color = "white", weight = 3, bringToFront = TRUE, sendToBack = TRUE), 
+popup = ~popup,
+group = indicator, options = pathOptions(pane = "indi_pane"))%>%
+  
+  # add legend
+  
+addLegend(position = "bottomleft", pal = pal, values = df$pctile, opacity = 1, title = paste0(indicator, " Percentile"), labFormat = function(type, cuts, p){paste0(labels)}) %>%
+ hideGroup("City Council District")
+
+map}
+
+
+
+
+
+
+
+
+
+
+# Index map function ------------------------------
+
+
+index_map<-function(df,indicator,direction){
+# add color palette for Indicator Percentiles
+
+pctl.bins <-c(0, 20, 40, 60, 80, 100)
+
+pal <- colorBin( palette = c( "#E2D9FF" ,"#BDAFE9",  "#8E7ACA","#362178","#211447"), bins=pctl.bins, na.color = "#9B9A9A")
+
+# create popup: 
+
+popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-height:200px'> <b>ZIP Code:</b> ", df$zipcode, "</br>",
+ "<b>",indicator," Percentile*: ", round(df$pctile,1),"</b></br>",
+ "<b>Population:</b> ", format(df$pop, big.mark=","), "</br>",
+ "</br>",
+
+"<i>*Percentiles range from 0-100. The higher the percentile score, the ", direction," the need.</i>","</br>",
+"</br></div>")
+
+# create custom legend labels
+
+labels <- c(
+  "LOWEST NEED (0-19th Percentile)",
+  "LOW NEED (20-39th Percentile)",
+  "MODERATE NEED (40-59th Percentile)",
+  "HIGH NEED (60-79th Percentile)",
+"HIGHEST NEED (80-100th Percentile)"
+)
+# map
+
+map<-leaflet(width = "100%", height = "600px")%>%
+  
+  # add base map
+addProviderTiles("CartoDB.PositronNoLabels") %>%
+addProviderTiles("CartoDB.PositronOnlyLabels", options = providerTileOptions(pane = "markerPane")) %>%
+
+# add map panes
+addMapPane("indi_pane", zIndex = 400) %>%
+  addMapPane("cd_pane", zIndex = 400) %>%
+  
+  # set view and layer control
+  setView( -118.353860, 34.068717, zoom = 9.5) %>%
+
+  addLayersControl(overlayGroups = c(indicator, "City Council District"), 
+                   options = layersControlOptions(collapsed = FALSE, autoZIndex = TRUE)) %>%
+  
+     # CD layer
+addPolygons(data = cd, fillOpacity=0, color = '#CEEA01', weight = 2.2, label=~district, group = "City Council District", options = pathOptions(pane = "cd_pane", interactive = FALSE), highlight = highlightOptions(color = "white", weight = 3, bringToFront = TRUE))%>%
+  
+  # Indicator layer
+
+  addPolygons(data=df, fillColor = ~pal(df$pctile), color="white", weight = 1, smoothFactor = 0.5, fillOpacity = .80, highlight = highlightOptions(color = "white", weight = 3, bringToFront = TRUE, sendToBack = TRUE), 
+popup = ~popup,
+group = indicator, options = pathOptions(pane = "indi_pane"))%>%
+  
+  # add legend
+  
+addLegend(position = "bottomleft", pal = pal, values = df$pctile, opacity = 1, title = paste0(indicator, " Percentile"), labFormat = function(type, cuts, p){paste0(labels)}) %>%
+ hideGroup("City Council District")
+
+map}
+
+
+```
+
+# Overview
+
+# Index Results
+
+## Equity Index
+```{r}
+# colSums(is.na(df_all)) # some NA values
+# Calculate Index ----
+
+# Domain 1 ----
+domain_1<-df_all%>%
+  select(geoid,bipoc_pctile,transitinj_pctile,guninj_pctile,arrest_pctile,pm2_5_pctile_adj,hazwaste_pctile_adj)%>%
+  rowwise%>%
+  mutate(safe_environments_count=sum(!is.na(c_across(where(is.numeric)))),
+         safe_environments_score=sum((c_across(where(is.numeric))))/safe_environments_count)%>%
+  ungroup()
+
+domain_1<-domain_1%>%mutate(safe_environments_pctile=percent_rank(safe_environments_score))
+
+
+# Domain 2 ----
+domain_2<-df_all%>%
+  select(geoid,bipoc_pctile,ecenrollment_pctile,eviction_pctile,rentburden_pctile,percapincome_pctile)%>%
+  mutate(ecenrollment_pctile=ecenrollment_pctile*-1,
+         percapincome_pctile=percapincome_pctile*-1)%>%# reverse scores that represent assets
+  rowwise%>%
+  mutate(econ_opp_count=sum(!is.na(c_across(where(is.numeric)))),
+         econ_opp_score=ifelse(econ_opp_count<2, NA, sum((c_across(where(is.numeric))))/econ_opp_count))%>%
+  ungroup()
+
+domain_2<-domain_2%>%mutate(econ_opp_pctile=percent_rank(econ_opp_score))
+
+# Domain 3 ----
+domain_3<-df_all%>%
+  select(geoid,bipoc_pctile,lep_pctile,voter_turnout_pctile)%>%
+  mutate(voter_turnout_pctile=voter_turnout_pctile*-1)%>%
+  rowwise%>%
+  mutate(democracy_count=sum(!is.na(c_across(where(is.numeric)))),
+         democracy_score=sum((c_across(where(is.numeric))))/democracy_count)%>%
+  ungroup()
+
+domain_3<-domain_3%>%mutate(democracy_pctile=percent_rank(democracy_score))
+
+# Domain 4 ----
+domain_4<-df_all%>%
+  select(geoid,bipoc_pctile,diabetes_pctile,imperv_pctile,healthservice_raw_pctile)%>%
+  mutate(healthservice_raw_pctile=healthservice_raw_pctile*-1)%>%
+  rowwise%>%
+  mutate(longevity_count=sum(!is.na(c_across(where(is.numeric)))),
+         longevity_score=sum((c_across(where(is.numeric))))/longevity_count)%>%
+  ungroup()
+
+domain_4<-domain_4%>%mutate(longevity_pctile=percent_rank(longevity_score))
+
+index<-domain_1%>%left_join(domain_2)%>%left_join(domain_3)%>%left_join(domain_4)
+
+index<-index%>%
+  mutate(index_score=(safe_environments_pctile+econ_opp_pctile+democracy_pctile+longevity_pctile)/3)
+
+index$index_score[is.na(index$safe_environments_pctile)] <- NA
+index$index_score[is.na(index$democracy_pctile)] <- NA
+index$index_score[is.na(index$econ_opp_pctile)] <- NA
+index$index_score[is.na(index$longevity_pctile)] <- NA
+
+index$index_pctile<-percent_rank(index$index_score)
+
+# map index
+# step 1: read in analysis table
+df<-index%>%
+  select(geoid,index_pctile)%>% # narrow columns
+  mutate(pctile=index_pctile*100) # target and mutate your pctile value
+
+# step 2: join analysis table to the zip xwalk with population data
+df<-pop_zip%>%
+  left_join(df%>%select(geoid,pctile), by=c("zipcode"="geoid"))
+
+# step 3: apply map function 
+
+# feed in indicator label for mapping popup and legend and group overlay
+indicator<-paste0("Equity Index")
+direction<-paste0("higher")
+
+index_map(df,indicator,direction)
+
+```
+
+
+## Domain Index {.tabset .tabset-fade}
+
+### Domain 1: Safe Environments 
+
+```{r}
+
+# step 1: read in analysis table
+df<-index%>%
+  select(geoid,safe_environments_pctile)%>% # narrow columns
+  mutate(pctile=safe_environments_pctile*100) # target and mutate your pctile value
+
+# step 2: join analysis table to the zip xwalk with population data
+df<-pop_zip%>%
+  left_join(df%>%select(geoid,pctile), by=c("zipcode"="geoid"))
+
+# step 3: apply map function 
+
+# feed in indicator label for mapping popup and legend and group overlay
+indicator<-paste0("Safe Environments")
+direction<-paste0("higher")
+
+index_map(df,indicator,direction)
+
+```
+
+### Domain 2 Economy and Opportunity
+
+```{r}
+
+# step 1: read in analysis table
+df<-index%>%
+  select(geoid,econ_opp_pctile)%>% # narrow columns
+  mutate(pctile=econ_opp_pctile*100) # target and mutate your pctile value
+
+# step 2: join analysis table to the zip xwalk with population data
+df<-pop_zip%>%
+  left_join(df%>%select(geoid,pctile), by=c("zipcode"="geoid"))
+
+# step 3: apply map function 
+
+# feed in indicator label for mapping popup and legend and group overlay
+indicator<-paste0("Economy and Opportunity")
+direction<-paste0("higher")
+
+index_map(df,indicator,direction)
+
+```
+
+### Domain 3: Democracy and Power
+
+```{r}
+
+# step 1: read in analysis table
+df<-index%>%
+  select(geoid,democracy_pctile)%>% # narrow columns
+  mutate(pctile=democracy_pctile*100) # target and mutate your pctile value
+
+# step 2: join analysis table to the zip xwalk with population data
+df<-pop_zip%>%
+  left_join(df%>%select(geoid,pctile), by=c("zipcode"="geoid"))
+
+# step 3: apply map function 
+
+# feed in indicator label for mapping popup and legend and group overlay
+indicator<-paste0("Democracy and Power")
+direction<-paste0("higher")
+
+index_map(df,indicator,direction)
+
+```
+
+### Domain 4 Longevity and Vitality
+
+```{r}
+
+# step 1: read in analysis table
+df<-index%>%
+  select(geoid,longevity_pctile)%>% # narrow columns
+  mutate(pctile=longevity_pctile*100) # target and mutate your pctile value
+
+# step 2: join analysis table to the zip xwalk with population data
+df<-pop_zip%>%
+  left_join(df%>%select(geoid,pctile), by=c("zipcode"="geoid"))
+
+# step 3: apply map function 
+
+# feed in indicator label for mapping popup and legend and group overlay
+indicator<-paste0("Longevity and Vitality")
+direction<-paste0("higher")
+
+index_map(df,indicator,direction)
+
+```
+
+
+# Indicator Maps 
+
+## Domain 1: Safe Environments
+
+### Indicator maps {.tabset .tabset-fade}
+
+LA City residents will experience safety from pollution, traffic injuries, and harmful policing.
+
+#### PM 2.5
+
+```{r}
+
+# step 1: read in analysis table
+df<-ces%>%
+  select(geoid,pm2_5_pctile_adj)%>% # narrow columns
+  mutate(pctile=pm2_5_pctile_adj*100) # target and mutate your pctile value
+
+# step 2: join analysis table to the zip xwalk with population data
+df<-pop_zip%>%
+  left_join(df%>%select(geoid,pctile), by=c("zipcode"="geoid"))
+
+# step 3: apply map function 
+
+# feed in indicator label for mapping popup and legend and group overlay
+indicator<-paste0("Particulate Matter 2.5")
+direction<-paste0("higher")
+
+indicator_map(df,indicator,direction)
+
+```
+
+#### Proximity to Hazardous Waste Facilities
+
+```{r}
+
+# step 1: read in analysis table
+df<-ces%>%
+  select(geoid,hazwaste_pctile_adj)%>% # narrow columns
+  mutate(pctile=hazwaste_pctile_adj*100) # target and mutate your pctile value
+
+# step 2: join analysis table to the zip xwalk with population data
+df<-pop_zip%>%
+  left_join(df%>%select(geoid,pctile), by=c("zipcode"="geoid"))
+
+# step 3: apply map function 
+
+# feed in indicator label for mapping popup and legend and group overlay
+indicator<-paste0("Hazardous Waste Facilities")
+direction<-paste0("higher")
+
+indicator_map(df,indicator,direction)
+```
+
+#### Pedestrian/Bicyclist Fatalities and Injuries
+
+```{r}
+
+# step 1: read in analysis table
+df<-transitinjury%>%
+  select(geoid,transitinj_pctile)%>% # narrow columns
+  mutate(pctile=transitinj_pctile*100) # target and mutate your pctile value
+
+# step 2: join analysis table to the zip xwalk with population data
+df<-pop_zip%>%
+  left_join(df%>%select(geoid,pctile), by=c("zipcode"="geoid"))
+
+# step 3: apply map function 
+
+# feed in indicator label for mapping popup and legend and group overlay
+indicator<-paste0("Pedestrian/Bicyclist Fatalities/Injuries")
+direction<-paste0("higher")
+
+indicator_map(df,indicator,direction)
+```
+
+#### Arrests
+
+```{r}
+
+# step 1: read in analysis table
+df<-arrests%>%
+  select(geoid,arrest_pctile)%>% # narrow columns
+  mutate(pctile=arrest_pctile*100) # target and mutate your pctile value
+
+# step 2: join analysis table to the zip xwalk with population data
+df<-pop_zip%>%
+  left_join(df%>%select(geoid,pctile), by=c("zipcode"="geoid"))
+
+# step 3: apply map function 
+
+# feed in indicator label for mapping popup and legend and group overlay
+indicator<-paste0("Arrests")
+direction<-paste0("higher")
+
+indicator_map(df,indicator,direction)
+```
+
+#### Gun Injuries
+
+```{r}
+
+# step 1: read in analysis table
+df<-guninj%>%
+  select(geoid,guninj_pctile)%>% # narrow columns
+  mutate(pctile=guninj_pctile*100) # target and mutate your pctile value
+
+# step 2: join analysis table to the zip xwalk with population data
+df<-pop_zip%>%
+  left_join(df%>%select(geoid,pctile), by=c("zipcode"="geoid"))
+
+# step 3: apply map function 
+
+# feed in indicator label for mapping popup and legend and group overlay
+indicator<-paste0("Gun Injuries")
+direction<-paste0("higher")
+
+indicator_map(df,indicator,direction)
+
+```
+
+
+### Correlations
+
+```{r, fig.width=8, fig.height=8}
+
+df_1<-df_corr%>%select(1:7,8:15)
+
+mydata.cor2 = round(cor(df_1, method="spearman"),1)
+
+testRes2 = cor.mtest(df_1, method="spearman", conf.level = 0.95,exact=FALSE)
+
+corrplot(round(mydata.cor2,1), type='full', p.mat=testRes2$p, insig='blank', diag=FALSE)
+
+# based on results using pm 2.5 (more correlated with Black pctile) and proximity to hazards (more correlated with AIAN and NHPI, Asian and Latinx). Not using toxic releases because map seems heavily influenced by one facility likely closer to South LA.
+
+
+
+```
+
+
+## Domain 2: Economy and Opportunity
+
+LA City residents will have the opportunity to equitably engage in the economy.
+
+### Indicator maps {.tabset .tabset-fade}
+
+#### Early Childhood Education Enrollment
+
+```{r}
+
+# step 1: read in analysis table
+df<-ecenrollment%>%
+  select(geoid,ecenrollment_pctile)%>% # narrow columns
+  mutate(pctile=ecenrollment_pctile*100) # target and mutate your pctile value
+
+# step 2: join analysis table to the zip xwalk with population data
+df<-pop_zip%>%
+  left_join(df%>%select(geoid,pctile), by=c("zipcode"="geoid"))
+
+# step 3: apply map function 
+
+# feed in indicator label for mapping popup and legend and group overlay
+indicator<-paste0("ECE Enrollment Rates")
+direction<-paste0("lower")
+
+indicator_map(df,indicator,direction)
+
+```
+
+#### Rent Burden
+
+```{r}
+
+# step 1: read in analysis table
+df<-houseburden%>%
+  select(geoid,rentburden_pctile)%>% # narrow columns
+  mutate(pctile=rentburden_pctile*100) # target and mutate your pctile value
+
+# step 2: join analysis table to the zip xwalk with population data
+df<-pop_zip%>%
+  left_join(df%>%select(geoid,pctile), by=c("zipcode"="geoid"))
+
+# step 3: apply map function 
+
+# feed in indicator label for mapping popup and legend and group overlay
+indicator<-paste0("Rent Burden")
+direction<-paste0("higher")
+
+indicator_map(df,indicator,direction)
+
+```
+
+#### Evictions
+
+```{r}
+
+# step 1: read in analysis table
+df<-evictions%>%
+  select(geoid,eviction_pctile)%>% # narrow columns
+  mutate(pctile=eviction_pctile*100) # target and mutate your pctile value
+
+# step 2: join analysis table to the zip xwalk with population data
+df<-pop_zip%>%
+  left_join(df%>%select(geoid,pctile), by=c("zipcode"="geoid"))
+
+# step 3: apply map function 
+
+# feed in indicator label for mapping popup and legend and group overlay
+indicator<-paste0("Eviction Rates")
+direction<-paste0("higher")
+
+indicator_map(df,indicator,direction)
+
+```
+
+#### Per Capita Income
+
+```{r}
+
+# step 1: read in analysis table
+df<-percapincome%>%
+  select(geoid,percapincome_pctile)%>% # narrow columns
+  mutate(pctile=percapincome_pctile*100) # target and mutate your pctile value
+
+# step 2: join analysis table to the zip xwalk with population data
+df<-pop_zip%>%
+  left_join(df%>%select(geoid,pctile), by=c("zipcode"="geoid"))
+
+# step 3: apply map function 
+
+# feed in indicator label for mapping popup and legend and group overlay
+indicator<-paste0("Per Capita Income")
+direction<-paste0("lower")
+
+indicator_map(df,indicator,direction)
+
+```
+
+
+### Correlations
+
+```{r, fig.width=8, fig.height=8}
+
+df_2<-df_corr%>%select(1:7,18:21)
+
+mydata.cor2 = round(cor(df_2, method="spearman"),1)
+
+testRes2 = cor.mtest(df_2, method="spearman", conf.level = 0.95,exact=FALSE)
+
+corrplot(round(mydata.cor2,1), type='full', p.mat=testRes2$p, insig='blank', diag=FALSE)
+
+```
+
+## Domain 3: Democracy and Power 
+
+LA City residents will have the opportunity to equitably participate and influence democracy.
+
+### Indicator maps {.tabset .tabset-fade}
+ 
+#### Limited English Speaking Households
+
+```{r}
+
+# step 1: read in analysis table
+df<-lep%>%
+  select(geoid,lep_pctile)%>% # narrow columns
+  mutate(pctile=lep_pctile*100) # target and mutate your pctile value
+
+# step 2: join analysis table to the zip xwalk with population data
+df<-pop_zip%>%
+  left_join(df%>%select(geoid,pctile), by=c("zipcode"="geoid"))
+
+# step 3: apply map function 
+
+# feed in indicator label for mapping popup and legend and group overlay
+indicator<-paste0("Limited English Speaking Households")
+direction<-paste0("higher")
+
+indicator_map(df,indicator,direction)
+
+```
+
+
+#### Voter Turnout
+
+```{r}
+
+# step 1: read in analysis table
+df<-voterturnout%>%
+  select(geoid,voter_turnout_pctile)%>% # narrow columns
+  mutate(pctile=voter_turnout_pctile*100) # target and mutate your pctile value
+
+# step 2: join analysis table to the zip xwalk with population data
+df<-pop_zip%>%
+  left_join(df%>%select(geoid,pctile), by=c("zipcode"="geoid"))
+
+# step 3: apply map function 
+
+# feed in indicator label for mapping popup and legend and group overlay
+indicator<-paste0("Voter Turnout")
+direction<-paste0("lower")
+
+indicator_map(df,indicator,direction)
+
+```
+
+
+### Correlations
+
+```{r, fig.width=8, fig.height=8}
+
+df_3<-df_corr%>%select(1:7,16:17)
+
+mydata.cor2 = round(cor(df_3, method="spearman"),1)
+
+testRes2 = cor.mtest(df_3, method="spearman", conf.level = 0.95,exact=FALSE)
+
+corrplot(round(mydata.cor2,1), type='full', p.mat=testRes2$p, insig='blank', diag=FALSE)
+
+```
+
+## Domain 4: Longevity and Vitality
+
+### Indicator maps {.tabset .tabset-fade}
+
+LA City residents will live with with freedom from disease and illness, and have the ability to access resources that increase community wellness.
+
+#### Diabetes Hospitalizations
+
+```{r}
+
+# step 1: read in analysis table
+df<-diabetes%>%
+  select(geoid,diabetes_pctile)%>% # narrow columns
+  mutate(pctile=diabetes_pctile*100) # target and mutate your pctile value
+
+# step 2: join analysis table to the zip xwalk with population data
+df<-pop_zip%>%
+  left_join(df%>%select(geoid,pctile), by=c("zipcode"="geoid"))
+
+# step 3: apply map function 
+
+# feed in indicator label for mapping popup and legend and group overlay
+indicator<-paste0("Diabetes Hospitalizations")
+direction<-paste0("higher")
+
+indicator_map(df,indicator,direction)
+
+```
+
+#### Impervious Land Cover
+
+```{r}
+
+# step 1: read in analysis table
+df<-imperviousland%>%
+  select(geoid,imperv_pctile)%>% # narrow columns
+  mutate(pctile=imperv_pctile*100) # target and mutate your pctile value
+
+# step 2: join analysis table to the zip xwalk with population data
+df<-pop_zip%>%
+  left_join(df%>%select(geoid,pctile), by=c("zipcode"="geoid"))
+
+# step 3: apply map function 
+
+# feed in indicator label for mapping popup and legend and group overlay
+indicator<-paste0("Impervious Land Cover")
+direction<-paste0("higher")
+
+indicator_map(df,indicator,direction)
+
+```
+
+#### Health/Mental Health Care Services
+
+```{r}
+
+# step 1: read in analysis table
+df<-healthservices%>%
+  select(geoid,healthservice_adj_pctile)%>% # narrow columns
+  mutate(pctile=healthservice_adj_pctile*100) # target and mutate your pctile value
+
+# step 2: join analysis table to the zip xwalk with population data
+df<-pop_zip%>%
+  left_join(df%>%select(geoid,pctile), by=c("zipcode"="geoid"))
+
+# step 3: apply map function 
+
+# feed in indicator label for mapping popup and legend and group overlay
+indicator<-paste0("Health/Mental Health Care Services")
+direction<-paste0("lower")
+
+indicator_map(df,indicator,direction)
+
+```
+
+#### Grocery Store Access
+
+```{r}
+
+# step 1: read in analysis table
+df<-groceryaccess%>%
+  select(geoid,grocery_access_pctile)%>% # narrow columns
+  mutate(pctile=grocery_access_pctile*100) # target and mutate your pctile value
+
+# step 2: join analysis table to the zip xwalk with population data
+df<-pop_zip%>%
+  left_join(df%>%select(geoid,pctile), by=c("zipcode"="geoid"))
+
+# step 3: apply map function 
+
+# feed in indicator label for mapping popup and legend and group overlay
+indicator<-paste0("Grocery Store Access")
+direction<-paste0("lower")
+
+indicator_map(df,indicator,direction)
+
+```
+
+
+### Correlations
+```{r, fig.width=8, fig.height=8}
+df_4<-df_corr%>%select(1:7,22:24, 26)
+
+mydata.cor2 = round(cor(df_4, method="spearman"),1)
+
+testRes2 = cor.mtest(df_4, method="spearman", conf.level = 0.95,exact=FALSE)
+
+corrplot(round(mydata.cor2,1), type='full', p.mat=testRes2$p, insig='blank', diag=FALSE)
+
+```
+
+
+
