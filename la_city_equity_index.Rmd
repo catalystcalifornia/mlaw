@@ -329,7 +329,24 @@ map}
 
 # Overview
 
+The following includes recommended indicators for the City of Los Angeles' Equity Index. These recommendations are informed by the MLAW Coalition's community survey, partner priorities, Catalyst California's past work, current indicators under consideration by the city, and Catalyst California's analysis of available data.
+
+The proposed Equity Index is structured around four domains each intended to illustrate what an equitable city should look like for all people.
+
+**Safe Environments**: LA City residents experience safe environments with safety from pollution, traffic injuries, and harmful policing.
+**Economy and Opportunity**: LA City residents have the opportunity to equitably engage in the economy.
+**Democracy and Power**: LA City residents have the opportunity to equitably participate and influence democracy.
+**Longevity and Vitality**: LA City live with with freedom from disease and illness, and have the ability to access resources that increase community wellness.
+
+The proposed **LA City Equity Index** represents the average across these four domains. It provides one summarized measure of need for each ZIP Code in LA City.
+
+There are two to five **indicators** included within each domain. A race composite measure is additionally included in each domain to firmly acknowledge the deep-seated role of racism in shaping opportunities and outcomes in the city. This race composite measure takes into the share of the population in each ZIP Code that identifies as Asian, Black, Latine, American Indian and Alaska Native, or Native Hawaiian and Pacific Islander.
+
+In sum, 15 indicators are included in the index. Over 20 indicators were originally considered for inclusion. Indicators were narrowed based on data availability, community surveys, partner feedback, and indicator variety (e.g., having a variety of indicators in economy and opportunity, rather than only indicators related to housing or jobs.). The following page details the analysis done for the indicators studied for the index. It includes individual maps for every indicator by domain and graphics illustrating the relationship, or correlation, between indicators in each domain.
+
 # Index Results
+
+We first present the final draft **Equity Index** map showing level of need by ZIP Code in LA City. The Equity Index represents the average need across the four index domains. The darker purple areas represent areas in the city with higher need whereas lighter purple areas have relatively lower need.
 
 ## Equity Index
 ```{r}
@@ -415,20 +432,15 @@ index_map(df,indicator,direction)
 ```
 
 
-## Domain-Level Indices {.tabset .tabset-fade}
+## Domain Indices {.tabset .tabset-fade}
+
+In addition to the **Equity Index** score, each ZIP Code has four scores that show level of need by domain. Domain scores are the average need across the indicators included in each domain. The darker purple areas show areas in the city with relatively higher need in that domain.
 
 ### Safe Environments 
 
-Safe Environments: LA City residents will experience safety from pollution, traffic injuries, and harmful policing.
+**What this domain means:**LA City residents experience safety from pollution, traffic injuries, and harmful policing.
 
-This domain score includes the following indicators:
-
-* Race Composite Score (Black, Latine, AIAN, NHPI, Asian)
-* Particulate Matter 2.5
-* Proximity to Hazardous Waste Facilities
-* Pedestrian and Bicyclist Fatalities and Injuries
-* Arrests
-* Hospitalizations for Gun Injuries
+**What it includes:** Race Composite Score (Black, Latine, AIAN, NHPI, Asian); Particulate Matter 2.5; Proximity to Hazardous Waste Facilities; Pedestrian and Bicyclist Fatalities and Injuries; Arrests; Hospitalizations for Gun Injuries
 
 ```{r}
 
@@ -453,15 +465,9 @@ index_map(df,indicator,direction)
 
 ### Economy and Opportunity
 
-Economy and Opportunity: LA City residents will have the opportunity to equitably engage in the economy.
+**What this domain means:** LA City residents have the opportunity to equitably engage in the economy.
 
-This domain score includes the following indicators:
-
-* Race Composite Score (Black, Latine, AIAN, NHPI, Asian)
-* Early Childhood Education (ECE) Enrollment
-* Rent Burden
-* Evictions
-* Per Capita Income
+**What it includes:** Race Composite Score (Black, Latine, AIAN, NHPI, Asian); Early Childhood Education (ECE) Enrollment; Rent Burden; Evictions; Per Capita Income
 
 ```{r}
 
@@ -486,13 +492,9 @@ index_map(df,indicator,direction)
 
 ### Democracy and Power
 
-Democracy and Power: LA City residents will have the opportunity to equitably participate and influence democracy.
+**What this domain means:** LA City residents have the opportunity to equitably participate and influence democracy.
 
-This domain score includes the following indicators:
-
-* Race Composite Score (Black, Latine, AIAN, NHPI, Asian)
-* Limited English Speaking Households
-* Voter Turnout for the 2022 General Election
+**What it includes:** Race Composite Score (Black, Latine, AIAN, NHPI, Asian); Limited English Speaking Households; Voter Turnout for the 2022 General Election
 
 ```{r}
 
@@ -517,15 +519,9 @@ index_map(df,indicator,direction)
 
 ### Longevity and Vitality
 
-Longevity and Vitality: LA City residents will live with with freedom from disease and illness, and have the ability to access resources that increase community wellness.
+**What this domain means:** LA City residents live with with freedom from disease and illness, and have the ability to access resources that increase community wellness.
 
-This domain score includes the following indicators:
-
-* Race Composite Score (Black, Latine, AIAN, NHPI, Asian)
-* Diabetes Hospitalizations
-* Impervious Land Cover
-* Health and Mental Health Care Services Access
-* Grocery Store Access
+**What it includes:** Race Composite Score (Black, Latine, AIAN, NHPI, Asian); Diabetes Hospitalizations; Impervious Land Cover; Health and Mental Health Care Services Access; Grocery Store Access
 
 ```{r}
 
@@ -551,11 +547,15 @@ index_map(df,indicator,direction)
 
 # Indicator Maps 
 
+We separately visualize the indicators included in each domain to verify if the indicator and method used accurately measures need across the city and ground-truth trends. We also test each indicator for it's relationship to race and other indicators in the domain. 
+
 ## Domain 1: Safe Environments
 
-LA City residents will experience safety from pollution, traffic injuries, and harmful policing.
+LA City residents experience safety from pollution, traffic injuries, and harmful policing.
 
 ### Maps {.tabset .tabset-fade}
+
+The maps show ZIP Codes by *lowest to highest rates* for each indicator. Darker purple areas show areas with *higher rates* for that particular indicator whereas lighter purple areas show areas with *lower rates* for that indicator. Darker purple means greater need in challenge-based indicators (e.g., pollution burden), but lower need in strength-based indicators (e.g., per capita income).
 
 #### PM 2.5
 
@@ -579,8 +579,9 @@ direction<-paste0("higher")
 indicator_map(df,indicator,direction)
 
 ```
+Data Source: CalEnviroScreen 4.0, 2021.
 
-#### Proximity to Hazardous Waste Facilities
+#### Proximity to Hazards
 
 ```{r}
 
@@ -601,8 +602,9 @@ direction<-paste0("higher")
 
 indicator_map(df,indicator,direction)
 ```
+Data Source: CalEnviroScreen 4.0, 2021.
 
-#### Pedestrian/Bicyclist Fatalities and Injuries
+#### Transit Injuries
 
 ```{r}
 
@@ -623,6 +625,7 @@ direction<-paste0("higher")
 
 indicator_map(df,indicator,direction)
 ```
+Data Source: California Statewide Integrated Traffic Records System (SWITRS), 2022.
 
 #### Arrests
 
@@ -645,6 +648,7 @@ direction<-paste0("higher")
 
 indicator_map(df,indicator,direction)
 ```
+Data Source:Los Angeles Police Department, Arrest Data, 2022.
 
 #### Gun Injuries
 
@@ -668,9 +672,13 @@ direction<-paste0("higher")
 indicator_map(df,indicator,direction)
 
 ```
-
+Data Source: CA OSHPD Patient Discharge Data, 2017-2021.
 
 ### Correlations
+
+This matrix shows the relationship between every indicator in the domain. Larger and darker blue circles represent indicators with greater positive relationships--meaning as one rate goes up, so does the other. Larger and darker red circles show which indicators have a negative relationship--meaning as a measure for one indicator goes up, the other goes down. Many indicators are correlated with at least one BIPOC group, meaning as need in an area goes up, so does the rate of BIPOC people in at least one group. Inversely, many indicators that show need are inversely correlated with the share of White people.
+
+In this domain, we recommend including PM 2.5 and proximity to hazards to measure pollution burden given their stronger correlations with different BIPOC groups over other pollution burden indicators explored.
 
 ```{r, fig.width=8, fig.height=8}
 
@@ -691,9 +699,11 @@ corrplot(round(mydata.cor2,1), type='full', p.mat=testRes2$p, insig='blank', dia
 
 ## Domain 2: Economy and Opportunity
 
-LA City residents will have the opportunity to equitably engage in the economy.
+LA City residents have the opportunity to equitably engage in the economy.
 
 ### Maps {.tabset .tabset-fade}
+
+The maps show ZIP Codes by *lowest to highest rates* for each indicator. Darker purple areas show areas with *higher rates* for that particular indicator whereas lighter purple areas show areas with *lower rates* for that indicator. Darker purple means greater need in challenge-based indicators (e.g., pollution burden), but lower need in strength-based indicators (e.g., per capita income).
 
 #### Early Childhood Education (ECE) Enrollment
 
@@ -790,6 +800,8 @@ indicator_map(df,indicator,direction)
 
 ### Correlations
 
+This matrix shows the relationship between every indicator in the domain. Larger and darker blue circles represent indicators with greater positive relationships--meaning as one rate goes up, so does the other. Larger and darker red circles show which indicators have a negative relationship--meaning as a measure for one indicator goes up, the other goes down. Many indicators are correlated with at least one BIPOC group, meaning as need in an area goes up, so does the rate of BIPOC people in at least one group. Inversely, many indicators that show need are inversely correlated with the share of White people. Per capita income, one asset-based indicator, is positively correlated with the share of White people, but strongly negatively correlated with most BIPOC groups.
+
 ```{r, fig.width=8, fig.height=8}
 
 df_2<-df_corr%>%select(1:7,18:21)
@@ -807,7 +819,9 @@ corrplot(round(mydata.cor2,1), type='full', p.mat=testRes2$p, insig='blank', dia
 LA City residents will have the opportunity to equitably participate and influence democracy.
 
 ### Maps {.tabset .tabset-fade}
- 
+
+The maps show ZIP Codes by *lowest to highest rates* for each indicator. Darker purple areas show areas with *higher rates* for that particular indicator whereas lighter purple areas show areas with *lower rates* for that indicator. Darker purple means greater need in challenge-based indicators (e.g., pollution burden), but lower need in strength-based indicators (e.g., per capita income).
+
 #### Limited English Speaking Households
 
 ```{r}
@@ -858,6 +872,8 @@ indicator_map(df,indicator,direction)
 
 ### Correlations
 
+This matrix shows the relationship between every indicator in the domain. Larger and darker blue circles represent indicators with greater positive relationships--meaning as one rate goes up, so does the other. Larger and darker red circles show which indicators have a negative relationship--meaning as a measure for one indicator goes up, the other goes down. Limited English speaking households is strongly correlated with BIPOC groups, particularly Latinx and AIAN, while voter turnout is strongly correlated with White people.
+
 ```{r, fig.width=8, fig.height=8}
 
 df_3<-df_corr%>%select(1:7,16:17)
@@ -875,6 +891,8 @@ corrplot(round(mydata.cor2,1), type='full', p.mat=testRes2$p, insig='blank', dia
 LA City residents will live with with freedom from disease and illness, and have the ability to access resources that increase community wellness.
 
 ### Maps {.tabset .tabset-fade}
+
+The maps show ZIP Codes by *lowest to highest rates* for each indicator. Darker purple areas show areas with *higher rates* for that particular indicator whereas lighter purple areas show areas with *lower rates* for that indicator. Darker purple means greater need in challenge-based indicators (e.g., pollution burden), but lower need in strength-based indicators (e.g., per capita income).
 
 #### Diabetes Hospitalizations
 
