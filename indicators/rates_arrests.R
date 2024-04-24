@@ -74,7 +74,7 @@ arrests_zips_point <- arrests_sf %>% st_join(zips)%>%filter(!is.na(zipcode))%>%s
 # check where these points are, are they only in LA City boundaries or extend to other areas of the ZIP Codes?
 library(mapview)
 mapview(arrests_zips_point)+mapview(zips)
-# they are pretty focused in LA City so keep adjustment for percent of LA City ZIP Code in city boundary
+# they are pretty focused in LA City so consider adjustment for percent of LA City ZIP Code in city boundary
 
 ###### Polygon to polygon join ----
 # arrests that need a polygon to polygon join
@@ -83,41 +83,6 @@ arrests_zips_rep <- arrests_sf %>% st_join(zips)%>%filter(is.na(zipcode))%>%sele
 # check where these are and if they need to be joined
 mapview(arrests_zips_rep)+mapview(zips)
 # they are on the borders or in other cities so omit
-
-# remove special join by reporting district area given most of these are outside of LA City
-# calculate rep distict area
-# repdist$area<-st_area(repdist)
-# 
-# # intersect with zips
-# repdist_zip_intersect<-st_intersection(repdist,zips)
-# 
-# # calculate prc overlap
-# repdist_zip_intersect$intersect_area<-st_area(repdist_zip_intersect)
-# repdist_zip_intersect$prc_area<-repdist_zip_intersect$intersect_area/repdist_zip_intersect$area
-# 
-# # reporting districts are pretty small so keep with highest ranked intersect
-# repdist_zip_join<-repdist_zip_intersect %>% mutate(rank=prc_area)%>%group_by(name) %>% top_n(1, rank)
-# 
-# # drop those that barely intersect
-# repdist_zip_join<-repdist_zip_join%>%filter(as.numeric(prc_area)>.20)
-# 
-# # join rep district to zip code join to the arrests missing zip codes after the point to poly join
-# arrests_zips_rep<-arrests_zips_rep%>%
-#   left_join(repdist_zip_join%>%
-#               select(name,zipcode,prc_area),by=c("reporting_district"="name"))%>%
-#   st_drop_geometry%>%
-#   select(-geom_3310,-prc_area)
-# 
-# # check NAs
-# na<-arrests_zips_rep%>%filter(is.na(zipcode))%>%group_by(reporting_district)%>%summarise(count=n())
-# # looking at top frequency ones
-# # 1944 is mainly san fernando area--we could add back in that zip code if we want
-# # 0459 and 0469 are in boyle heights so on the edge of LA City--might want to expand ZIP Codes to 20% again
-# # 1465 is a portion of Ladera
-# sum(na$count) # 242 out of 61,872 arrests don't join. Okay with that rate though want to make sure some parts of the city aren't being ommitted
-# 
-# # calculate counts per zipcode
-# arrests_zips<-rbind(arrests_zips_rep,arrests_zips_point)
 
 arrests_zips<-arrests_zips_point%>%st_drop_geometry%>%
   group_by(zipcode)%>%summarise(count=n())
@@ -130,7 +95,7 @@ df<-df%>%left_join(zips%>%st_drop_geometry%>%select(zipcode,prc_zip_area)  )
 
 df_final<-df%>%rename(pop=dp05_0001e,arrest_count=count)%>%
   mutate(scaled_pop=pop*prc_zip_area,
-         arrest_rate=arrest_count/scaled_pop*1000,
+         arrest_rate=arrest_count/pop*1000,
          pop_cv=dp05_0001m/1.645/pop*100)%>% # doesn't work to scale down a cv, but pop cv's are stable anyways
   select(zipcode,arrest_rate,arrest_count,scaled_pop,pop,pop_cv)
 # 90071 and 90021 have really high rates, these are in downtown, could be because of location and any events that happened in the area, leave for now since percentile method will reduce the impact of the outlier
@@ -160,7 +125,7 @@ names(charvect) <- colnames(df_final)
 
 # add meta data
 
-table_comment <- paste0("COMMENT ON TABLE rates_arrests  IS 'Rate of arrests in LA City made by LAPD by zipcode for 2022 for entire population. Population in each ZIP Code scaled to the % intersect with LA City. Original data from LAPD arrest data posted on the city open data portal. Arrests joined to ZIP Codes by lat and lon and secondly by reporting district, some arrests do not join, representing less than 1% of arrests
+table_comment <- paste0("COMMENT ON TABLE rates_arrests  IS 'Rate of arrests in LA City made by LAPD by zipcode for 2022 for entire population. Original data from LAPD arrest data posted on the city open data portal. Arrests joined to ZIP Codes by lat and lon and secondly by reporting district, some arrests do not join, representing less than 1% of arrests
 R script: W:\\Project\\ECI\\MLAW\\R\\rates_arrests.R
 QA document: 
 WW:\\Project\\ECI\\MLAW\\Documentation\\QA_rates_arrests.docx';
