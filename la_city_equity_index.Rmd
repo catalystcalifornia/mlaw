@@ -676,7 +676,7 @@ Data Source: CA OSHPD Patient Discharge Data, 2017-2021.
 
 ### Correlations
 
-This matrix shows the relationship between every indicator in the domain. Larger and darker blue circles represent indicators with greater positive relationships--meaning as one rate goes up, so does the other. Larger and darker red circles show which indicators have a negative relationship--meaning as a measure for one indicator goes up, the other goes down. Many indicators are correlated with at least one BIPOC group, meaning as need in an area goes up, so does the rate of BIPOC people in at least one group. Inversely, many indicators that show need are inversely correlated with the share of White people.
+This matrix shows the relationship between every indicator in the domain. Larger and darker blue circles represent indicators with greater positive relationships--meaning as one rate goes up, so does the other. Larger and darker red circles show which indicators have a negative relationship--meaning as a measure for one indicator goes up, the other goes down. Many indicators are correlated with at least one BIPOC group, meaning as need in an area goes up, so does the rate of BIPOC people in at least one group. Inversely, many indicators that show need are inversely correlated with the share of White people. White spaces on the correlation matrix indicate that there is not a significant relationship between the indicators.  
 
 In this domain, we recommend including PM 2.5 and proximity to hazards to measure pollution burden given their stronger correlations with different BIPOC groups over other pollution burden indicators explored.
 
@@ -727,6 +727,7 @@ direction<-paste0("lower")
 indicator_map(df,indicator,direction)
 
 ```
+American Institute for Research, California Child Care Resource & Referral Network, 2020 & 2021. 
 
 #### Rent Burden
 
@@ -750,6 +751,7 @@ direction<-paste0("higher")
 indicator_map(df,indicator,direction)
 
 ```
+U.S. Census Bureau, American Community Survey, B25070, 2018-2022.
 
 #### Evictions
 
@@ -773,6 +775,7 @@ direction<-paste0("higher")
 indicator_map(df,indicator,direction)
 
 ```
+LA City Controller Office, 2023.
 
 #### Per Capita Income
 
@@ -796,11 +799,12 @@ direction<-paste0("lower")
 indicator_map(df,indicator,direction)
 
 ```
+U.S. Census Bureau, American Community Survey, B19301, 2018-2022.
 
 
 ### Correlations
 
-This matrix shows the relationship between every indicator in the domain. Larger and darker blue circles represent indicators with greater positive relationships--meaning as one rate goes up, so does the other. Larger and darker red circles show which indicators have a negative relationship--meaning as a measure for one indicator goes up, the other goes down. Many indicators are correlated with at least one BIPOC group, meaning as need in an area goes up, so does the rate of BIPOC people in at least one group. Inversely, many indicators that show need are inversely correlated with the share of White people. Per capita income, one asset-based indicator, is positively correlated with the share of White people, but strongly negatively correlated with most BIPOC groups.
+This matrix shows the relationship between every indicator in the domain. Larger and darker blue circles represent indicators with greater positive relationships--meaning as one rate goes up, so does the other. Larger and darker red circles show which indicators have a negative relationship--meaning as a measure for one indicator goes up, the other goes down. Many indicators are correlated with at least one BIPOC group, meaning as need in an area goes up, so does the rate of BIPOC people in at least one group. Inversely, many indicators that show need are inversely correlated with the share of White people. Per capita income, one asset-based indicator, is positively correlated with the share of White people, but strongly negatively correlated with most BIPOC groups. White spaces on the correlation matrix indicate that there is not a significant relationship between the indicators.  
 
 ```{r, fig.width=8, fig.height=8}
 
@@ -844,6 +848,7 @@ direction<-paste0("higher")
 indicator_map(df,indicator,direction)
 
 ```
+U.S. Census Bureau, American Community Survey, S1602, 2018-2022.
 
 
 #### Voter Turnout
@@ -868,11 +873,11 @@ direction<-paste0("lower")
 indicator_map(df,indicator,direction)
 
 ```
-
+LA County Registrar Recorder Office, Statewide Redistricting Database, 2022 General Election.
 
 ### Correlations
 
-This matrix shows the relationship between every indicator in the domain. Larger and darker blue circles represent indicators with greater positive relationships--meaning as one rate goes up, so does the other. Larger and darker red circles show which indicators have a negative relationship--meaning as a measure for one indicator goes up, the other goes down. Limited English speaking households is strongly correlated with BIPOC groups, particularly Latinx and AIAN, while voter turnout is strongly correlated with the share of White people.
+This matrix shows the relationship between every indicator in the domain. Larger and darker blue circles represent indicators with greater positive relationships--meaning as one rate goes up, so does the other. Larger and darker red circles show which indicators have a negative relationship--meaning as a measure for one indicator goes up, the other goes down. Limited English speaking households is strongly correlated with BIPOC groups, particularly Latinx and AIAN, while voter turnout is strongly correlated with the share of White people. White spaces on the correlation matrix indicate that there is not a significant relationship between the indicators.  
 
 ```{r, fig.width=8, fig.height=8}
 
@@ -916,6 +921,7 @@ direction<-paste0("higher")
 indicator_map(df,indicator,direction)
 
 ```
+CA OSHPD Patient Discharge Data, 2017-2021.
 
 #### Impervious Land Cover
 
@@ -939,6 +945,7 @@ direction<-paste0("higher")
 indicator_map(df,indicator,direction)
 
 ```
+National Land Cover Database, 2021. 
 
 #### Health/Mental Health Care Services
 
@@ -962,6 +969,7 @@ direction<-paste0("lower")
 indicator_map(df,indicator,direction)
 
 ```
+IRS Exempt Organizations Business Master File, 2024.
 
 #### Grocery Store Access
 
@@ -985,11 +993,12 @@ direction<-paste0("lower")
 indicator_map(df,indicator,direction)
 
 ```
+U.S Census Bureau, County Business Patterns, 2021.
 
 
 ### Correlations
 
-This matrix shows the relationship between every indicator in the domain. Larger and darker blue circles represent indicators with greater positive relationships--meaning as one rate goes up, so does the other. Larger and darker red circles show which indicators have a negative relationship--meaning as a measure for one indicator goes up, the other goes down.
+This matrix shows the relationship between every indicator in the domain. Larger and darker blue circles represent indicators with greater positive relationships--meaning as one rate goes up, so does the other. Larger and darker red circles show which indicators have a negative relationship--meaning as a measure for one indicator goes up, the other goes down. White spaces on the correlation matrix indicate that there is not a significant relationship between the indicators.  
 
 ```{r, fig.width=8, fig.height=8}
 df_4<-df_corr%>%select(1:7,22:24, 26)
