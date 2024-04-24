@@ -1,7 +1,7 @@
 ---
-title: "MLAW Indicator Maps"
+title: "MLAW LA City Equity Index"
 subtitle: "DRAFT"
-author: "Catalyst California"
+author: "Analysis by Catalyst California"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_document:
@@ -261,14 +261,6 @@ addLegend(position = "bottomleft", pal = pal, values = df$pctile, opacity = 1, t
 map}
 
 
-
-
-
-
-
-
-
-
 # Index map function ------------------------------
 
 
@@ -380,11 +372,12 @@ domain_3<-domain_3%>%mutate(democracy_pctile=percent_rank(democracy_score))
 
 # Domain 4 ----
 domain_4<-df_all%>%
-  select(geoid,bipoc_pctile,diabetes_pctile,imperv_pctile,healthservice_raw_pctile)%>%
-  mutate(healthservice_raw_pctile=healthservice_raw_pctile*-1)%>%
+  select(geoid,bipoc_pctile,diabetes_pctile,imperv_pctile,healthservice_raw_pctile,grocery_access_pctile)%>%
+  mutate(healthservice_raw_pctile=healthservice_raw_pctile*-1,
+        grocery_access_pctile=grocery_access_pctile*-1)%>%
   rowwise%>%
   mutate(longevity_count=sum(!is.na(c_across(where(is.numeric)))),
-         longevity_score=sum((c_across(where(is.numeric))))/longevity_count)%>%
+         longevity_score=ifelse(longevity_count<2,NA,sum((c_across(where(is.numeric))))/longevity_count))%>%
   ungroup()
 
 domain_4<-domain_4%>%mutate(longevity_pctile=percent_rank(longevity_score))
@@ -422,9 +415,20 @@ index_map(df,indicator,direction)
 ```
 
 
-## Domain Index {.tabset .tabset-fade}
+## Domain-Level Indices {.tabset .tabset-fade}
 
-### Domain 1: Safe Environments 
+### Safe Environments 
+
+Safe Environments: LA City residents will experience safety from pollution, traffic injuries, and harmful policing.
+
+This domain score includes the following indicators:
+
+* Race Composite Score (Black, Latine, AIAN, NHPI, Asian)
+* Particulate Matter 2.5
+* Proximity to Hazardous Waste Facilities
+* Pedestrian and Bicyclist Fatalities and Injuries
+* Arrests
+* Hospitalizations for Gun Injuries
 
 ```{r}
 
@@ -447,7 +451,17 @@ index_map(df,indicator,direction)
 
 ```
 
-### Domain 2 Economy and Opportunity
+### Economy and Opportunity
+
+Economy and Opportunity: LA City residents will have the opportunity to equitably engage in the economy.
+
+This domain score includes the following indicators:
+
+* Race Composite Score (Black, Latine, AIAN, NHPI, Asian)
+* Early Childhood Education (ECE) Enrollment
+* Rent Burden
+* Evictions
+* Per Capita Income
 
 ```{r}
 
@@ -470,7 +484,15 @@ index_map(df,indicator,direction)
 
 ```
 
-### Domain 3: Democracy and Power
+### Democracy and Power
+
+Democracy and Power: LA City residents will have the opportunity to equitably participate and influence democracy.
+
+This domain score includes the following indicators:
+
+* Race Composite Score (Black, Latine, AIAN, NHPI, Asian)
+* Limited English Speaking Households
+* Voter Turnout for the 2022 General Election
 
 ```{r}
 
@@ -493,7 +515,17 @@ index_map(df,indicator,direction)
 
 ```
 
-### Domain 4 Longevity and Vitality
+### Longevity and Vitality
+
+Longevity and Vitality: LA City residents will live with with freedom from disease and illness, and have the ability to access resources that increase community wellness.
+
+This domain score includes the following indicators:
+
+* Race Composite Score (Black, Latine, AIAN, NHPI, Asian)
+* Diabetes Hospitalizations
+* Impervious Land Cover
+* Health and Mental Health Care Services Access
+* Grocery Store Access
 
 ```{r}
 
@@ -521,9 +553,9 @@ index_map(df,indicator,direction)
 
 ## Domain 1: Safe Environments
 
-### Indicator maps {.tabset .tabset-fade}
-
 LA City residents will experience safety from pollution, traffic injuries, and harmful policing.
+
+### Maps {.tabset .tabset-fade}
 
 #### PM 2.5
 
@@ -564,7 +596,7 @@ df<-pop_zip%>%
 # step 3: apply map function 
 
 # feed in indicator label for mapping popup and legend and group overlay
-indicator<-paste0("Hazardous Waste Facilities")
+indicator<-paste0("Proximity to Hazards")
 direction<-paste0("higher")
 
 indicator_map(df,indicator,direction)
@@ -586,7 +618,7 @@ df<-pop_zip%>%
 # step 3: apply map function 
 
 # feed in indicator label for mapping popup and legend and group overlay
-indicator<-paste0("Pedestrian/Bicyclist Fatalities/Injuries")
+indicator<-paste0("Pedestrian/Bicyclist Fatalities and Injuries")
 direction<-paste0("higher")
 
 indicator_map(df,indicator,direction)
@@ -661,9 +693,9 @@ corrplot(round(mydata.cor2,1), type='full', p.mat=testRes2$p, insig='blank', dia
 
 LA City residents will have the opportunity to equitably engage in the economy.
 
-### Indicator maps {.tabset .tabset-fade}
+### Maps {.tabset .tabset-fade}
 
-#### Early Childhood Education Enrollment
+#### Early Childhood Education (ECE) Enrollment
 
 ```{r}
 
@@ -679,7 +711,7 @@ df<-pop_zip%>%
 # step 3: apply map function 
 
 # feed in indicator label for mapping popup and legend and group overlay
-indicator<-paste0("ECE Enrollment Rates")
+indicator<-paste0("ECE Enrollment")
 direction<-paste0("lower")
 
 indicator_map(df,indicator,direction)
@@ -725,7 +757,7 @@ df<-pop_zip%>%
 # step 3: apply map function 
 
 # feed in indicator label for mapping popup and legend and group overlay
-indicator<-paste0("Eviction Rates")
+indicator<-paste0("Evictions")
 direction<-paste0("higher")
 
 indicator_map(df,indicator,direction)
@@ -774,7 +806,7 @@ corrplot(round(mydata.cor2,1), type='full', p.mat=testRes2$p, insig='blank', dia
 
 LA City residents will have the opportunity to equitably participate and influence democracy.
 
-### Indicator maps {.tabset .tabset-fade}
+### Maps {.tabset .tabset-fade}
  
 #### Limited English Speaking Households
 
@@ -840,9 +872,9 @@ corrplot(round(mydata.cor2,1), type='full', p.mat=testRes2$p, insig='blank', dia
 
 ## Domain 4: Longevity and Vitality
 
-### Indicator maps {.tabset .tabset-fade}
-
 LA City residents will live with with freedom from disease and illness, and have the ability to access resources that increase community wellness.
+
+### Maps {.tabset .tabset-fade}
 
 #### Diabetes Hospitalizations
 
