@@ -872,7 +872,7 @@ indicator_map(df,indicator,direction)
 
 ### Correlations
 
-This matrix shows the relationship between every indicator in the domain. Larger and darker blue circles represent indicators with greater positive relationships--meaning as one rate goes up, so does the other. Larger and darker red circles show which indicators have a negative relationship--meaning as a measure for one indicator goes up, the other goes down. Limited English speaking households is strongly correlated with BIPOC groups, particularly Latinx and AIAN, while voter turnout is strongly correlated with White people.
+This matrix shows the relationship between every indicator in the domain. Larger and darker blue circles represent indicators with greater positive relationships--meaning as one rate goes up, so does the other. Larger and darker red circles show which indicators have a negative relationship--meaning as a measure for one indicator goes up, the other goes down. Limited English speaking households is strongly correlated with BIPOC groups, particularly Latinx and AIAN, while voter turnout is strongly correlated with the share of White people.
 
 ```{r, fig.width=8, fig.height=8}
 
@@ -988,6 +988,9 @@ indicator_map(df,indicator,direction)
 
 
 ### Correlations
+
+This matrix shows the relationship between every indicator in the domain. Larger and darker blue circles represent indicators with greater positive relationships--meaning as one rate goes up, so does the other. Larger and darker red circles show which indicators have a negative relationship--meaning as a measure for one indicator goes up, the other goes down.
+
 ```{r, fig.width=8, fig.height=8}
 df_4<-df_corr%>%select(1:7,22:24, 26)
 
