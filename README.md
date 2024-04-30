@@ -92,19 +92,6 @@ The final set of indicators and the equity index is analyzed at the LA city zipc
 ### Indicator Domains
 
 The final set of indicators are grouped into four conceptual domains:
-* Safe Environments: LA City residents experience safe environments with safety from pollution, traffic injuries, and harmful policing.
-* Economy and Opportunity: LA City residents have the opportunity to equitably engage in the economy.
-* Democracy and Power: LA City residents have the opportunity to equitably participate and influence democracy.
-* Longevity and Vitality: LA City live with with freedom from disease and illness, and have the ability to access resources that increase community wellness.
-
-### Analysis
-
-All indicators are individually analyzed at the zipcode level by calculating the rate of each indicator for each zipcode. A percentile ranking is then measured for each indicator across all of the zipcodes. The higher the indicator percentile ranking is for a zipcode, the higher the rate of a particular indicator is for that zipcode relative to other zipcodes. Percentile rankings are the primary way we determine which zipcodes are "high need" relative to others. Most indicators we use are challenge-based, meaning that the higher the percentile ranking is, the higher the need is. For example, indicators such as rent burden or arrests, we want to observe lower rates of. The higher the rate of rent burden is, the higher the need is. We also use indicators that are asset-based, meaning that the higher the rate is, the better the condition is. An example of this is voter turnout. The higher the rate of voter turnout is, the lower the need is. We adjust asset-based indicators by multiplying the rate with -1. This way, across all indicators, the higher the percentile is, the higher the need is. 
-
-We then take indicators within each conceptual domain and calculate a __domain index__. The domain index is calculated by taking the average of the indicator percentiles within the domain, which we call a domain score, and then calculating a percent ranking of the domain scores to obtain the domain percentiles. For example, the __Democracy and Power Domain Index__ is calculated by first taking the average of the voter turnout, limited english speaking households, and race composite score percentiles within each zipcode to obtain the democracy and power domain score. A percent ranking is then calculated on that average across all the zipcodes to obstain the democracy and power domain percentile. The __Equity Index__ for each zipcode is calculated by taking the average of each of the domain scores for each zipcode. ZIP Codes had to have at least 50% of indicators in a domain to get a domain score and index score.
-
-
-
 
 | Domain                         | Description    | Indicators                                                                                                                                                                                      |
 | ----------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -112,6 +99,14 @@ We then take indicators within each conceptual domain and calculate a __domain i
 | Economy and Opportunity | LA City residents have the opportunity to equitably engage in the economy. | Race Composite Score (Black, Latine, AIAN, NHPI, Asian); Early Childhood Education (ECE) Enrollment; Rent Burden; Evictions; Per Capita Income |           
 | Democracy and Power | LA City residents have the opportunity to equitably participate and influence democracy. | Race Composite Score (Black, Latine, AIAN, NHPI, Asian); Limited English Speaking Households; Voter Turnout for the 2022 General Election | 
 | Longevity and Vitality | LA City residents live with freedom from disease and illness, and have the ability to access resources that increase community wellness. | Race Composite Score (Black, Latine, AIAN, NHPI, Asian); Diabetes Hospitalizations; Impervious Land Cover; Health and Mental Health Care Services Access; Grocery Store Access |
+
+We also calculate a **Race Composite Score** which is the average percentile of the Black, Latine, AIAN, NHPI and Asian population within a zipcode. This is included in all of the domain index calculations and the equity index calculation to ensure that the index incorporates racial equity in the final results.
+
+### Analysis
+
+All indicators are individually analyzed at the zipcode level by calculating the rate of each indicator for each zipcode. A percentile ranking is then measured for each indicator across all of the zipcodes. The higher the indicator percentile ranking is for a zipcode, the higher the rate of a particular indicator is for that zipcode relative to other zipcodes. Percentile rankings are the primary way we determine which zipcodes are "high need" relative to others. Most indicators we use are challenge-based, meaning that the higher the percentile ranking is, the higher the need is. For example, indicators such as rent burden or arrests, we want to observe lower rates of. The higher the rate of rent burden is, the higher the need is. We also use indicators that are asset-based, meaning that the higher the rate is, the better the condition is. An example of this is voter turnout. The higher the rate of voter turnout is, the lower the need is. We adjust asset-based indicators by multiplying the rate with -1. This way, across all indicators, the higher the percentile is, the higher the need is. 
+
+We then take indicators within each conceptual domain and calculate a __domain index__. The domain index is calculated by taking the average of the indicator percentiles within the domain, which we call a domain score, and then calculating a percent ranking of the domain scores to obtain the domain percentiles. For example, the __Democracy and Power Domain Index__ is calculated by first taking the average of the voter turnout, limited english speaking households, and race composite score percentiles within each zipcode to obtain the democracy and power domain score. A percent ranking is then calculated on that average across all the zipcodes to obstain the democracy and power domain percentile. The __Equity Index__ for each zipcode is calculated by taking the average of each of the domain scores for each zipcode. ZIP Codes had to have at least 50% of indicators in a domain to get a domain score and index score.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
