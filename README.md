@@ -49,9 +49,6 @@ The Los Angeles (LA) City Equity Index is a tool that the City Administrative Of
 
 ## Getting Started
 
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
-
 ### Prerequisites
 
 We completed the data cleaning, analysis, and visualization using the following software. 
@@ -137,10 +134,14 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 ## Partners
 
-Use this space for any additional acknowledgments (project partners, etc)
+This work would not have been possible without the collaboration and invaluable insights provided by the partners in the MLAW coalition: 
 
-* [Partner org](URL)
-* [Partner org](URL)
-* [Partner org](URL)
+* [Community Coalition](https://cocosouthla.org/)
+* [Inner City Struggle](https://www.innercitystruggle.org/)
+* [Black Women for Wellness](https://bwwla.org/)
+* [Brotherhood Crusade](https://www.brotherhoodcrusade.org/)
+* [SEIU 2015](https://www.seiu2015.org/)
+* [SEIU 99](https://www.seiu99.org/)
+* [Catalyst California](https://www.catalystcalifornia.org/)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
