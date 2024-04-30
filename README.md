@@ -1,7 +1,5 @@
 # MLAW Los Angeles City Equity Index
 
-<li><a href="https://catalystcalifornia.github.io/mlaw/la_city_equity_index">Link to online index analysis and results</a></li>
-
 <br>
 
 <details>
@@ -36,7 +34,9 @@
 
 ## About The Project
 
-The Los Angeles City Equity Index is a tool that needs to be used in order to allocate city budget dollars equitably. Communities most negatively impacted by redlining, disinvestment and systemic racism must be given higher priority over wealthier parts of the city when it comes to budget dollars and investment. This proposed equity index, created by the MLAW coalition, proposes indicators that the city should use for the equity index, and maps out the results of the equity index and each individual indicator across Los Angeles city. The results, which map out higher need areas in the city, have been groundtruthed by MLAW partners. In other words, this equity index, when applied, accurately highlights which parts of Los Angeles city are higher need and require more investment. 
+The Los Angeles (LA) City Equity Index is a tool that the City Administrative Office (CAO) office is in the process of implementing to inform how city budget dollars are allocated. Tools like this are important to ensure that communities most negatively impacted by redlining, disinvestment and systemic racism are given higher priority when it comes to investment, or protecting against budget cuts. The following [analysis](https://catalystcalifornia.github.io/mlaw/la_city_equity_index), created with the MLAW coalition, recommends indicators, an equity index, and a conceptual framework for understanding the indicators and why they are important to Angelenos.  We also map the results of the  equity index and the individual indicators to show which parts of the city are higher need. The results were groundtruth by partner organizations in the MLAW coalition. All indicators are correlated with race to ensure that groups most impacted by systemic racism are also being prioritized within the index.  
+
+<li><a href="https://catalystcalifornia.github.io/mlaw/la_city_equity_index">Link to online index analysis and results</a></li>
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
