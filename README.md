@@ -36,7 +36,7 @@
 
 ## About The Project
 
-In this section, include the summary and project purpose.
+The Los Angeles City Equity Index is a tool that needs to be used in order to allocate city budget dollars equitably. Communities most negatively impacted by redlining, disinvestment and systemic racism must be given higher priority over wealthier parts of the city when it comes to budget dollars and investment. This proposed equity index, created by the MLAW coalition, proposes indicators that the city should use for the equity index, and maps out the results of the equity index and each individual indicator across Los Angeles city. The results, which map out higher need areas in the city, have been groundtruthed by MLAW partners. In other words, this equity index, when applied, accurately highlights which parts of Los Angeles city are higher need and require more investment. 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -59,11 +59,11 @@ We completed the data cleaning, analysis, and visualization using the following 
 * [RStudio](https://posit.co/download/rstudio-desktop)
 
 We used several R packages to analyze data and perform different functions, including the following.
-* data.table 
 * dplyr
 * sf
 * tidyr
 * usethis
+* leaflet
 
 ```
 list.of.packages <- c("usethis","dplyr","data.table", "sf", tidyr")
@@ -74,20 +74,10 @@ devtools::install_github("r-lib/usethis")
 
 library(usethis)
 library(dplyr)
-library(data.table)
 library(sf)
 library(tidyr)
+library(leaflet)
 ```
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-### Installation
-
-1. Add installation instructions here such as what programs, packages, and APIs to use and how to access or download them
-2. Step 2
-3. Step 3
-4. Step 4
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -109,23 +99,21 @@ Use this space to show useful examples of how a project can be used (e.g. iframe
 
 ## Contributors
 
-* [Alexandra Baker](https://github.com/bakeralexan)
-* [Leila Forouzan](https://github.com/lforouzan)
-* [Hillary Khan](https://github.com/hillaryk-ap)
-* [Maria Khan](https://github.com/mariatkhan)
 * [Elycia Mulholland-Graves](https://github.com/elyciamg)
-* [Chris Ringewald](https://github.com/cringewald)
-* [David Segovia](https://github.com/davidseg1997)
 * [Jennifer Zhang](https://github.com/jzhang514)
+* [Hillary Khan](https://github.com/hillaryk-ap)
+* [Jacky Guerrero](https://www.catalystcalifornia.org/who-we-are/staff/jacky-guerrero)
+* [Michael Nailat](https://www.catalystcalifornia.org/who-we-are/staff/michael-nailat)
+* [Kianna Ruff](https://www.catalystcalifornia.org/who-we-are/staff/kianna-ruff)
+* [Mariselle Moscoso](https://www.catalystcalifornia.org/who-we-are/staff/mariselle-moscoso) 
+
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Contact Us
 
-[Chris Ringewald](https://www.linkedin.com/in/chris-ringewald-6766369/) - cringewald[at]catalystcalifornia.org  <br>
-
-
-[Leila Forouzan](https://www.linkedin.com/in/leilaforouzan/) - lforouzan[at]catalystcalifornia.org
+Elycia Mulholland Graves - egraves[at]catalystcalifornia.org  <br>
+Jacky Guerrero -jgguerrero[at]catalystcalifornia.org
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
