@@ -81,16 +81,37 @@ library(leaflet)
 
 ## Data Methodology
 
-Use this space to show useful examples of how a project can be used (e.g. iframes, citation, etc). Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+### Indicator Selection
 
-### Data Dictionary
-| field                         | type    | description                                                                                                                                                                                      |
+The MLAW equity index was created by first gathering community input from various sources to determine what issue areas, and subsequently indicators, were important to prioritize for inclusion in the index. Community input was gathered directly from MLAW partner organizations, and from a survey that MLAW partners distributed to their respective community constituents. A final list of indicators was produced and vetted by the MLAW coalition after cross-referencing the survey results and partner feedback. Additional criteria used for indicator inclusion was that the data source was somewhat up-to-date, the data source was updated on a semi-regular basis, and that the data source was available at a sub-city level. 
+
+### LA City Crosswalk
+
+The final set of indicators and the equity index is analyzed at the LA city zipcode level. To achieve this, we create an LA city zipcode crosswalk that lists the zipcodes that are mostly in LA city boundaries. We define this as zipcodes with at least 25% of its geological area within LA city limits. We manually exclude the following zipcodes from the crosswalk and overall analysis: 90095 (UCLA), 90089 (USC), 91330 (CSU Northridge), and 90090 (Dodger Stadium). 
+
+### Indicator Domains
+
+The final set of indicators are grouped into four conceptual domains:
+* Safe Environments: LA City residents experience safe environments with safety from pollution, traffic injuries, and harmful policing.
+* Economy and Opportunity: LA City residents have the opportunity to equitably engage in the economy.
+* Democracy and Power: LA City residents have the opportunity to equitably participate and influence democracy.
+* Longevity and Vitality: LA City live with with freedom from disease and illness, and have the ability to access resources that increase community wellness.
+
+### Analysis
+
+All indicators are individually analyzed at the zipcode level by calculating the rate of each indicator for each zipcode. A percentile ranking is then measured for each indicator across all of the zipcodes. The higher the indicator percentile ranking is for a zipcode, the higher the rate of a particular indicator is for that zipcode relative to other zipcodes. Percentile rankings are the primary way we determine which zipcodes are "high need" relative to others. Most indicators we use are challenge-based, meaning that the higher the percentile ranking is, the higher the need is. For example, indicators such as rent burden or arrests, we want to observe lower rates of. The higher the rate of rent burden is, the higher the need is. We also use indicators that are asset-based, meaning that the higher the rate is, the better the condition is. An example of this is voter turnout. The higher the rate of voter turnout is, the lower the need is. We adjust asset-based indicators by multiplying the rate with -1. This way, across all indicators, the higher the percentile is, the higher the need is. 
+
+We then take indicators within each conceptual domain and calculate a __domain index__. The domain index is calculated by taking the average of the indicator percentiles within the domain, which we call a domain score, and then calculating a percent ranking of the domain scores to obtain the domain percentiles. For example, the __Democracy and Power Domain Index__ is calculated by first taking the average of the voter turnout, limited english speaking households, and race composite score percentiles within each zipcode to obtain the democracy and power domain score. A percent ranking is then calculated on that average across all the zipcodes to obstain the democracy and power domain percentile. The __Equity Index__ for each zipcode is calculated by taking the average of each of the domain scores for each zipcode. ZIP Codes had to have at least 50% of indicators in a domain to get a domain score and index score.
+
+
+
+
+| Domain                         | Description    | Indicators                                                                                                                                                                                      |
 | ----------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `county`                      | string  | The name of the county.                                                                                                                                                                          |
-| `total_pop`                   | integer | The total population in the county.                                                                                                                                                              |           
-| `total_rate`                  | integer | The total rate for the entire population for the given [indicator](https://www.racecounts.org/issue/crime-and-justice)(ex: Total % of Adults Who Reported Feeling Safe in their Neighborhood).   | 
-| `nh_white_rate`               | integer | The total rate for Non-Hispanic Whites for the given indicator (ex: Total % of White Adults Who Reported Feeling Safe in their Neighborhood.)                                                    |
-| `black_diff`                  | integer | The difference in rate between Non-Hispanic Black and the group with the 'Best Rate' for the given indicator.                                                                                    |
+| Safe Environments | LA City residents experience safe environments with safety from pollution, traffic injuries, and harmful policing. | Race Composite Score (Black, Latine, AIAN, NHPI, Asian); Particulate Matter (PM) 2.5; Proximity to Hazardous Waste Facilities; Pedestrian and Bicyclist Fatalities and Injuries; Arrests; Hospitalizations for Gun Injuries |
+| Economy and Opportunity | LA City residents have the opportunity to equitably engage in the economy. | Race Composite Score (Black, Latine, AIAN, NHPI, Asian); Early Childhood Education (ECE) Enrollment; Rent Burden; Evictions; Per Capita Income |           
+| Democracy and Power | LA City residents have the opportunity to equitably participate and influence democracy. | Race Composite Score (Black, Latine, AIAN, NHPI, Asian); Limited English Speaking Households; Voter Turnout for the 2022 General Election | 
+| Longevity and Vitality | LA City residents live with freedom from disease and illness, and have the ability to access resources that increase community wellness. | Race Composite Score (Black, Latine, AIAN, NHPI, Asian); Diabetes Hospitalizations; Impervious Land Cover; Health and Mental Health Care Services Access; Grocery Store Access |
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
