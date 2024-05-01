@@ -74,7 +74,7 @@ arrests_zips_point <- arrests_sf %>% st_join(zips)%>%filter(!is.na(zipcode))%>%s
 # check where these points are, are they only in LA City boundaries or extend to other areas of the ZIP Codes?
 library(mapview)
 mapview(arrests_zips_point)+mapview(zips)
-# they are pretty focused in LA City so consider adjustment for percent of LA City ZIP Code in city boundary
+# they are pretty focused in LA City
 
 ###### Polygon to polygon join ----
 # arrests that need a polygon to polygon join
@@ -84,19 +84,21 @@ arrests_zips_rep <- arrests_sf %>% st_join(zips)%>%filter(is.na(zipcode))%>%sele
 mapview(arrests_zips_rep)+mapview(zips)
 # they are on the borders or in other cities so omit
 
+# Rate calc: # arrests per 1K in zipcode---------------------
+# first calculate number of arrests in each ZIP Code
 arrests_zips<-arrests_zips_point%>%st_drop_geometry%>%
   group_by(zipcode)%>%summarise(count=n())
 
-# Rate calc: # arrests per 1K in zipcode---------------------
+# join to population data
 df<-arrests_zips%>%left_join(pop,by=c("zipcode"="geoid"))
 
-# join to crosswalk to make sure we scale population to the part of the ZIP in LA City
+# join to crosswalk
 df<-df%>%left_join(zips%>%st_drop_geometry%>%select(zipcode,prc_zip_area)  )
 
 df_final<-df%>%rename(pop=dp05_0001e,arrest_count=count)%>%
-  mutate(scaled_pop=pop*prc_zip_area,
+  mutate(scaled_pop=pop*prc_zip_area, # did not use scaled population as it inflated rates for ZIPs on border of LA City
          arrest_rate=arrest_count/pop*1000,
-         pop_cv=dp05_0001m/1.645/pop*100)%>% # doesn't work to scale down a cv, but pop cv's are stable anyways
+         pop_cv=dp05_0001m/1.645/pop*100)%>% 
   select(zipcode,arrest_rate,arrest_count,scaled_pop,pop,pop_cv)
 # 90071 and 90021 have really high rates, these are in downtown, could be because of location and any events that happened in the area, leave for now since percentile method will reduce the impact of the outlier
 
