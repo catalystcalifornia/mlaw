@@ -166,7 +166,7 @@ df_zips<-df%>%select(ein,zipcode,income_cd)
 df_points<-df_points%>%select(ein,zipcode,income_cd)%>%st_drop_geometry()
 df<-rbind(df_zips,df_points)
 
-###### Step : Apply income weights and calculate weighted / raw counts---------------------------
+###### Step 3: Apply income weights and calculate weighted / raw counts---------------------------
 
 # Recode the income_cd field for our weights. I am using the same weights that were used in the JESI:
 # $0 to $499,999 = 1
