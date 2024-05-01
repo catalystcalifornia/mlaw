@@ -402,7 +402,7 @@ domain_4<-domain_4%>%mutate(longevity_pctile=percent_rank(longevity_score))
 index<-domain_1%>%left_join(domain_2)%>%left_join(domain_3)%>%left_join(domain_4)
 
 index<-index%>%
-  mutate(index_score=(safe_environments_pctile+econ_opp_pctile+democracy_pctile+longevity_pctile)/3)
+  mutate(index_score=(safe_environments_pctile+econ_opp_pctile+democracy_pctile+longevity_pctile)/4)
 
 index$index_score[is.na(index$safe_environments_pctile)] <- NA
 index$index_score[is.na(index$democracy_pctile)] <- NA

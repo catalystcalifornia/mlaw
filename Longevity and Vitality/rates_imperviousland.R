@@ -1,5 +1,8 @@
 # MLAW LA City Equity Index
 # Impervious land percentage by ZIP Code in LA City
+# Data Source: National Land Cover Database 2021
+# Link: https://www.usgs.gov/centers/eros/science/national-land-cover-database
+# Average/median impervious land cover by ZIP Code calculated in ArcGIS using Zonal Statistics tool
 
 
 ##### Set Up Workspace #####
@@ -33,7 +36,6 @@ la_zips<-zips$zipcode
 # ZIP Code level data generated from raster data from the national land cover database
 # https://www.mrlc.gov/data?f%5B0%5D=category%3AUrban%20Imperviousness
 impervious <- st_read(con, query="SELECT * FROM nlcd_zipcode_imperviousland_2021")
-names(impervious)<- tolower(names(impervious))
 # median column is the indicator
 
 ######### Double check data at ZIP Code level comparing to CT estimates from prior project ---------
