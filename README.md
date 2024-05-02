@@ -7,6 +7,7 @@
   <ol>
     <li>
       <a href="#about-the-project">About The Project</a></li>
+       <li><a href="#acknowledgements-and-partners">Acknowledgements and Partners</a>
     <li><a href="#getting-started">Getting Started</a>
       <ul>
         <li><a href="#prerequisites">Prerequisites</a></li>
@@ -15,7 +16,12 @@
     </li>
     <li><a href="#data-methodology">Data Methodology</a>
       <ul>
-        <li><a href="#data-dictionary">Data Dictionary</a></li>
+        <li><a href="#indicator-selection">Indicator Selection</a></li>
+        <li><a href="#la-city-zip-codes">LA City ZIP Codes</a></li>
+         <li><a href="#indicator-domains">Indicator Domains</a></li>
+         <li><a href="#analysis-overview">Analysis Overview</a></li>
+         <li><a href="#data-sources">Data Sources</a></li>
+         <li><a href="#limitations">Limitations</a></li>
       </ul>
     </li>
     <li><a href="#contributors">Contributors</a></li>
@@ -28,7 +34,6 @@
     </li>
     <li><a href="#citation">Citation</a></li>
     <li><a href="#license">License</a></li>
-    <li><a href="#partners">Partners</a></li>
   </ol>
 </details>
 
