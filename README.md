@@ -47,7 +47,7 @@ This repository provides access to our detailed code for each indicator and a su
 
 [Link to detailed recommendations](https://github.com/catalystcalifornia/mlaw/blob/main/LA%20City%20Equity%20Index%20Recommendations.pdf)
 
-<li><a href="https://catalystcalifornia.github.io/mlaw/la_city_equity_index">Link to online index analysis and results</a></li>
+[Link to Index maps, analysis, and results](https://catalystcalifornia.github.io/mlaw/la_city_equity_index)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
