@@ -1,6 +1,6 @@
 ---
-title: "MLAW LA City Equity Index"
-subtitle: "DRAFT"
+title: "The LA City Equity Index"
+subtitle: "Proposed Indicators and Framework by the Make LA Whole Coalition"
 author: "Analysis by Catalyst California"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
@@ -329,24 +329,26 @@ map}
 
 # Overview
 
-The following includes recommended indicators for the City of Los Angeles' Equity Index. These recommendations are informed by the MLAW Coalition's community survey, community partner priorities, Catalyst California's past work, current indicators under consideration by the city, and Catalyst California's analysis of available data.
+The following includes recommended indicators for the Los Angeles City Equity Index (the Index). These recommendations are informed by the MLAW Coalition's community survey, partner feedback, Catalyst California's research and analysis of available data, and current indicators under consideration by the City.
 
-The proposed Equity Index is structured around four domains each intended to illustrate what an equitable city should look like for all people.
+The proposed Index is structured around four domains each intended to illustrate what an equitable city should look like for all people.
 
 **Safe Environments**: LA City residents experience safe environments with safety from pollution, traffic injuries, and harmful policing.
 **Economy and Opportunity**: LA City residents have the opportunity to equitably engage in the economy.
 **Democracy and Power**: LA City residents have the opportunity to equitably participate and influence democracy.
-**Longevity and Vitality**: LA City live with with freedom from disease and illness, and have the ability to access resources that increase community wellness.
+**Longevity and Vitality**: LA City residents live with with freedom from disease and illness and have the ability to access resources that increase community wellness.
 
 The proposed **LA City Equity Index** represents the average across these four domains. It provides one summarized measure of need for each ZIP Code in LA City.
 
-There are two to five **indicators** included within each domain. A race composite measure is also included in each domain to firmly acknowledge the deep-seated role of racism in shaping opportunities and outcomes in the city. This race composite measure takes into account the share of the population in each ZIP Code that identifies as Asian, Black, Latine, American Indian and Alaska Native, or Native Hawaiian and Pacific Islander.
+There are two to five **indicators** included within each domain. A race composite measure is also included in each domain to firmly acknowledge the deep-seated role of racism in shaping opportunities and outcomes in the city. This race composite measure takes into account the share of the population in each ZIP Code that identifies as Asian, Black, Latine, American Indian and Alaska Native (AIAN), or Native Hawaiian and Pacific Islander (NHPI).
 
-In sum, 15 indicators are included in the index. Over 20 indicators were originally considered for inclusion. Indicators were narrowed based on data availability, community surveys, partner feedback, and indicator variety (e.g., having a variety of indicators in economy and opportunity, rather than only indicators related to housing or jobs.). The following page details the analysis done for the indicators studied for the index. It includes individual maps for every indicator by domain and graphics illustrating the relationship, or correlation, between indicators in each domain.
+In sum, 15 indicators are included in the Index. Over 20 indicators were originally considered for inclusion. Indicators were narrowed based on data availability, community surveys, partner feedback, and data availability. The following page details the analysis done for the indicators studied for the Index. It includes individual maps for every indicator by domain and graphics illustrating the relationship, or correlation, between indicators in each domain and race.
+
+Please visit our recommendations page to read our full recommendations to the City and see our [GitHub repository](https://github.com/catalystcalifornia/mlaw/blob/main/README.md) to view our full methodology.
 
 # Index Results
 
-We first present the final draft **Equity Index** map showing level of need by ZIP Code in LA City. The Equity Index represents the average need across the four index domains. The darker purple areas represent areas in the city with higher need whereas lighter purple areas have relatively lower need.
+We first present the final draft **Index** map showing level of need by ZIP Code in LA City. The Index represents the average need across the four index domains. The darker purple areas represent areas in the city with higher need whereas lighter purple areas have relatively lower need.
 
 ## Equity Index
 ```{r}
@@ -434,11 +436,11 @@ index_map(df,indicator,direction)
 
 ## Domain Indices {.tabset .tabset-fade}
 
-In addition to the **Equity Index** score, each ZIP Code has four scores that show level of need by domain. Domain scores are the average need across the indicators included in each domain. The darker purple areas show areas in the city with relatively higher need in that domain.
+In addition to the **Index** score, each ZIP Code has four scores that show level of need by domain. Domain scores are the average need across the indicators included in each domain. The darker purple areas show areas in the city with relatively higher need in that domain.
 
 ### Safe Environments 
 
-**What this domain means:** LA City residents experience safety from pollution, traffic injuries, and harmful policing.
+**What this domain means:** LA City residents experience safe environments with safety from pollution, traffic injuries, and harmful policing.
 
 **What it includes:** Race Composite Score (Black, Latine, AIAN, NHPI, Asian); Particulate Matter (PM) 2.5; Proximity to Hazardous Waste Facilities; Pedestrian and Bicyclist Fatalities and Injuries; Arrests; Hospitalizations for Gun Injuries
 
@@ -519,7 +521,7 @@ index_map(df,indicator,direction)
 
 ### Longevity and Vitality
 
-**What this domain means:** LA City residents live with freedom from disease and illness, and have the ability to access resources that increase community wellness.
+**What this domain means:** LA City residents live with freedom from disease and illness and have the ability to access resources that increase community wellness.
 
 **What it includes:** Race Composite Score (Black, Latine, AIAN, NHPI, Asian); Diabetes Hospitalizations; Impervious Land Cover; Health and Mental Health Care Services Access; Grocery Store Access
 
@@ -551,11 +553,11 @@ We separately visualize the indicators included in each domain to verify if the 
 
 ## Domain 1: Safe Environments
 
-**What this domain means:** LA City residents experience safety from pollution, traffic injuries, and harmful policing.
+**What this domain means:** LA City residents experience safe environments with safety from pollution, traffic injuries, and harmful policing.
 
 ### Maps {.tabset .tabset-fade}
 
-The maps show ZIP Codes by *lowest to highest rates* for each indicator. Darker purple areas show areas with *higher rates* for that particular indicator whereas lighter purple areas show areas with *lower rates* for that indicator. Darker purple means greater need in challenge-based indicators (e.g., pollution burden), but lower need in strength-based indicators (e.g., per capita income).
+The maps show ZIP Codes by *lowest to highest rates* for each indicator. Darker purple areas show areas with *higher rates* for that particular indicator whereas lighter purple areas show areas with *lower rates* for that indicator. Darker purple means greater need in challenge-based indicators (e.g., pollution burden), but lower need in asset-based indicators (e.g., per capita income).
 
 #### PM 2.5
 
@@ -648,7 +650,7 @@ direction<-paste0("higher")
 
 indicator_map(df,indicator,direction)
 ```
-Data Source:Los Angeles Police Department, Arrest Data, 2022.
+Data Source: Los Angeles Police Department, Arrest Data, 2022.
 
 #### Hospitalizations for Gun Injuries
 
@@ -672,11 +674,11 @@ direction<-paste0("higher")
 indicator_map(df,indicator,direction)
 
 ```
-Data Source: CA OSHPD Patient Discharge Data, 2017-2021.
+Data Source: California Department of Health Care Access and Information, Patient Discharge Data, 2017-2021.
 
 ### Correlations
 
-This matrix shows the relationship between every indicator in the domain. Larger and darker blue circles represent indicators with greater positive relationships--meaning as one rate goes up, so does the other. Larger and darker red circles show which indicators have a negative relationship--meaning as a measure for one indicator goes up, the other goes down. Many indicators are correlated with at least one BIPOC group, meaning as need in an area goes up, so does the rate of BIPOC people in at least one group. Inversely, many indicators that show need are inversely correlated with the share of White people. White spaces on the correlation matrix indicate that there is not a significant relationship between the indicators.  
+This matrix shows the relationship between every indicator in the domain. Larger and darker blue circles represent indicators with greater positive relationships--meaning as one rate goes up, so does the other. Larger and darker red circles show which indicators have a negative relationship--meaning as a measure for one indicator goes up, the other goes down. Many indicators are correlated with at least one BIPOC group, meaning as need in an area goes up, so does the rate of BIPOC people in at least one group. Inversely, many indicators that show need are inversely correlated with the share of White people. Blank squares on the correlation matrix indicate that there is not a significant relationship between the indicators.  
 
 In this domain, we recommend including PM 2.5 and proximity to hazards to measure pollution burden given their stronger correlations with different BIPOC groups over other pollution burden indicators explored.
 
@@ -703,7 +705,7 @@ corrplot(round(mydata.cor2,1), type='full', p.mat=testRes2$p, insig='blank', dia
 
 ### Maps {.tabset .tabset-fade}
 
-The maps show ZIP Codes by *lowest to highest rates* for each indicator. Darker purple areas show areas with *higher rates* for that particular indicator whereas lighter purple areas show areas with *lower rates* for that indicator. Darker purple means greater need in challenge-based indicators (e.g., rent burden), but lower need in strength-based indicators (e.g., per capita income).
+The maps show ZIP Codes by *lowest to highest rates* for each indicator. Darker purple areas show areas with *higher rates* for that particular indicator whereas lighter purple areas show areas with *lower rates* for that indicator. Darker purple means greater need in challenge-based indicators (e.g., rent burden), but lower need in asset-based indicators (e.g., per capita income).
 
 #### Early Childhood Education (ECE) Enrollment
 
@@ -727,7 +729,7 @@ direction<-paste0("lower")
 indicator_map(df,indicator,direction)
 
 ```
-American Institute for Research, California Child Care Resource & Referral Network, 2020 & 2021. 
+Data Source: American Institute for Research, Early Learning Needs Assessment Tool, 2020. California Child Care Resource & Referral Network, 2021. 
 
 #### Rent Burden
 
@@ -751,7 +753,7 @@ direction<-paste0("higher")
 indicator_map(df,indicator,direction)
 
 ```
-U.S. Census Bureau, American Community Survey, B25070, 2018-2022.
+Data Source: U.S. Census Bureau, American Community Survey, B25070, 2018-2022.
 
 #### Evictions
 
@@ -775,7 +777,7 @@ direction<-paste0("higher")
 indicator_map(df,indicator,direction)
 
 ```
-LA City Controller Office, 2023.
+Data Source: LA City Control, Eviction Notices February-December 2023. U.S. Census Bureau, American Community Survey, 5-Year Estimates, Table B25003, 2018-2022. 
 
 #### Per Capita Income
 
@@ -799,12 +801,12 @@ direction<-paste0("lower")
 indicator_map(df,indicator,direction)
 
 ```
-U.S. Census Bureau, American Community Survey, B19301, 2018-2022.
+Data Source: U.S. Census Bureau, American Community Survey, B19301, 2018-2022.
 
 
 ### Correlations
 
-This matrix shows the relationship between every indicator in the domain. Larger and darker blue circles represent indicators with greater positive relationships--meaning as one rate goes up, so does the other. Larger and darker red circles show which indicators have a negative relationship--meaning as a measure for one indicator goes up, the other goes down. Many indicators are correlated with at least one BIPOC group, meaning as need in an area goes up, so does the rate of BIPOC people in at least one group. Inversely, many indicators that show need are inversely correlated with the share of White people. Per capita income, one asset-based indicator, is positively correlated with the share of White people, but strongly negatively correlated with most BIPOC groups. White spaces on the correlation matrix indicate that there is not a significant relationship between the indicators.  
+This matrix shows the relationship between every indicator in the domain. Larger and darker blue circles represent indicators with greater positive relationships--meaning as one rate goes up, so does the other. Larger and darker red circles show which indicators have a negative relationship--meaning as a measure for one indicator goes up, the other goes down. Many indicators are correlated with at least one BIPOC group, meaning as need in an area goes up, so does the rate of BIPOC people in at least one group. Inversely, many indicators that show need are inversely correlated with the share of White people. Per capita income, one asset-based indicator, is positively correlated with the share of White people, but strongly negatively correlated with most BIPOC groups. Blank squares on the correlation matrix indicate that there is not a significant relationship between the indicators.  
 
 ```{r, fig.width=8, fig.height=8}
 
@@ -824,7 +826,7 @@ corrplot(round(mydata.cor2,1), type='full', p.mat=testRes2$p, insig='blank', dia
 
 ### Maps {.tabset .tabset-fade}
 
-The maps show ZIP Codes by *lowest to highest rates* for each indicator. Darker purple areas show areas with *higher rates* for that particular indicator whereas lighter purple areas show areas with *lower rates* for that indicator. Darker purple means greater need in challenge-based indicators (e.g., pollution burden), but lower need in strength-based indicators (e.g., voter turnout).
+The maps show ZIP Codes by *lowest to highest rates* for each indicator. Darker purple areas show areas with *higher rates* for that particular indicator whereas lighter purple areas show areas with *lower rates* for that indicator. Darker purple means greater need in challenge-based indicators (e.g., pollution burden), but lower need in asset-based indicators (e.g., voter turnout).
 
 #### Limited English Speaking Households
 
@@ -848,7 +850,7 @@ direction<-paste0("higher")
 indicator_map(df,indicator,direction)
 
 ```
-U.S. Census Bureau, American Community Survey, S1602, 2018-2022.
+Data Source: U.S. Census Bureau, American Community Survey, S1602, 2018-2022.
 
 
 #### Voter Turnout
@@ -873,11 +875,11 @@ direction<-paste0("lower")
 indicator_map(df,indicator,direction)
 
 ```
-LA County Registrar Recorder Office, Statewide Redistricting Database, 2022 General Election.
+Data Source: Los Angeles County Registrar-Recorder/County Clerk, General Election Results, November 2022. Statewide Redistricting Database, General Election Geographic Data, Consolidated Precincts, 2022. 
 
 ### Correlations
 
-This matrix shows the relationship between every indicator in the domain. Larger and darker blue circles represent indicators with greater positive relationships--meaning as one rate goes up, so does the other. Larger and darker red circles show which indicators have a negative relationship--meaning as a measure for one indicator goes up, the other goes down. Limited English speaking households is strongly correlated with BIPOC groups, particularly Latinx and AIAN, while voter turnout is strongly correlated with the share of White people. White spaces on the correlation matrix indicate that there is not a significant relationship between the indicators.  
+This matrix shows the relationship between every indicator in the domain. Larger and darker blue circles represent indicators with greater positive relationships--meaning as one rate goes up, so does the other. Larger and darker red circles show which indicators have a negative relationship--meaning as a measure for one indicator goes up, the other goes down. Limited English speaking households is strongly correlated with BIPOC groups, particularly Latinx and AIAN, while voter turnout is strongly correlated with the share of White people. Blank squares on the correlation matrix indicate that there is not a significant relationship between the indicators.  
 
 ```{r, fig.width=8, fig.height=8}
 
@@ -897,7 +899,7 @@ corrplot(round(mydata.cor2,1), type='full', p.mat=testRes2$p, insig='blank', dia
 
 ### Maps {.tabset .tabset-fade}
 
-The maps show ZIP Codes by *lowest to highest rates* for each indicator. Darker purple areas show areas with *higher rates* for that particular indicator whereas lighter purple areas show areas with *lower rates* for that indicator. Darker purple means greater need in challenge-based indicators (e.g., diabetes hospitalizations), but lower need in strength-based indicators (e.g., health/mental health care services).
+The maps show ZIP Codes by *lowest to highest rates* for each indicator. Darker purple areas show areas with *higher rates* for that particular indicator whereas lighter purple areas show areas with *lower rates* for that indicator. Darker purple means greater need in challenge-based indicators (e.g., diabetes hospitalizations), but lower need in asset-based indicators (e.g., health/mental health care services).
 
 #### Diabetes Hospitalizations
 
@@ -921,7 +923,7 @@ direction<-paste0("higher")
 indicator_map(df,indicator,direction)
 
 ```
-CA OSHPD Patient Discharge Data, 2017-2021.
+Data Source: California Department of Health Care Access and Information, Patient Discharge Data, 2017-2021.
 
 #### Impervious Land Cover
 
@@ -945,7 +947,7 @@ direction<-paste0("higher")
 indicator_map(df,indicator,direction)
 
 ```
-National Land Cover Database, 2021. 
+Data Source: Earth Resources Observation and Science Center, National Land Cover Database, 2021. 
 
 #### Health/Mental Health Care Services
 
@@ -969,7 +971,7 @@ direction<-paste0("lower")
 indicator_map(df,indicator,direction)
 
 ```
-IRS Exempt Organizations Business Master File, 2024.
+Data Source: IRS Exempt Organizations Business Master File, 2024.
 
 #### Grocery Store Access
 
@@ -993,12 +995,12 @@ direction<-paste0("lower")
 indicator_map(df,indicator,direction)
 
 ```
-U.S Census Bureau, County Business Patterns, 2021.
+Data Source: Calculations based on USDA Food and Nutrition Service, SNAP Retailer Location Data, 2024.
 
 
 ### Correlations
 
-This matrix shows the relationship between every indicator in the domain. Larger and darker blue circles represent indicators with greater positive relationships--meaning as one rate goes up, so does the other. Larger and darker red circles show which indicators have a negative relationship--meaning as a measure for one indicator goes up, the other goes down. White spaces on the correlation matrix indicate that there is not a significant relationship between the indicators.  
+This matrix shows the relationship between every indicator in the domain. Larger and darker blue circles represent indicators with greater positive relationships--meaning as one rate goes up, so does the other. Larger and darker red circles show which indicators have a negative relationship--meaning as a measure for one indicator goes up, the other goes down. Blank squares on the correlation matrix indicate that there is not a significant relationship between the indicators.  
 
 ```{r, fig.width=8, fig.height=8}
 df_4<-df_corr%>%select(1:7,22:24, 26)
@@ -1012,4 +1014,6 @@ corrplot(round(mydata.cor2,1), type='full', p.mat=testRes2$p, insig='blank', dia
 ```
 
 
+# Partners
+This work would not have been possible without the collaboration and invaluable insights provided by our partners in the MLAW Coalition. MLAW Coalition partners include: Community Coalition, Inner City Struggle, Black Women for Wellness, Brotherhood Crusade, SEIU 99, and SEIU 2015.
 
