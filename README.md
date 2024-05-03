@@ -7,6 +7,7 @@
   <ol>
     <li>
       <a href="#about-the-project">About The Project</a></li>
+       <li><a href="#acknowledgements-and-partners">Acknowledgements and Partners</a>
     <li><a href="#getting-started">Getting Started</a>
       <ul>
         <li><a href="#prerequisites">Prerequisites</a></li>
@@ -15,7 +16,12 @@
     </li>
     <li><a href="#data-methodology">Data Methodology</a>
       <ul>
-        <li><a href="#data-dictionary">Data Dictionary</a></li>
+        <li><a href="#indicator-selection">Indicator Selection</a></li>
+        <li><a href="#la-city-zip-codes">LA City ZIP Codes</a></li>
+         <li><a href="#indicator-domains">Indicator Domains</a></li>
+         <li><a href="#analysis-overview">Analysis Overview</a></li>
+         <li><a href="#data-sources">Data Sources</a></li>
+         <li><a href="#limitations">Limitations</a></li>
       </ul>
     </li>
     <li><a href="#contributors">Contributors</a></li>
@@ -28,7 +34,6 @@
     </li>
     <li><a href="#citation">Citation</a></li>
     <li><a href="#license">License</a></li>
-    <li><a href="#partners">Partners</a></li>
   </ol>
 </details>
 
@@ -47,7 +52,7 @@ This repository provides access to our detailed code for each indicator and a su
 
 ## Acknowledgements and Partners
 
-This work would not have been possible without the collaboration and invaluable insights provided by our partners in the MLAW Coalition. Our partners collected community surveys throughout the survey to inform issues included in the index and provided their feedback throughout the index development process to shape the domains and indicators included. We urge decision-makers or those looking to develop public indices for budgetting to engage in ongoing, meaningful community engagement to inform index development and implementation.
+This work would not have been possible without the collaboration and invaluable insights provided by our partners in the MLAW Coalition. Our partners collected community surveys throughout the survey to inform issues included in the index and provided their feedback throughout the index development process to shape the domains and indicators included. We urge decision-makers or those looking to develop public indices for budgeting to engage in ongoing, meaningful community engagement to inform index development and implementation.
 
 MLAW Coalition partners include:
 
@@ -94,6 +99,11 @@ library(dplyr)
 library(sf)
 library(tidyr)
 library(leaflet)
+library(RPostgreSQL)
+library(readxl)
+library(stringr)
+library(rpostgis)
+
 ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -109,7 +119,7 @@ The LA City Equity index was created by first gathering community input to deter
 
 The final set of indicators and index is analyzed at the LA City ZIP Code level. To achieve this, we create an LA city ZIP Code crosswalk that lists the ZIP Codes that are mostly within LA City boundaries. We define this as ZIP Codes with at least 25% of its geographical area within LA City limits. We manually exclude the following ZIP Codes associated with universities or event spaces from the index: 90095 (UCLA), 90089 (USC), 91330 (CSU Northridge), and 90090 (Dodger Stadium). 
 
-[ZIP Code data sources list here]
+The LA County ZIP Codes we used to create our crosswalk can be viewed and downloaded from [LA City Geohub](https://geohub.lacity.org/datasets/70748ba37ecc418891e052e800437681_5/about). This data was last updated in 2023. 
 
 ### Indicator Domains
 
@@ -138,7 +148,13 @@ Please visit our detailed recommendations for a list of data sources by indicato
 
 ### Limitations
 
-[Add limitations of data and importance of commmunity engagement in shaping indices and budget decision]
+All public data sources are subject to limitations, including those used to analyze the indicators that make up this index. All of the indicators, with the exception of health/mental health services, are derived from data sources that were updated in 2021 or 2022. Not all data sources are originally published at the ZIP code level. These data sources need to be adjusted from their respective geographic level to the ZIP code level in order to be used in the index calculation.
+
+The health/mental health services indicator is analyzed using the IRS Exempt Organizations Business Master File (EO BMF). The addresses listed on the EO BMF are an organization's headquarter address and therefore may not accurately reflect the area where services are being delivered for that organization. It is also difficult to accurately define the geographic service area of a health/mental health organization. 
+
+There was difficulty in obtaining a comprehensive indicator to represent healthy food access. Our grocery store access indicator uses SNAP authorized-food retailers to calculate access to grocery stores and farmers markets. 
+
+It is crucial to supplement indicator analysis with community feedback, and to ground-truth any indicator analysis and index results with community members. Working with data limitations is unavoidable, making it that much more important to embed community input throughout the analysis process and ensure that the final results reflect the true landscape and needs of LA City's various communities.  
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
