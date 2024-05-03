@@ -41,9 +41,9 @@
 
 To uplift the challenges faced by residents in the City of Los Angeles, particularly in communities that have seen systemic divestment and exclusion from critical resources, Catalyst California collaborated with the Make Los Angeles Whole (MLAW) Coalition to identify a set of indicators that would provide a framework for a more equitable city. This project was done in response to the the Measure of Access, Disparity, and Equity (MADE) Index launched by the City Administrative Office (CAO) in the fall of 2023. The MADE Index sought to highlight equity issues in the distribution of resources in the city as well as identify areas for priority investment.
 
-Tools like this are important to ensure that communities most negatively impacted by redlining, disinvestment and systemic racism are given higher priority when it comes to investment, or protection against budget cuts. Because of this, it is essential that these tools are inextricably linked to the priorities and experiences of the most impacted communities. The following [analysis](https://catalystcalifornia.github.io/mlaw/la_city_equity_index), created with the MLAW coalition, recommends indicators, an equity index, and a conceptual framework for a LA City Equity Index that is guided by community feedback. In the analysis, we map the results of the  equity index and the individual indicators to show which parts of the city are "higher need," or need more investments. All indicators are correlated with race to ensure that groups most impacted by systemic racism are being prioritized within the index. 
+Tools like this are important to ensure that communities most negatively impacted by redlining, disinvestment and systemic racism are given higher priority when it comes to investment, or protection against budget cuts. Because of this, it is essential that these tools are inextricably linked to the priorities and experiences of the most impacted communities. The following [analysis](https://catalystcalifornia.github.io/mlaw/la_city_equity_index), created with the MLAW Coalition, recommends indicators, an equity index, and a conceptual framework for a LA City Equity Index (the Index) that is guided by community feedback. In the analysis, we map the results of the  Index and the individual indicators to show which parts of the city are "higher need," or need more investments. All indicators are checked for correlations with race to ensure that groups most impacted by systemic racism are being prioritized. 
 
-This repository provides access to our detailed code for each indicator and a summary of our recommendations to the city. Our index results and recommendations were additionally groundtruthed by partner organizations in the MLAW Coalition. For more information on our process and recommendations, please see the following read me, our detailed recommendations, and analysis.  
+This repository provides access to our detailed code for each indicator and a summary of our recommendations to the City. Our index results and recommendations were additionally groundtruthed by partner organizations in the MLAW Coalition. For more information on our process and recommendations, please see the following read me, our detailed recommendations, and analysis.  
 
 [add link to recommendations pdf]
 <li><a href="https://catalystcalifornia.github.io/mlaw/la_city_equity_index">Link to online index analysis and results</a></li>
@@ -52,7 +52,7 @@ This repository provides access to our detailed code for each indicator and a su
 
 ## Acknowledgements and Partners
 
-This work would not have been possible without the collaboration and invaluable insights provided by our partners in the MLAW Coalition. Our partners collected community surveys throughout the survey to inform issues included in the index and provided their feedback throughout the index development process to shape the domains and indicators included. We urge decision-makers or those looking to develop public indices for budgeting to engage in ongoing, meaningful community engagement to inform index development and implementation.
+This work would not have been possible without the collaboration and invaluable insights provided by our partners in the MLAW Coalition. Our partners collected community surveys throughout the city to inform issues included in the Index and provided their feedback throughout the development process to shape the domains and indicators included. We urge decision-makers or those looking to develop public indices for budgeting to engage in ongoing, meaningful community engagement to inform index development and implementation.
 
 MLAW Coalition partners include:
 
@@ -86,9 +86,13 @@ We used several R packages to analyze data and perform different functions, incl
 * tidyr
 * usethis
 * leaflet
+* RPostgreSQL
+* readxl
+* stringr
+* rpostgis
 
 ```
-list.of.packages <- c("usethis","dplyr","data.table", "sf", tidyr")
+list.of.packages <- c("usethis","dplyr","data.table", "sf", tidyr","leaflet","RPostgreSQL","readxl","stringr","rpostgis")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
 
@@ -113,11 +117,11 @@ library(rpostgis)
 
 ### Indicator Selection
 
-The LA City Equity index was created by first gathering community input to determine what issue areas, and subsequently indicators, were important to prioritize for inclusion in the index. Community input was gathered directly from MLAW Coalition partners, and from a survey that MLAW Coalition partners distributed to their respective community constituents. A final list of indicators was produced and vetted by the MLAW Coalition after cross-referencing the survey results, partner feedback, and correlations between every indicator and Black, Indigenous, People of Color (BIPOC) populations. Additional criteria used for indicator inclusion was that the indicator data source had recent enough data, the data source was updated on a semi-regular basis, and that the data source was available at a sub-city level. 
+The LA City Equity index was created by first gathering community input to determine what issue areas, and subsequently indicators, were important to prioritize for inclusion in the Index. Community input was gathered directly from MLAW Coalition partners, and from a survey that MLAW Coalition partners distributed to their respective community constituents. A final list of indicators was produced and vetted by the MLAW Coalition after cross-referencing the survey results, partner feedback, and correlations between every indicator and Black, Indigenous, People of Color (BIPOC) populations. Additional criteria used for indicator inclusion was that the indicator data source had recent enough data, was updated on a semi-regular basis, and was available at a sub-city level. 
 
 ### LA City ZIP Codes
 
-The final set of indicators and index is analyzed at the LA City ZIP Code level. To achieve this, we create an LA city ZIP Code crosswalk that lists the ZIP Codes that are mostly within LA City boundaries. We define this as ZIP Codes with at least 25% of its geographical area within LA City limits. We manually exclude the following ZIP Codes associated with universities or event spaces from the index: 90095 (UCLA), 90089 (USC), 91330 (CSU Northridge), and 90090 (Dodger Stadium). 
+The final set of indicators and Index is analyzed at the LA City ZIP Code level. To achieve this, we create an LA city ZIP Code crosswalk that lists the ZIP Codes that are mostly within LA City boundaries. We define this as ZIP Codes with at least 25% of their geographical area within LA City limits. We manually exclude the following ZIP Codes associated with universities or event spaces from the index: 90095 (UCLA), 90089 (USC), 91330 (CSU Northridge), and 90090 (Dodger Stadium). 
 
 The LA County ZIP Codes we used to create our crosswalk can be viewed and downloaded from [LA City Geohub](https://geohub.lacity.org/datasets/70748ba37ecc418891e052e800437681_5/about). This data was last updated in 2023. 
 
@@ -130,17 +134,17 @@ The final set of indicators are grouped into four conceptual domains:
 | Safe Environments | LA City residents experience safe environments with safety from pollution, traffic injuries, and harmful policing. | Race Composite Score (Black, Latine, AIAN, NHPI, Asian); Particulate Matter (PM) 2.5; Proximity to Hazardous Waste Facilities; Pedestrian and Bicyclist Fatalities and Injuries; Arrests; Hospitalizations for Gun Injuries |
 | Economy and Opportunity | LA City residents have the opportunity to equitably engage in the economy. | Race Composite Score (Black, Latine, AIAN, NHPI, Asian); Early Childhood Education (ECE) Enrollment; Rent Burden; Evictions; Per Capita Income |           
 | Democracy and Power | LA City residents have the opportunity to equitably participate and influence democracy. | Race Composite Score (Black, Latine, AIAN, NHPI, Asian); Limited English Speaking Households; Voter Turnout for the 2022 General Election | 
-| Longevity and Vitality | LA City residents live with freedom from disease and illness, and have the ability to access resources that increase community wellness. | Race Composite Score (Black, Latine, AIAN, NHPI, Asian); Diabetes Hospitalizations; Impervious Land Cover; Health and Mental Health Care Services Access; Grocery Store Access |
+| Longevity and Vitality | LA City residents live with freedom from disease and illness and have the ability to access resources that increase community wellness. | Race Composite Score (Black, Latine, AIAN, NHPI, Asian); Diabetes Hospitalizations; Impervious Land Cover; Health and Mental Health Care Services Access; Grocery Store Access |
 
-We also calculate a **Race Composite Score** which is the average percentile of the Black, Latine, AIAN, NHPI and Asian populations within a ZIP Code. This is included in all of the domain index calculations and the equity index calculation to ensure that the index incorporates racial equity in the final results.
+We also calculate a **Race Composite Score** which is the average percentile of the Black, Latine, AIAN, NHPI and Asian populations within a ZIP Code. This is included in all domains to ensure that the Index incorporates and emphasizes racial equity in the final results.
 
 ### Analysis Overview
 
 All indicators are individually analyzed at the ZIP Code level by calculating the rate of each indicator for each ZIP Code. A percentile ranking is then measured for each indicator across all LA City ZIP Codes. The higher the indicator percentile ranking is for a ZIP Code, the higher the indicator rate is for that ZIP Code relative to other ZIP Codes in LA City. Percentile rankings are the primary way we determine which ZIP Codes are "high need" relative to others. Most indicators we use are challenge-based, meaning that the higher the percentile ranking is, the higher the need is. For example, the higher the rate or percentile of rent burden, the higher the need is. We also use indicators that are asset-based, meaning that the higher the rate is, the better the condition is, or the lower the need. An example of this is voter turnout. The higher the rate or percentile of voter turnout is, the lower the need is. We adjust asset-based indicators in our index methodology by multiplying their percentiles by -1. This way the final domain and equity index can be interpreted consistently: the higher the percentile is, the higher the need is. 
 
-To calculate the resulting LA City Index, we take indicators within each conceptual domain and calculate a **domain index**. The domain index is calculated by taking the average of the indicator percentiles within the domain, which we call a _domain score_, and then calculating a percentile ranking of the domain score to obtain the _domain percentile_. For example, the **Democracy and Power Domain** is calculated by first taking the average of the voter turnout, limited English speaking households, and race composite score percentiles within each ZIP Code to obtain the _democracy and power domain score_. A percentile ranking is then calculated on that domain score across all the ZIP Codes to obtain the _Democracy and Power Domain percentile_. The __LA City Equity Index__ for each ZIP Code is calculated by taking the average of each of the domain scores for each ZIP Code. ZIP Codes had to have at least 50% of indicators in each domain to get a domain score and index score.
+To calculate the resulting Index, we take indicators within each conceptual domain and calculate a **domain index**. The domain index is calculated by taking the average of the indicator percentiles within the domain, which we call a _domain score_, and then calculating a percentile ranking of the domain score to obtain the _domain percentile_. For example, the **Democracy and Power domain** is calculated by first taking the average of the voter turnout, limited English speaking households, and race composite score percentiles within each ZIP Code to obtain the _Democracy and Power domain score_. A percentile ranking is then calculated on that domain score across all the ZIP Codes to obtain the _Democracy and Power domain percentile_. The __LA City Equity Index__ for each ZIP Code is calculated by taking the average of each of the domain scores for each ZIP Code. ZIP Codes had to have at least 50% of indicators in each domain to get a domain score and index score.
 
-Please view our indicator scripts within each domain and our main analysis R Markdown for detailed methodology.
+Please see our recommendations document for an overview of the methodology by indicator, or view our indicator scripts within each domain folder and [our main R Markdown](https://catalystcalifornia/mlaw/blob/main/la_city_equity_index.Rmd) for detailed methodology.
 
 ### Data Sources
 
@@ -148,11 +152,13 @@ Please visit our detailed recommendations for a list of data sources by indicato
 
 ### Limitations
 
-All public data sources are subject to limitations, including those used to analyze the indicators that make up this index. All of the indicators, with the exception of health/mental health services, are derived from data sources that were updated in 2021 or 2022. Not all data sources are originally published at the ZIP code level. These data sources need to be adjusted from their respective geographic level to the ZIP code level in order to be used in the index calculation.
+All public data sources are subject to limitations, including those used to analyze the indicators that make up the Index. All of the indicators, with the exception of health/mental health services, are derived from data sources that were updated in 2021 or 2022. Not all data sources are originally published at the ZIP code level. These data sources need to be adjusted from their respective geographic level to the ZIP code level in order to be used in the Index calculation.
 
 The health/mental health services indicator is analyzed using the IRS Exempt Organizations Business Master File (EO BMF). The addresses listed on the EO BMF are an organization's headquarter address and therefore may not accurately reflect the area where services are being delivered for that organization. It is also difficult to accurately define the geographic service area of a health/mental health organization. 
 
-There was difficulty in obtaining a comprehensive indicator to represent healthy food access. Our grocery store access indicator uses SNAP authorized-food retailers to calculate access to grocery stores and farmers markets. 
+There was difficulty in obtaining a comprehensive indicator to represent healthy food access. Our grocery store access indicator uses SNAP authorized-food retailers to calculate access to grocery stores and farmers markets. Research suggests supermarkets, super stores, and farmers markets included in this dataset are a decent proxy for food outlets that can support community access to fresh fruits and vegetables, but private industry datasets may have more detailed information to add accuracy to this indicator.
+
+We measure early childhood education enrollment using information on capacity and enrollment of licensed childcare, preschool, and transitional kindergarten facilities in a ZIP Code. This assumes that these centers are fully enrolled and that children in that ZIP Code are accessing facilities in the ZIP Code. However, not all centers may have equal access for children in the ZIP Code and some centers may be filled with enrollment from children outside of the ZIP Code.
 
 It is crucial to supplement indicator analysis with community feedback, and to ground-truth any indicator analysis and index results with community members. Working with data limitations is unavoidable, making it that much more important to embed community input throughout the analysis process and ensure that the final results reflect the true landscape and needs of LA City's various communities.  
 
