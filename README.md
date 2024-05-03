@@ -43,13 +43,10 @@ To uplift the challenges faced by residents in the City of Los Angeles, particul
 
 Tools like this are important to ensure that communities most negatively impacted by redlining, disinvestment and systemic racism are given higher priority when it comes to investment, or protection against budget cuts. Because of this, it is essential that these tools are inextricably linked to the priorities and experiences of the most impacted communities. The following [analysis](https://catalystcalifornia.github.io/mlaw/la_city_equity_index), created with the MLAW Coalition, recommends indicators, an equity index, and a conceptual framework for a LA City Equity Index (the Index) that is guided by community feedback. In the analysis, we map the results of the  Index and the individual indicators to show which parts of the city are "higher need," or need more investments. All indicators are checked for correlations with race to ensure that groups most impacted by systemic racism are being prioritized. 
 
-<<<<<<< HEAD
 This repository provides access to our detailed code for each indicator and a summary of our recommendations to the city. Our index results and recommendations were additionally ground-truthed by partner organizations in the MLAW Coalition. For more information on our process and recommendations, please see the following read me, our detailed recommendations, and analysis.  
-=======
-This repository provides access to our detailed code for each indicator and a summary of our recommendations to the City. Our index results and recommendations were additionally groundtruthed by partner organizations in the MLAW Coalition. For more information on our process and recommendations, please see the following read me, our detailed recommendations, and analysis.  
->>>>>>> a2994739ac55939895b514eee8d24aae4ad2574d
 
-[Link to detailed recommendations and methodology](https://github.com/catalystcalifornia/sdpillars/blob/main/Methodology_Gang_Profiling_SDPD.pdf)
+[Link to detailed recommendations](https://github.com/catalystcalifornia/mlaw/blob/main/LA%20City%20Equity%20Index%20Recommendations.pdf)
+
 <li><a href="https://catalystcalifornia.github.io/mlaw/la_city_equity_index">Link to online index analysis and results</a></li>
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -148,11 +145,11 @@ All indicators are individually analyzed at the ZIP Code level by calculating th
 
 To calculate the resulting Index, we take indicators within each conceptual domain and calculate a **domain index**. The domain index is calculated by taking the average of the indicator percentiles within the domain, which we call a _domain score_, and then calculating a percentile ranking of the domain score to obtain the _domain percentile_. For example, the **Democracy and Power domain** is calculated by first taking the average of the voter turnout, limited English speaking households, and race composite score percentiles within each ZIP Code to obtain the _Democracy and Power domain score_. A percentile ranking is then calculated on that domain score across all the ZIP Codes to obtain the _Democracy and Power domain percentile_. The __LA City Equity Index__ for each ZIP Code is calculated by taking the average of each of the domain scores for each ZIP Code. ZIP Codes had to have at least 50% of indicators in each domain to get a domain score and index score.
 
-Please see our recommendations document for an overview of the methodology by indicator, or view our indicator scripts within each domain folder and [our main R Markdown](https://catalystcalifornia/mlaw/blob/main/la_city_equity_index.Rmd) for detailed methodology.
+Please see our [recommendations document](https://github.com/catalystcalifornia/mlaw/blob/main/LA%20City%20Equity%20Index%20Recommendations.pdf) for an overview of the methodology by indicator, or view our indicator scripts within each domain folder and [our main R Markdown](https://catalystcalifornia/mlaw/blob/main/la_city_equity_index.Rmd) for detailed methodology.
 
 ### Data Sources
 
-Please visit our detailed recommendations for a list of data sources by indicator.
+Please visit our [detailed recommendations](https://github.com/catalystcalifornia/mlaw/blob/main/LA%20City%20Equity%20Index%20Recommendations.pdf) for a list of data sources by indicator.
 
 ### Limitations
 
