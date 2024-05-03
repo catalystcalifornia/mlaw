@@ -344,7 +344,7 @@ There are two to five **indicators** included within each domain. A race composi
 
 In sum, 15 indicators are included in the Index. Over 20 indicators were originally considered for inclusion. Indicators were narrowed based on data availability, community surveys, partner feedback, and data availability. The following page details the analysis done for the indicators studied for the Index. It includes individual maps for every indicator by domain and graphics illustrating the relationship, or correlation, between indicators in each domain and race.
 
-Please visit our recommendations page to read our full recommendations to the City and see our [GitHub repository](https://github.com/catalystcalifornia/mlaw/blob/main/README.md) to view our full methodology.
+Please visit our [recommendations page](https://github.com/catalystcalifornia/mlaw/blob/main/LA%20City%20Equity%20Index%20Recommendations.pdf) to read our full recommendations to the City and see our [GitHub repository](https://github.com/catalystcalifornia/mlaw/blob/main/README.md) to view our full methodology.
 
 # Index Results
 
