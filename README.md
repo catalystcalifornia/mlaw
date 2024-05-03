@@ -43,9 +43,9 @@ To uplift the challenges faced by residents in the City of Los Angeles, particul
 
 Tools like this are important to ensure that communities most negatively impacted by redlining, disinvestment and systemic racism are given higher priority when it comes to investment, or protection against budget cuts. Because of this, it is essential that these tools are inextricably linked to the priorities and experiences of the most impacted communities. The following [analysis](https://catalystcalifornia.github.io/mlaw/la_city_equity_index), created with the MLAW coalition, recommends indicators, an equity index, and a conceptual framework for a LA City Equity Index that is guided by community feedback. In the analysis, we map the results of the  equity index and the individual indicators to show which parts of the city are "higher need," or need more investments. All indicators are correlated with race to ensure that groups most impacted by systemic racism are being prioritized within the index. 
 
-This repository provides access to our detailed code for each indicator and a summary of our recommendations to the city. Our index results and recommendations were additionally groundtruthed by partner organizations in the MLAW Coalition. For more information on our process and recommendations, please see the following read me, our detailed recommendations, and analysis.  
+This repository provides access to our detailed code for each indicator and a summary of our recommendations to the city. Our index results and recommendations were additionally ground-truthed by partner organizations in the MLAW Coalition. For more information on our process and recommendations, please see the following read me, our detailed recommendations, and analysis.  
 
-[add link to recommendations pdf]
+[Link to detailed recommendations and methodology](https://github.com/catalystcalifornia/sdpillars/blob/main/Methodology_Gang_Profiling_SDPD.pdf)
 <li><a href="https://catalystcalifornia.github.io/mlaw/la_city_equity_index">Link to online index analysis and results</a></li>
 
 <p align="right">(<a href="#top">back to top</a>)</p>
