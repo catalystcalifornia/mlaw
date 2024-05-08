@@ -482,6 +482,17 @@ names(charvect) <- colnames(df_final)
 # # send table comment + column metadata
 #  dbSendQuery(con = con, table_comment)
 
+# Index correlations--------------------------------
+
+df_1<-df_final%>%filter_at(vars(1:23),all_vars(!is.na(.)))%>%
+  left_join(df_all%>%select(geoid,nh_white_pctile,nh_black_pctile,latinx_pctile,nh_asian_pctile,aian_pctile,nhpi_pctile))%>%
+              select(-geoid)
+
+mydata.cor2 = round(cor(df_1, method="spearman"),1)
+
+testRes2 = cor.mtest(df_1, method="spearman", conf.level = 0.95,exact=FALSE)
+
+# corrplot(round(mydata.cor2,1), type='full', p.mat=testRes2$p, insig='blank', diag=FALSE)
 
 ```
 
