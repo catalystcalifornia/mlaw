@@ -360,7 +360,7 @@ domain_1<-df_all%>%
   select(geoid,bipoc_pctile,transitinj_pctile,guninj_pctile,arrest_pctile,pm2_5_pctile_adj,hazwaste_pctile_adj)%>%
   rowwise%>%
   mutate(safe_environments_count=sum(!is.na(c_across(where(is.numeric)))),
-         safe_environments_score=sum((c_across(where(is.numeric))))/safe_environments_count)%>%
+         safe_environments_score=ifelse(safe_environments_count<3,NA,sum(c_across(contains("pctile")),na.rm=TRUE)/safe_environments_count))%>%
   ungroup()
 
 domain_1<-domain_1%>%mutate(safe_environments_pctile=percent_rank(safe_environments_score))
@@ -373,7 +373,7 @@ domain_2<-df_all%>%
          percapincome_pctile=percapincome_pctile*-1)%>%# reverse scores that represent assets
   rowwise%>%
   mutate(econ_opp_count=sum(!is.na(c_across(where(is.numeric)))),
-         econ_opp_score=ifelse(econ_opp_count<2, NA, sum((c_across(where(is.numeric))))/econ_opp_count))%>%
+         econ_opp_score=ifelse(econ_opp_count<3,NA,sum(c_across(contains("pctile")),na.rm=TRUE)/econ_opp_count))%>%
   ungroup()
 
 domain_2<-domain_2%>%mutate(econ_opp_pctile=percent_rank(econ_opp_score))
@@ -384,7 +384,7 @@ domain_3<-df_all%>%
   mutate(voter_turnout_pctile=voter_turnout_pctile*-1)%>%
   rowwise%>%
   mutate(democracy_count=sum(!is.na(c_across(where(is.numeric)))),
-         democracy_score=sum((c_across(where(is.numeric))))/democracy_count)%>%
+         democracy_score=ifelse(democracy_count<1,NA,sum(c_across(contains("pctile")),na.rm=TRUE)/democracy_count))%>%
   ungroup()
 
 domain_3<-domain_3%>%mutate(democracy_pctile=percent_rank(democracy_score))
@@ -395,8 +395,8 @@ domain_4<-df_all%>%
   mutate(healthservice_raw_pctile=healthservice_raw_pctile*-1,
         grocery_access_pctile=grocery_access_pctile*-1)%>%
   rowwise%>%
-  mutate(longevity_count=sum(!is.na(c_across(where(is.numeric)))),
-         longevity_score=ifelse(longevity_count<2,NA,sum((c_across(where(is.numeric))))/longevity_count))%>%
+ mutate(longevity_count=sum(!is.na(c_across(where(is.numeric)))),
+         longevity_score=ifelse(longevity_count<3,NA,sum(c_across(contains("pctile")),na.rm=TRUE)/longevity_count))%>%
   ungroup()
 
 domain_4<-domain_4%>%mutate(longevity_pctile=percent_rank(longevity_score))
@@ -413,7 +413,91 @@ index$index_score[is.na(index$longevity_pctile)] <- NA
 
 index$index_pctile<-percent_rank(index$index_score)
 
-# map index
+# Finalize and export to postgres for Excel--------------------------------
+
+# only select columns of interest
+df_final<-index%>%
+  select(contains("pctile")|contains("geoid"))%>%
+  left_join(pop_zip%>%select(zipcode,pop)%>%st_drop_geometry(),by=c("geoid"="zipcode"))%>%
+  select(geoid, index_pctile, pop,everything())
+
+# multiply all pctile columns by 100
+pctile <- grep("pctile", names(df_final)) # finds pctile columns
+df_final[,pctile] <- 100*df_final[,pctile]
+
+# reverse the -1 for asset-based columns
+df_final<-df_final%>%
+  mutate(ecenrollment_pctile=ecenrollment_pctile*-1,
+         percapincome_pctile=percapincome_pctile*-1,
+         voter_turnout_pctile=voter_turnout_pctile*-1,
+         healthservice_raw_pctile=healthservice_raw_pctile*-1,
+         grocery_access_pctile=grocery_access_pctile*-1)
+
+# set column types
+charvect = rep("numeric", ncol(df_final)) 
+charvect <- replace(charvect, c(1), c("varchar"))
+
+# add df colnames to the character vector
+names(charvect) <- colnames(df_final)
+
+# # push to postgres
+# dbWriteTable(con,  "pctiles_index", df_final,
+#              overwrite = TRUE, row.names = FALSE,
+#              field.types = charvect)
+# 
+# 
+# # add meta data
+# table_comment <- paste0("COMMENT ON TABLE pctiles_index  IS 'Table containing all 
+# indicator percentiles, domain index score percentiles, and equity index percentiles for each zipcode.
+# NOTE ECE Enrollment percentiles can not be publically distributed
+# R script:W:/Project/ECI/MLAW/R/pctiles_index.R
+# QA document:
+# W:\\Project\\ECI\\MLAW\\Documentation\\QA_pctiles_index.docx';
+# 
+# COMMENT ON COLUMN pctiles_index.geoid IS 'Zipcode';
+# COMMENT ON COLUMN pctiles_index.bipoc_pctile IS 'Percentile rank of average BIPOC population from 0 to 100, with 100 being the highest average, or highest need';
+# COMMENT ON COLUMN pctiles_index.transitinj_pctile IS 'Percentile rank of active transit injuries from 0 to 100, with 100 being the highest rate and highest need';
+# COMMENT ON COLUMN pctiles_index.guninj_pctile IS 'Percentile rank of nonfatal gun injuries from 0 to 100, with 100 being the highest rate and highest need';
+# COMMENT ON COLUMN pctiles_index.arrest_pctile IS 'Percentile rank of arrests from 0 to 100, with 100 being the highest rate and highest need';
+# COMMENT ON COLUMN pctiles_index.pm2_5_pctile_adj IS 'Percentile rank of pm2.5 concentration from 0 to 100, with 100 being the highest rate and highest need';
+# COMMENT ON COLUMN pctiles_index.hazwaste_pctile_adj IS 'Percentile rank of proximity to hazards from 0 to 100, with 100 being the highest rate and highest need';
+# COMMENT ON COLUMN pctiles_index.safe_environments_pctile IS 'Domain 1: Safe Environments percentile rank of the domain score from 0 to 100, with 100 being the highest rate and highest need in this domain';
+# COMMENT ON COLUMN pctiles_index.ecenrollment_pctile IS 'Percentile rank of ece enrollment from 0 to 100, with 100 being the highest rate and lowest need - this data is not for distribution';
+# COMMENT ON COLUMN pctiles_index.eviction_pctile IS 'Percentile rank of eviction notices from 0 to 100, with 100 being the highest rate and highest need';
+# COMMENT ON COLUMN pctiles_index.rentburden_pctile IS 'Percentile rank of rent burden from 0 to 100, with 100 being the highest rate and highest need. Rent burden is defined as spending 30% or more of income on rent.';
+# COMMENT ON COLUMN pctiles_index.percapincome_pctile IS 'Percentile rank of per capita income from 0 to 100, with 100 being the highest per capita income and lowest need';
+# COMMENT ON COLUMN pctiles_index.econ_opp_pctile IS 'Domain 2: Economic Opportunity percentile rank of the domain score from 0 to 100, with 100 being the highest rate and highest need in this domain';
+# COMMENT ON COLUMN pctiles_index.lep_pctile IS 'Percentile rank of limited english speaking households from 0 to 100, with 100 being the highest rate and highest need';
+# COMMENT ON COLUMN pctiles_index.voter_turnout_pctile IS 'Percentile rank of voter turnout from 0 to 100, with 100 being the highest rate and lowest need';
+# COMMENT ON COLUMN pctiles_index.democracy_pctile IS 'Domain 3: Democracy and Power percentile rank of the domain score from 0 to 100, with 100 being the highest rate and highest need in this domain';
+# COMMENT ON COLUMN pctiles_index.diabetes_pctile IS 'Percentile rank of diabetes hospitalizations from 0 to 100, with 100 being the highest rate and highest need';
+# COMMENT ON COLUMN pctiles_index.imperv_pctile IS 'Percentile rank of impervious land cover from 0 to 100, with 100 being the highest rate and highest need';
+# COMMENT ON COLUMN pctiles_index.healthservice_raw_pctile IS 'Percentile rank of health/mental health services from 0 to 100, with 100 being the highest rate and lowest need';
+# COMMENT ON COLUMN pctiles_index.grocery_access_pctile IS 'Percentile rank of access to supermarkets and farmers markets from 0 to 100, with 100 being the highest rate and lowest need';
+# COMMENT ON COLUMN pctiles_index.longevity_pctile IS 'Domain 4: Longevity and Vitality percentile rank of the domain score from 0 to 100, with 100 being the highest rate and highest need in this domain';
+# COMMENT ON COLUMN pctiles_index.index_pctile IS 'LA City Equity Index score percentile rank of the Equity Index score from 0 to 100, with 100 being the highest rate and highest need in the overall Equity Index';
+# COMMENT ON COLUMN pctiles_index.pop IS 'ZIP Code population';
+# ")
+# 
+# # send table comment + column metadata
+#  dbSendQuery(con = con, table_comment)
+
+# Index correlations--------------------------------
+
+df_1<-df_final%>%filter_at(vars(1:23),all_vars(!is.na(.)))%>%
+  left_join(df_all%>%select(geoid,nh_white_pctile,nh_black_pctile,latinx_pctile,nh_asian_pctile,aian_pctile,nhpi_pctile))%>%
+              select(-geoid)
+
+mydata.cor2 = round(cor(df_1, method="spearman"),1)
+
+testRes2 = cor.mtest(df_1, method="spearman", conf.level = 0.95,exact=FALSE)
+
+# corrplot(round(mydata.cor2,1), type='full', p.mat=testRes2$p, insig='blank', diag=FALSE)
+
+```
+
+```{r}
+# Map Index --------------------------------
 # step 1: read in analysis table
 df<-index%>%
   select(geoid,index_pctile)%>% # narrow columns
@@ -755,7 +839,7 @@ indicator_map(df,indicator,direction)
 ```
 Data Source: U.S. Census Bureau, American Community Survey, B25070, 2018-2022.
 
-#### Evictions
+#### Eviction Notices
 
 ```{r}
 
@@ -771,7 +855,7 @@ df<-pop_zip%>%
 # step 3: apply map function 
 
 # feed in indicator label for mapping popup and legend and group overlay
-indicator<-paste0("Evictions")
+indicator<-paste0("Eviction Notices")
 direction<-paste0("higher")
 
 indicator_map(df,indicator,direction)
