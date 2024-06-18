@@ -334,10 +334,10 @@ COMMENT ON COLUMN groceryaccess_blockgrp_scores.access_score IS 'Block group acc
                                            ")
 
 # send table comment + column metadata
-dbSendQuery(con = con, table_comment)
+# dbSendQuery(con = con, table_comment)
 
 # write to shapefile
-st_write(bg_access, "W:/Project/ECI/MLAW/Shapefiles/groceryaccess_blockgrp_scores.shp")
+# st_write(bg_access, "W:/Project/ECI/MLAW/Shapefiles/groceryaccess_blockgrp_scores.shp")
          
 # transform for map
 bg_access<-st_transform(bg_access,4326)
