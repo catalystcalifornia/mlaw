@@ -298,8 +298,47 @@ indicator_df<-step2 %>%
 # join to block group shapes for mapping
 indicator_df<-indicator_df%>%st_drop_geometry()
 bg_access<-bg_polys_pop%>%
-  left_join(indicator_df%>%select(geoid,indicator_final,a_final))
+  left_join(indicator_df%>%select(geoid,indicator_final,a_final))%>%
+  rename(access_ptile=indicator_final,
+         access_score=a_final)
 
+######## Export to bg values postgres and shapefile ########
+
+# set column types
+charvect = rep("numeric", ncol(bg_access)) 
+charvect <- replace(charvect, c(1), c("varchar"))
+charvect <- replace(charvect, c(6), c("geometry"))
+
+# add df colnames to the character vector
+names(charvect) <- colnames(bg_access)
+
+# push to postgres
+# dbWriteTable(con,  "groceryaccess_blockgrp_scores", bg_access,
+#              overwrite = FALSE, row.names = FALSE,
+#              field.types = charvect)
+
+# add meta data
+table_comment <- paste0("COMMENT ON TABLE groceryaccess_blockgrp_scores  IS 'Block group level grocery store access accessibility scores used to calculate ZIP Code level access
+Higher percentile and a higher accessibility scores indicates higher access measured based on enhanced two-step floating catchment area
+Grocery access is measured at the block group level where supply-demand ratios for grocery stores are provided to block groups based on population weighted centroids
+buffers of .5 miles, 1 mile, and 3 miles are used. Accounts for population likely accessing each supermarket and then sums the demand for each supermarket for each block group
+R script:W:/Project/ECI/MLAW/R/rates_groceryaccess.R
+QA document:
+W:\\Project\\ECI\\MLAW\\Documentation\\QA_rates_groceryaccess.docx';
+
+COMMENT ON COLUMN groceryaccess_blockgrp_scores.geoid IS 'block group geoid';
+COMMENT ON COLUMN groceryaccess_blockgrp_scores.population IS 'block group population';
+COMMENT ON COLUMN groceryaccess_blockgrp_scores.bg_area IS 'block group area';
+COMMENT ON COLUMN groceryaccess_blockgrp_scores.access_ptile IS 'Percentile rank of block group accessibility scores where a higher percentile means higher access';
+COMMENT ON COLUMN groceryaccess_blockgrp_scores.access_score IS 'Block group accessibility score where higher scores indicators higher access to grocery stores';
+                                           ")
+
+# send table comment + column metadata
+dbSendQuery(con = con, table_comment)
+
+# write to shapefile
+st_write(bg_access, "W:/Project/ECI/MLAW/Shapefiles/groceryaccess_blockgrp_scores.shp")
+         
 # transform for map
 bg_access<-st_transform(bg_access,4326)
 
