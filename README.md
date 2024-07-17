@@ -199,7 +199,7 @@ A world where systems are designed for justice and support equitable access to r
 
 ## License
 
-Distributed under the MIT License. See `LICENSE.txt` for more information.
+Distributed under the General Public Use and Creative Commons Licenses. See `LICENSE.txt` and `CC_LICENSE.md` for more information.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
