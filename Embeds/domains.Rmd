@@ -186,16 +186,16 @@ nacolor<-"#9B9A9A"
 # create popup: 
 
 popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-height:200px'> <b>ZIP Code:</b> ", df$zipcode, "</br>",
-"<b>","Economy and Opportunity Index"," Percentile*: ", round(df$econ_opp_pctile,1),"</b></br>",
-"<b>","Equity Index"," Percentile*:</b> ", round(df$index_pctile,1),"</br></br>",
-"<b>","Remaining Domain Indices:","</b></br></br>",
-   "<b>","Safe Environments Index"," Percentile*:</b> ", round(df$safe_environments_pctile,1),"</br>",
-   "<b>","Democracy and Power"," Percentile*:</b> ", round(df$democracy_pctile,1),"</br>",
-    "<b>","Longevity and Vitality"," Percentile*:</b> ", round(df$longevity_pctile,1),"</br>",
- "<b>Population:</b> ", format(df$pop, big.mark=","), "</br>",
+"<b>","Economy and Opportunity"," Percentile*: ", round(df$econ_opp_pctile,1),"</b></br>",
+"<b>","Equity Index"," Percentile*:</b> ", round(df$index_pctile,1),"</br>",
+ "<b>Population:</b> ", format(df$pop, big.mark=","), "</br></br>",
+"<b>","Other Domain Percentiles:","</b></br>",
+   "","Safe Environments*: ", round(df$safe_environments_pctile,1),"</br>",
+   "","Democracy and Power*: ", round(df$democracy_pctile,1),"</br>",
+    "","Longevity and Vitality*: ", round(df$longevity_pctile,1),"</br>",
  "</br>",
 
-"<i>*Percentiles range from 0-100. The higher the percentile score, the ", direction," the need.</i>","</br>",
+"<i>*Percentiles range from 0-100. The higher the percentile, the ", direction," the need.</i>","</br>",
 "</br></div>")
 
 # map-----------------------------------
@@ -229,19 +229,20 @@ nacolor<-"#9B9A9A"
 
 # pop up SEPARATE--------------------------
 
+
 # create popup: 
 
 popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-height:200px'> <b>ZIP Code:</b> ", df$zipcode, "</br>",
 "<b>","Democracy and Power"," Percentile*: ", round(df$democracy_pctile,1),"</b></br>",
-"<b>","Equity Index"," Percentile*:</b> ", round(df$index_pctile,1),"</br></br>",
-"<b>","Remaining Domain Indices:","</b></br></br>",
-   "<b>","Safe Environments Index"," Percentile*:</b> ", round(df$safe_environments_pctile,1),"</br>",
-   "<b>","Economy and Opportunity Index"," Percentile*:</b> ", round(df$econ_opp_pctile,1),"</br>",
-    "<b>","Longevity and Vitality"," Percentile*:</b> ", round(df$longevity_pctile,1),"</br>",
- "<b>Population:</b> ", format(df$pop, big.mark=","), "</br>",
+"<b>","Equity Index"," Percentile*:</b> ", round(df$index_pctile,1),"</br>",
+ "<b>Population:</b> ", format(df$pop, big.mark=","), "</br></br>",
+"<b>","Other Domain Percentiles:","</b></br>",
+   "","Safe Environments*: ", round(df$safe_environments_pctile,1),"</br>",
+   "","Economy and Opportunity*: ", round(df$econ_opp_pctile,1),"</br>",
+    "","Longevity and Vitality*: ", round(df$longevity_pctile,1),"</br>",
  "</br>",
 
-"<i>*Percentiles range from 0-100. The higher the percentile score, the ", direction," the need.</i>","</br>",
+"<i>*Percentiles range from 0-100. The higher the percentile, the ", direction," the need.</i>","</br>",
 "</br></div>")
 
 # map-----------------------------------
@@ -279,15 +280,15 @@ nacolor<-"#9B9A9A"
 
 popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-height:200px'> <b>ZIP Code:</b> ", df$zipcode, "</br>",
 "<b>","Longevity and Vitality"," Percentile*: ", round(df$longevity_pctile,1),"</b></br>",
-"<b>","Equity Index"," Percentile*:</b> ", round(df$index_pctile,1),"</br></br>",
-"<b>","Remaining Domain Indices:","</b></br></br>",
-   "<b>","Safe Environments Index"," Percentile*:</b> ", round(df$safe_environments_pctile,1),"</br>",
-   "<b>","Economy and Opportunity Index"," Percentile*:</b> ", round(df$econ_opp_pctile,1),"</br>",
-    "<b>","Democracy and Power"," Percentile*:</b> ", round(df$democracy_pctile,1),"</br>",
- "<b>Population:</b> ", format(df$pop, big.mark=","), "</br>",
+"<b>","Equity Index"," Percentile*:</b> ", round(df$index_pctile,1),"</br>",
+ "<b>Population:</b> ", format(df$pop, big.mark=","), "</br></br>",
+"<b>","Other Domain Percentiles:","</b></br>",
+   "","Safe Environments*: ", round(df$safe_environments_pctile,1),"</br>",
+   "","Economy and Opportunity*: ", round(df$econ_opp_pctile,1),"</br>",
+    "","Democracy and Power*: ", round(df$democracy_pctile,1),"</br>",
  "</br>",
 
-"<i>*Percentiles range from 0-100. The higher the percentile score, the ", direction," the need.</i>","</br>",
+"<i>*Percentiles range from 0-100. The higher the percentile, the ", direction," the need.</i>","</br>",
 "</br></div>")
 
 # map-----------------------------------
