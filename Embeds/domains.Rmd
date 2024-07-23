@@ -134,7 +134,7 @@ indicator<-paste0("Safe Environments")
 direction<-paste0("higher")
 
 # feed in colorpalette
-colorpalette <- c( "#E2D9FF" ,"#BDAFE9",  "#8E7ACA","#362178","#211447")
+colorpalette <- c( "#FFBDA6" ,"#FF9873",  "#FA7B4D","#F25922","#DF4007")
 nacolor<-"#9B9A9A"
 
 # pop up SEPARATE--------------------------
@@ -178,7 +178,7 @@ indicator<-paste0("Economy and Opportunity")
 direction<-paste0("higher")
 
 # feed in colorpalette
-colorpalette <- c( "#E2D9FF" ,"#BDAFE9",  "#8E7ACA","#362178","#211447")
+colorpalette <- c( "#E7AECD" ,"#C27AA1",  "#994E77","#733256","#601D42")
 nacolor<-"#9B9A9A"
 
 # pop up SEPARATE--------------------------
@@ -224,7 +224,7 @@ indicator<-paste0("Democracy and Power")
 direction<-paste0("higher")
 
 # feed in colorpalette
-colorpalette <- c( "#E2D9FF" ,"#BDAFE9",  "#8E7ACA","#362178","#211447")
+colorpalette <- c( "#FFE4BB" ,"#FFD28F",  "#FFBC58","#FF9E0D","#EB8D00")
 nacolor<-"#9B9A9A"
 
 # pop up SEPARATE--------------------------
@@ -271,7 +271,7 @@ indicator<-paste0("Longevity and Vitality")
 direction<-paste0("higher")
 
 # feed in colorpalette
-colorpalette <- c( "#E2D9FF" ,"#BDAFE9",  "#8E7ACA","#362178","#211447")
+colorpalette <- c( "#C9E3FF" ,"#9BCCFF",  "#5FABF9", "#177FEB","#0860BC")
 nacolor<-"#9B9A9A"
 
 # pop up SEPARATE--------------------------
