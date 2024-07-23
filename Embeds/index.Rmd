@@ -6,32 +6,13 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(comment = FALSE, message = FALSE, warning = FALSE, echo = FALSE
-)
+knitr::opts_chunk$set(comment = FALSE, message = FALSE, warning = FALSE, echo = FALSE)
 
-library(RPostgreSQL)
-library(knitr)
-library(dplyr)
 library(sf)
 library(leaflet)
-library(htmltools)
-library(stringr)
-library(rgdal)
-library(rpostgis)
-library(leaflet)
-library(RColorBrewer)
-library(stringr)
-library(scales)
-library(colorspace)
-library(highcharter) 
-library(devtools)
+library(highcharter)
 library(rmapshaper)
-# library(maptools)
-library(rgeos)
-# install.packages("corrplot")
-library(corrplot)
-# install.packages("Hmisc")
-library(Hmisc)
+
 options(highcharter.theme = hc_theme_smpl(tooltip = list(valueDecimals = 2)))
 options(scipen=999)
 
@@ -39,7 +20,9 @@ source("W:\\RDA Team\\R\\credentials_source.R")
 
 con <- connect_to_db("eci_mlaw")
 con2 <- connect_to_db("rda_shared_data")
+```
 
+```{r define-function, include=FALSE}
 # Map function -------------------------
 
 index_map<-function(df,indicator,direction,colorpalette,nacolor){
@@ -90,7 +73,11 @@ group = indicator, options = pathOptions(pane = "indi_pane"))%>%
 addLegend(position = "bottomleft", pal = pal, values = df$pctile, opacity = 1, title = paste0(indicator, " Percentile"), labFormat = function(type, cuts, p){paste0(labels)}) %>%
  hideGroup("City Council District")
 
-map}
+map
+}
+```
+
+```{r load-data, include=FALSE}
 
 # Read in postgres tables------------------------
 
