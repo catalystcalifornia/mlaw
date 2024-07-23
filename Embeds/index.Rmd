@@ -25,12 +25,12 @@ con2 <- connect_to_db("rda_shared_data")
 ```{r define-function, include=FALSE}
 # Map function -------------------------
 
-index_map<-function(df,indicator,direction,colorpalette,nacolor){
+index_map <- function(df, indicator, direction, colorpalette, nacolor, popup){
 # add color palette for Indicator Percentiles
 
-pctl.bins <-c(0, 20, 40, 60, 80, 100)
+pctl.bins <- c(0, 20, 40, 60, 80, 100)
 
-pal <- colorBin( palette = colorpalette, bins=pctl.bins, na.color = nacolor)
+pal <- colorBin(palette=colorpalette, bins=pctl.bins, na.color=nacolor)
 
 # create custom legend labels
 
@@ -39,18 +39,17 @@ labels <- c(
   "LOW NEED (20-39th Percentile)",
   "MODERATE NEED (40-59th Percentile)",
   "HIGH NEED (60-79th Percentile)",
-"HIGHEST NEED (80-100th Percentile)"
+  "HIGHEST NEED (80-100th Percentile)"
 )
+
 # map
-
-map<-leaflet(width = "100%", height = "600px")%>%
-  
+map <- leaflet(width = "100%", height = "600px") %>%
   # add base map
-addProviderTiles("CartoDB.PositronNoLabels") %>%
-addProviderTiles("CartoDB.PositronOnlyLabels", options = providerTileOptions(pane = "markerPane")) %>%
-
-# add map panes
-addMapPane("indi_pane", zIndex = 400) %>%
+  addProviderTiles("CartoDB.PositronNoLabels") %>%
+  addProviderTiles("CartoDB.PositronOnlyLabels", options = providerTileOptions(pane = "markerPane")) %>%
+  
+  # add map panes
+  addMapPane("indi_pane", zIndex = 400) %>%
   addMapPane("cd_pane", zIndex = 400) %>%
   
   # set view and layer control
@@ -59,21 +58,26 @@ addMapPane("indi_pane", zIndex = 400) %>%
   addLayersControl(overlayGroups = c(indicator, "City Council District"), 
                    options = layersControlOptions(collapsed = FALSE, autoZIndex = TRUE)) %>%
   
-     # CD layer
-addPolygons(data = cd, fillOpacity=0, color = '#CEEA01', weight = 2.2, label=~district, group = "City Council District", options = pathOptions(pane = "cd_pane", interactive = FALSE), highlight = highlightOptions(color = "white", weight = 3, bringToFront = TRUE))%>%
+  # CD layer
+  addPolygons(data = cd, fillOpacity=0, color = '#CEEA01', weight = 2.2, 
+              label=~district, group = "City Council District", 
+              options = pathOptions(pane = "cd_pane", interactive = FALSE), 
+              highlight = highlightOptions(color = "white", weight = 3, bringToFront = TRUE))%>%
   
   # Indicator layer
-
-  addPolygons(data=df, fillColor = ~pal(df$pctile), color="white", weight = 1, smoothFactor = 0.5, fillOpacity = .80, highlight = highlightOptions(color = "white", weight = 3, bringToFront = TRUE, sendToBack = TRUE), 
-popup = ~popup,
-group = indicator, options = pathOptions(pane = "indi_pane"))%>%
+  addPolygons(data=df, fillColor = ~pal(df$pctile), color="white", weight = 1, 
+              smoothFactor = 0.5, fillOpacity = .80, 
+              highlight = highlightOptions(color = "white", weight = 3, bringToFront = TRUE, sendToBack = TRUE), 
+              popup = ~popup, group = indicator, options = pathOptions(pane = "indi_pane"))%>%
   
   # add legend
+  addLegend(position = "bottomleft", pal = pal, values = df$pctile, opacity = 1, 
+            title = paste0(indicator, " Percentile"), labFormat = function(type, cuts, p){paste0(labels)}) %>%
   
-addLegend(position = "bottomleft", pal = pal, values = df$pctile, opacity = 1, title = paste0(indicator, " Percentile"), labFormat = function(type, cuts, p){paste0(labels)}) %>%
- hideGroup("City Council District")
+  hideGroup("City Council District")
 
 map
+
 }
 ```
 
@@ -82,24 +86,22 @@ map
 # Read in postgres tables------------------------
 
 # Read in LA city council districts shape
-cd<-st_read(con2, query="SELECT * FROM geographies_la.lacitygeohub_lacity_council_districts_2023", geom="geom")%>%
-  st_transform(4326)%>%
+cd <- st_read(con2, query="SELECT * FROM geographies_la.lacitygeohub_lacity_council_districts_2023", geom="geom") %>%
+  st_transform(4326) %>%
   ms_simplify()
 
-index<-dbGetQuery(con, "SELECT * FROM pctiles_index")
+index <- dbGetQuery(con, "SELECT * FROM pctiles_index")
 
-df<-index%>%
-  # select(geoid,index_pctile)%>% # narrow columns
-   mutate(pctile=index_pctile) 
+df <- index %>%
+  mutate(pctile=index_pctile) 
 
 # Read in la city zipcode xwalk
-zip_xwalk<-st_read(con, query="SELECT * FROM crosswalk_zip_city_2022", geom="geom")%>%
-  st_transform(4326)%>%
+zip_xwalk <- st_read(con, query="SELECT * FROM crosswalk_zip_city_2022", geom="geom") %>%
+  st_transform(4326) %>%
   ms_simplify()
 
-
 # join index table with population data to the zip xwalk with our zip geoms
-df<-zip_xwalk%>%
+df <- zip_xwalk %>%
   left_join(df, by=c("zipcode"="geoid"))
 
 ```
@@ -109,13 +111,12 @@ df<-zip_xwalk%>%
 # Map using map function -----
 
 # feed in indicator label for mapping popup and legend and group overlay
-indicator<-paste0("Equity Index")
-direction<-paste0("higher")
+indicator <- paste0("Equity Index")
+direction <- paste0("higher")
 
 # feed in colorpalette
-colorpalette <- c( "#E2D9FF" ,"#BDAFE9",  "#8E7ACA","#362178","#211447")
+colorpalette <- c("#E2D9FF", "#BDAFE9", "#8E7ACA", "#362178", "#211447")
 nacolor<-"#9B9A9A"
-
 
 ## Map pop-ups SEPARATE------------------------
 
@@ -140,7 +141,7 @@ popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-he
 # Equity Index
 ```{r}
 
-index_map(df,indicator,direction,colorpalette,nacolor)
+index_map(df, indicator, direction, colorpalette, nacolor)
 
 ```
 
