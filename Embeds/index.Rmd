@@ -26,14 +26,16 @@ con2 <- connect_to_db("rda_shared_data")
 # Map function -------------------------
 
 index_map <- function(df, indicator, direction, colorpalette, nacolor, popup){
-# add color palette for Indicator Percentiles
-
+# Function also requires the following global variables: 
+# 'cd' spatial dataframe with 'district' column
+# the 'df' spatial dataframe must have a 'pctile' column that stores the indicator layer values
+  
 pctl.bins <- c(0, 20, 40, 60, 80, 100)
 
+# add color palette for Indicator Percentiles
 pal <- colorBin(palette=colorpalette, bins=pctl.bins, na.color=nacolor)
 
 # create custom legend labels
-
 labels <- c(
   "LOWEST NEED (0-19th Percentile)",
   "LOW NEED (20-39th Percentile)",
