@@ -1,3 +1,5 @@
+# load libraries
+library(leaflet)
 
 # copied from index.Rmd
 index_map <- function(df, indicator, direction, colorpalette, nacolor, popup){
