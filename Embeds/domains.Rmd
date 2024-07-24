@@ -47,6 +47,15 @@ index<-zip_xwalk%>%
 
 
 ## Domain Indices {.tabset .tabset-fade}
+```{r domain-map-setup, include=FALSE}
+# define color palettes for each domain
+safe_env_pal <- c( "#FFBDA6" ,"#FF9873",  "#FA7B4D","#F25922","#DF4007")
+econ_opp_pal <- c( "#E7AECD" ,"#C27AA1",  "#994E77","#733256","#601D42")
+democracy_pal <- c( "#FFE4BB" ,"#FFD28F",  "#FFBC58","#FF9E0D","#EB8D00")
+longevity_pal <- c( "#C9E3FF" ,"#9BCCFF",  "#5FABF9", "#177FEB","#0860BC")
+
+nacolor <- "#9B9A9A"
+```
 
 ### Safe Environments 
 
@@ -64,10 +73,6 @@ df<-index%>%
 indicator<-paste0("Safe Environments")
 direction<-paste0("higher")
 
-# feed in colorpalette
-colorpalette <- c( "#FFBDA6" ,"#FF9873",  "#FA7B4D","#F25922","#DF4007")
-nacolor<-"#9B9A9A"
-
 # create popup: 
 popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-height:200px'> <b>ZIP Code:</b> ", df$zipcode, "</br>",
 "<b>","Safe Environments"," Percentile*: ", round(df$safe_environments_pctile,1),"</b></br>",
@@ -83,8 +88,8 @@ popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-he
 "</br></div>")
 
 # map-----------------------------------
+index_map(df=df, indicator=indicator, colorpalette=safe_env_pal, nacolor=nacolor, popup=popup)
 
-index_map(df=df, indicator=indicator, colorpalette=colorpalette, nacolor=nacolor, popup=popup)
 ```
 
 ### Economy and Opportunity
@@ -103,10 +108,6 @@ df<-index%>%
 indicator<-paste0("Economy and Opportunity")
 direction<-paste0("higher")
 
-# feed in colorpalette
-colorpalette <- c( "#E7AECD" ,"#C27AA1",  "#994E77","#733256","#601D42")
-nacolor<-"#9B9A9A"
-
 # create popup: 
 popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-height:200px'> <b>ZIP Code:</b> ", df$zipcode, "</br>",
 "<b>","Economy and Opportunity"," Percentile*: ", round(df$econ_opp_pctile,1),"</b></br>",
@@ -122,8 +123,8 @@ popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-he
 "</br></div>")
 
 # map-----------------------------------
+index_map(df=df, indicator=indicator, colorpalette=econ_opp_pal, nacolor=nacolor, popup=popup)
 
-index_map(df=df, indicator=indicator, colorpalette=colorpalette, nacolor=nacolor, popup=popup)
 ```
 
 ### Democracy and Power
@@ -142,10 +143,6 @@ df<-index%>%
 indicator<-paste0("Democracy and Power")
 direction<-paste0("higher")
 
-# feed in colorpalette
-colorpalette <- c( "#FFE4BB" ,"#FFD28F",  "#FFBC58","#FF9E0D","#EB8D00")
-nacolor<-"#9B9A9A"
-
 # create popup: 
 popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-height:200px'> <b>ZIP Code:</b> ", df$zipcode, "</br>",
 "<b>","Democracy and Power"," Percentile*: ", round(df$democracy_pctile,1),"</b></br>",
@@ -161,8 +158,8 @@ popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-he
 "</br></div>")
 
 # map-----------------------------------
+index_map(df=df, indicator=indicator, colorpalette=democracy_pal, nacolor=nacolor, popup=popup)
 
-index_map(df=df, indicator=indicator, colorpalette=colorpalette, nacolor=nacolor, popup=popup)
 ```
 
 ### Longevity and Vitality
@@ -181,10 +178,6 @@ df<-index%>%
 indicator<-paste0("Longevity and Vitality")
 direction<-paste0("higher")
 
-# feed in colorpalette
-colorpalette <- c( "#C9E3FF" ,"#9BCCFF",  "#5FABF9", "#177FEB","#0860BC")
-nacolor<-"#9B9A9A"
-
 # create popup: 
 popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-height:200px'> <b>ZIP Code:</b> ", df$zipcode, "</br>",
 "<b>","Longevity and Vitality"," Percentile*: ", round(df$longevity_pctile,1),"</b></br>",
@@ -200,8 +193,8 @@ popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-he
 "</br></div>")
 
 # map-----------------------------------
+index_map(df=df, indicator=indicator, colorpalette=longevity_pal, nacolor=nacolor, popup=popup)
 
-index_map(df=df, indicator=indicator, colorpalette=colorpalette, nacolor=nacolor, popup=popup)
 ```
 
 
