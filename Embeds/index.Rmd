@@ -57,7 +57,6 @@ direction <- "higher"
 
 # define colorpalette
 colorpalette <- c("#E2D9FF", "#BDAFE9", "#8E7ACA", "#362178", "#211447")
-nacolor<-"#9B9A9A"
 
 # create popup: 
 popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-height:200px'> <b>ZIP Code:</b> ", df$zipcode, "</br>",
@@ -79,7 +78,7 @@ popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-he
 # Equity Index
 ```{r index-map}
 
-index_map(df=df, indicator=indicator, colorpalette=colorpalette, nacolor=nacolor, popup=popup)
+index_map(df=df, indicator=indicator, colorpalette=colorpalette, popup=popup)
 
 ```
 

@@ -53,8 +53,6 @@ safe_env_pal <- c( "#FFBDA6" ,"#FF9873",  "#FA7B4D","#F25922","#DF4007")
 econ_opp_pal <- c( "#E7AECD" ,"#C27AA1",  "#994E77","#733256","#601D42")
 democracy_pal <- c( "#FFE4BB" ,"#FFD28F",  "#FFBC58","#FF9E0D","#EB8D00")
 longevity_pal <- c( "#C9E3FF" ,"#9BCCFF",  "#5FABF9", "#177FEB","#0860BC")
-
-nacolor <- "#9B9A9A"
 ```
 
 ### Safe Environments 
@@ -88,7 +86,7 @@ popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-he
 "</br></div>")
 
 # map-----------------------------------
-index_map(df=df, indicator=indicator, colorpalette=safe_env_pal, nacolor=nacolor, popup=popup)
+index_map(df=df, indicator=indicator, colorpalette=safe_env_pal, popup=popup)
 
 ```
 
@@ -123,7 +121,7 @@ popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-he
 "</br></div>")
 
 # map-----------------------------------
-index_map(df=df, indicator=indicator, colorpalette=econ_opp_pal, nacolor=nacolor, popup=popup)
+index_map(df=df, indicator=indicator, colorpalette=econ_opp_pal, popup=popup)
 
 ```
 
@@ -158,7 +156,7 @@ popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-he
 "</br></div>")
 
 # map-----------------------------------
-index_map(df=df, indicator=indicator, colorpalette=democracy_pal, nacolor=nacolor, popup=popup)
+index_map(df=df, indicator=indicator, colorpalette=democracy_pal, popup=popup)
 
 ```
 
@@ -193,7 +191,7 @@ popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-he
 "</br></div>")
 
 # map-----------------------------------
-index_map(df=df, indicator=indicator, colorpalette=longevity_pal, nacolor=nacolor, popup=popup)
+index_map(df=df, indicator=indicator, colorpalette=longevity_pal, popup=popup)
 
 ```
 

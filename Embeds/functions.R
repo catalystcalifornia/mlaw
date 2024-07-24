@@ -2,7 +2,7 @@
 library(leaflet)
 
 # copied from index.Rmd
-index_map <- function(df, indicator, colorpalette, nacolor, popup){
+index_map <- function(df, indicator, colorpalette, nacolor="#9B9A9A", popup){
   # Function also requires the following global variables: 
   # 'cd' spatial dataframe with 'district' column
   # the 'df' spatial dataframe must have a 'pctile' column that stores the indicator layer values
