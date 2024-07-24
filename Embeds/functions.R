@@ -2,7 +2,7 @@
 library(leaflet)
 
 # copied from index.Rmd
-index_map <- function(df, indicator, colorpalette, nacolor="#9B9A9A", popup){
+index_map <- function(df, indicator, colorpalette, nacolor="#9B9A9A", data_popup, custom_popup){
   # Function also requires the following global variables: 
   # 'cd' spatial dataframe with 'district' column
   # the 'df' spatial dataframe must have a 'pctile' column that stores the indicator layer values
@@ -55,7 +55,7 @@ index_map <- function(df, indicator, colorpalette, nacolor="#9B9A9A", popup){
               title = paste0(indicator, " Percentile"), labFormat = function(type, cuts, p){paste0(labels)}) %>%
     
     ## add custom popup with full content
-    addControl(html=rate_popup, position = "topleft") %>%
+    addControl(html=custom_popup, position = "topleft") %>%
     
     hideGroup("City Council District")
   
