@@ -41,17 +41,21 @@ index_map <- function(df, indicator, colorpalette, nacolor="#9B9A9A", popup){
     addPolygons(data = cd, fillOpacity=0, color = '#CEEA01', weight = 2.2, 
                 label=~district, group = "City Council District", 
                 options = pathOptions(pane = "cd_pane", interactive = FALSE), 
-                highlight = highlightOptions(color = "white", weight = 3, bringToFront = TRUE))%>%
+                highlight = highlightOptions(color = "white", weight = 3, bringToFront = TRUE),
+                popup = ~data_popup)%>%
     
     # Indicator layer
     addPolygons(data=df, fillColor = ~pal(df$pctile), color="white", weight = 1, 
                 smoothFactor = 0.5, fillOpacity = .80, 
                 highlight = highlightOptions(color = "white", weight = 3, bringToFront = TRUE, sendToBack = TRUE), 
-                popup = ~popup, group = indicator, options = pathOptions(pane = "indi_pane"))%>%
+                group = indicator, options = pathOptions(pane = "indi_pane"))%>%
     
     # add legend
     addLegend(position = "bottomleft", pal = pal, values = df$pctile, opacity = 1, 
               title = paste0(indicator, " Percentile"), labFormat = function(type, cuts, p){paste0(labels)}) %>%
+    
+    ## add custom popup with full content
+    addControl(html=rate_popup, position = "topleft") %>%
     
     hideGroup("City Council District")
   
