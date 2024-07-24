@@ -84,7 +84,7 @@ popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-he
 
 # map-----------------------------------
 
-index_map(df=df, indicator=indicator, direction=direction, colorpalette=colorpalette, nacolor=nacolor, popup=popup)
+index_map(df=df, indicator=indicator, colorpalette=colorpalette, nacolor=nacolor, popup=popup)
 ```
 
 ### Economy and Opportunity
@@ -123,7 +123,7 @@ popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-he
 
 # map-----------------------------------
 
-index_map(df=df, indicator=indicator, direction=direction, colorpalette=colorpalette, nacolor=nacolor, popup=popup)
+index_map(df=df, indicator=indicator, colorpalette=colorpalette, nacolor=nacolor, popup=popup)
 ```
 
 ### Democracy and Power
@@ -162,7 +162,7 @@ popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-he
 
 # map-----------------------------------
 
-index_map(df=df, indicator=indicator, direction=direction, colorpalette=colorpalette, nacolor=nacolor, popup=popup)
+index_map(df=df, indicator=indicator, colorpalette=colorpalette, nacolor=nacolor, popup=popup)
 ```
 
 ### Longevity and Vitality
@@ -201,7 +201,7 @@ popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-he
 
 # map-----------------------------------
 
-index_map(df=df, indicator=indicator, direction=direction, colorpalette=colorpalette, nacolor=nacolor, popup=popup)
+index_map(df=df, indicator=indicator, colorpalette=colorpalette, nacolor=nacolor, popup=popup)
 ```
 
 

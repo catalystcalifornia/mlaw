@@ -79,7 +79,7 @@ popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-he
 # Equity Index
 ```{r index-map}
 
-index_map(df=df, indicator=indicator, direction=direction, colorpalette=colorpalette, nacolor=nacolor, popup=popup)
+index_map(df=df, indicator=indicator, colorpalette=colorpalette, nacolor=nacolor, popup=popup)
 
 ```
 

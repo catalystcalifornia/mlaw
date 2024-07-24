@@ -2,7 +2,7 @@
 library(leaflet)
 
 # copied from index.Rmd
-index_map <- function(df, indicator, direction, colorpalette, nacolor, popup){
+index_map <- function(df, indicator, colorpalette, nacolor, popup){
   # Function also requires the following global variables: 
   # 'cd' spatial dataframe with 'district' column
   # the 'df' spatial dataframe must have a 'pctile' column that stores the indicator layer values
@@ -61,7 +61,7 @@ index_map <- function(df, indicator, direction, colorpalette, nacolor, popup){
 
 # copied from domains.Rmd
 
-index_map2<-function(df,indicator,direction,colorpalette,nacolor){
+index_map2<-function(df,indicator,colorpalette,nacolor){
   # add color palette for Indicator Percentiles
   
   pctl.bins <-c(0, 20, 40, 60, 80, 100)
