@@ -9,90 +9,22 @@ output: html_document
 knitr::opts_chunk$set(comment = FALSE, message = FALSE, warning = FALSE, echo = FALSE
 )
 
-library(RPostgreSQL)
-library(knitr)
-library(dplyr)
 library(sf)
-library(leaflet)
-library(htmltools)
-library(stringr)
-library(rgdal)
-library(rpostgis)
-library(leaflet)
-library(RColorBrewer)
-library(stringr)
-library(scales)
-library(colorspace)
-library(highcharter) 
-library(devtools)
+library(highcharter)
 library(rmapshaper)
-# library(maptools)
-library(rgeos)
-# install.packages("corrplot")
-library(corrplot)
-# install.packages("Hmisc")
-library(Hmisc)
+
 options(highcharter.theme = hc_theme_smpl(tooltip = list(valueDecimals = 2)))
 options(scipen=999)
 
 source("W:\\RDA Team\\R\\credentials_source.R")
+source("functions.R")
 
 con <- connect_to_db("eci_mlaw")
 con2 <- connect_to_db("rda_shared_data")
 
-# Map function -------------------------
+```
 
-index_map<-function(df,indicator,direction,colorpalette,nacolor){
-# add color palette for Indicator Percentiles
-
-pctl.bins <-c(0, 20, 40, 60, 80, 100)
-
-pal <- colorBin( palette = colorpalette, bins=pctl.bins, na.color = nacolor)
-
-# create custom legend labels
-
-labels <- c(
-  "LOWEST NEED (0-19th Percentile)",
-  "LOW NEED (20-39th Percentile)",
-  "MODERATE NEED (40-59th Percentile)",
-  "HIGH NEED (60-79th Percentile)",
-"HIGHEST NEED (80-100th Percentile)"
-)
-# map
-
-map<-leaflet(width = "100%", height = "600px")%>%
-  
-  # add base map
-addProviderTiles("CartoDB.PositronNoLabels") %>%
-addProviderTiles("CartoDB.PositronOnlyLabels", options = providerTileOptions(pane = "markerPane")) %>%
-
-# add map panes
-addMapPane("indi_pane", zIndex = 400) %>%
-  addMapPane("cd_pane", zIndex = 400) %>%
-  
-  # set view and layer control
-  setView( -118.353860, 34.068717, zoom = 9.5) %>%
-
-  addLayersControl(overlayGroups = c(indicator, "City Council District"), 
-                   options = layersControlOptions(collapsed = FALSE, autoZIndex = TRUE)) %>%
-  
-     # CD layer
-addPolygons(data = cd, fillOpacity=0, color = '#CEEA01', weight = 2.2, label=~district, group = "City Council District", options = pathOptions(pane = "cd_pane", interactive = FALSE), highlight = highlightOptions(color = "white", weight = 3, bringToFront = TRUE))%>%
-  
-  # Indicator layer
-
-  addPolygons(data=df, fillColor = ~pal(df$pctile), color="white", weight = 1, smoothFactor = 0.5, fillOpacity = .80, highlight = highlightOptions(color = "white", weight = 3, bringToFront = TRUE, sendToBack = TRUE), 
-popup = ~popup,
-group = indicator, options = pathOptions(pane = "indi_pane"))%>%
-  
-  # add legend
-  
-addLegend(position = "bottomleft", pal = pal, values = df$pctile, opacity = 1, title = paste0(indicator, " Percentile"), labFormat = function(type, cuts, p){paste0(labels)}) %>%
- hideGroup("City Council District")
-
-map}
-
-
+```{r load-data, include=FALSE}
 # Read in postgres tables------------------------
 
 # Read in LA city council districts shape
@@ -122,10 +54,9 @@ index<-zip_xwalk%>%
 
 **What it includes:** Race Composite Score (Black, Latine, AIAN, NHPI, Asian); Particulate Matter (PM) 2.5; Proximity to Hazardous Waste Facilities; Pedestrian and Bicyclist Fatalities and Injuries; Arrests; Hospitalizations for Gun Injuries
 
-```{r}
+```{r safe-environment-map}
 
 # set pctile for mapping
-
 df<-index%>%
   mutate(pctile=safe_environments_pctile)
 
@@ -137,10 +68,7 @@ direction<-paste0("higher")
 colorpalette <- c( "#FFBDA6" ,"#FF9873",  "#FA7B4D","#F25922","#DF4007")
 nacolor<-"#9B9A9A"
 
-# pop up SEPARATE--------------------------
-
 # create popup: 
-
 popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-height:200px'> <b>ZIP Code:</b> ", df$zipcode, "</br>",
 "<b>","Safe Environments"," Percentile*: ", round(df$safe_environments_pctile,1),"</b></br>",
 "<b>","Equity Index"," Percentile*:</b> ", round(df$index_pctile,1),"</br>",
@@ -156,8 +84,7 @@ popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-he
 
 # map-----------------------------------
 
-index_map(df,indicator,direction,colorpalette,nacolor)
-
+index_map(df=df, indicator=indicator, direction=direction, colorpalette=colorpalette, nacolor=nacolor, popup=popup)
 ```
 
 ### Economy and Opportunity
@@ -166,10 +93,9 @@ index_map(df,indicator,direction,colorpalette,nacolor)
 
 **What it includes:** Race Composite Score (Black, Latine, AIAN, NHPI, Asian); Early Childhood Education (ECE) Enrollment; Rent Burden; Evictions; Per Capita Income
 
-```{r}
+```{r econ-opp-map}
 
 # set pctile for mapping
-
 df<-index%>%
   mutate(pctile=econ_opp_pctile)
 
@@ -181,10 +107,7 @@ direction<-paste0("higher")
 colorpalette <- c( "#E7AECD" ,"#C27AA1",  "#994E77","#733256","#601D42")
 nacolor<-"#9B9A9A"
 
-# pop up SEPARATE--------------------------
-
 # create popup: 
-
 popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-height:200px'> <b>ZIP Code:</b> ", df$zipcode, "</br>",
 "<b>","Economy and Opportunity"," Percentile*: ", round(df$econ_opp_pctile,1),"</b></br>",
 "<b>","Equity Index"," Percentile*:</b> ", round(df$index_pctile,1),"</br>",
@@ -200,8 +123,7 @@ popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-he
 
 # map-----------------------------------
 
-index_map(df,indicator,direction,colorpalette,nacolor)
-
+index_map(df=df, indicator=indicator, direction=direction, colorpalette=colorpalette, nacolor=nacolor, popup=popup)
 ```
 
 ### Democracy and Power
@@ -210,14 +132,11 @@ index_map(df,indicator,direction,colorpalette,nacolor)
 
 **What it includes:** Race Composite Score (Black, Latine, AIAN, NHPI, Asian); Limited English Speaking Households; Voter Turnout for the 2022 General Election
 
-```{r}
+```{r democracy-map}
 
 # set pctile for mapping
-
 df<-index%>%
   mutate(pctile=democracy_pctile)
-
-# step 3: apply map function 
 
 # feed in indicator label for mapping popup and legend and group overlay
 indicator<-paste0("Democracy and Power")
@@ -227,11 +146,7 @@ direction<-paste0("higher")
 colorpalette <- c( "#FFE4BB" ,"#FFD28F",  "#FFBC58","#FF9E0D","#EB8D00")
 nacolor<-"#9B9A9A"
 
-# pop up SEPARATE--------------------------
-
-
 # create popup: 
-
 popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-height:200px'> <b>ZIP Code:</b> ", df$zipcode, "</br>",
 "<b>","Democracy and Power"," Percentile*: ", round(df$democracy_pctile,1),"</b></br>",
 "<b>","Equity Index"," Percentile*:</b> ", round(df$index_pctile,1),"</br>",
@@ -247,8 +162,7 @@ popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-he
 
 # map-----------------------------------
 
-index_map(df,indicator,direction,colorpalette,nacolor)
-
+index_map(df=df, indicator=indicator, direction=direction, colorpalette=colorpalette, nacolor=nacolor, popup=popup)
 ```
 
 ### Longevity and Vitality
@@ -257,14 +171,11 @@ index_map(df,indicator,direction,colorpalette,nacolor)
 
 **What it includes:** Race Composite Score (Black, Latine, AIAN, NHPI, Asian); Diabetes Hospitalizations; Impervious Land Cover; Health and Mental Health Care Services Access; Grocery Store Access
 
-```{r}
+```{r longevity-map}
 
 # set pctile for mapping
-
 df<-index%>%
   mutate(pctile=longevity_pctile)
-
-# apply map function 
 
 # feed in indicator label for mapping popup and legend and group overlay
 indicator<-paste0("Longevity and Vitality")
@@ -274,10 +185,7 @@ direction<-paste0("higher")
 colorpalette <- c( "#C9E3FF" ,"#9BCCFF",  "#5FABF9", "#177FEB","#0860BC")
 nacolor<-"#9B9A9A"
 
-# pop up SEPARATE--------------------------
-
 # create popup: 
-
 popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-height:200px'> <b>ZIP Code:</b> ", df$zipcode, "</br>",
 "<b>","Longevity and Vitality"," Percentile*: ", round(df$longevity_pctile,1),"</b></br>",
 "<b>","Equity Index"," Percentile*:</b> ", round(df$index_pctile,1),"</br>",
@@ -293,9 +201,7 @@ popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-he
 
 # map-----------------------------------
 
-index_map(df,indicator,direction,colorpalette,nacolor)
-
-
+index_map(df=df, indicator=indicator, direction=direction, colorpalette=colorpalette, nacolor=nacolor, popup=popup)
 ```
 
 
