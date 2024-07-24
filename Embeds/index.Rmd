@@ -113,5 +113,73 @@ index_map(df=df, indicator=indicator, colorpalette=colorpalette, data_popup=data
 
 ```
 
+<style type="text/css">
 
+.zipcode-header {
+   margin-bottom: 8px; 
+   font-weight: 700; 
+   color: #000000;
+   font-size: 14px; 
+}
+
+.leaflet-popup-scrolled {
+  max-height: 580px;
+  opacity: 1;
+  border-bottom: 0;
+  border-top: 0;
+}
+
+.info {
+  background: white;
+  opacity: 1;
+  border-radius: 0;
+}
+
+.leaflet-left {
+  width: 33%;
+}
+
+.leaflet-left .leaflet-control {
+  font-size: 12px;
+  margin-left: 0;
+  border-left: 1px solid #ddd;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+}
+
+.leaflet-right .leaflet-control {
+  margin-right: 0;
+}
+
+.leaflet-top .leaflet-control {
+  margin-top: 0;
+}
+
+.leaflet-control-container {
+  color: #000000;
+}
+
+.hidden {
+  display: none;
+}
+
+.popup-instruction {
+  font-style: italic;
+  font-weight: 600; 
+  font-size: 12px; 
+  line-height: 16px;
+  color: #000000;
+  border-bottom: 1px solid #000000;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+}
+
+.legend {
+  color: #000000;
+  border-top: 1px solid #000000;
+  padding-top: 1.2em;
+}
+
+
+</style>
 
