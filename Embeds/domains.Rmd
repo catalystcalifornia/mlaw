@@ -70,8 +70,8 @@ df<-index%>%
   mutate(pctile=safe_environments_pctile)
 
 # feed in indicator label for mapping popup and legend and group overlay
-indicator<-paste0("Safe Environments")
-direction<-paste0("higher")
+indicator<-"Safe Environments"
+direction<-"higher"
 
 # create popup: 
 popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-height:200px'> <b>ZIP Code:</b> ", df$zipcode, "</br>",
@@ -105,8 +105,8 @@ df<-index%>%
   mutate(pctile=econ_opp_pctile)
 
 # feed in indicator label for mapping popup and legend and group overlay
-indicator<-paste0("Economy and Opportunity")
-direction<-paste0("higher")
+indicator<-"Economy and Opportunity"
+direction<-"higher"
 
 # create popup: 
 popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-height:200px'> <b>ZIP Code:</b> ", df$zipcode, "</br>",
@@ -140,8 +140,8 @@ df<-index%>%
   mutate(pctile=democracy_pctile)
 
 # feed in indicator label for mapping popup and legend and group overlay
-indicator<-paste0("Democracy and Power")
-direction<-paste0("higher")
+indicator<-"Democracy and Power"
+direction<-"higher"
 
 # create popup: 
 popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-height:200px'> <b>ZIP Code:</b> ", df$zipcode, "</br>",
@@ -175,8 +175,8 @@ df<-index%>%
   mutate(pctile=longevity_pctile)
 
 # feed in indicator label for mapping popup and legend and group overlay
-indicator<-paste0("Longevity and Vitality")
-direction<-paste0("higher")
+indicator<-"Longevity and Vitality"
+direction<-"higher"
 
 # create popup: 
 popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-height:200px'> <b>ZIP Code:</b> ", df$zipcode, "</br>",

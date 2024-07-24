@@ -47,15 +47,15 @@ df <- zip_xwalk %>%
 
 ```
 
-```{r index-map-setup}
+```{r index-map-setup, include=FALSE}
 
 # Map using map function -----
 
 # feed in indicator label for mapping popup and legend and group overlay
-indicator <- paste0("Equity Index")
-direction <- paste0("higher")
+indicator <- "Equity Index"
+direction <- "higher"
 
-# feed in colorpalette
+# define colorpalette
 colorpalette <- c("#E2D9FF", "#BDAFE9", "#8E7ACA", "#362178", "#211447")
 nacolor<-"#9B9A9A"
 
