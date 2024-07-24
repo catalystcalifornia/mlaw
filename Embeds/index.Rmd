@@ -67,7 +67,7 @@ colorpalette <- c("#E2D9FF", "#BDAFE9", "#8E7ACA", "#362178", "#211447")
 # in this case, we'll use these prefixes: equity, d1, d2, d3, and d4 (d for domain)
 # Note: only use hyphens (no underscores or other symbols for whitespace)
 # We'll use the html tag names again when formatting popup behavior in JS (end of script)
-data_popup <- paste0("<div class='equity'> <div class='leaflet-data-equity' data-equity-zipcdode='", df$zipcode,
+data_popup <- paste0("<div class='equity'> <div class='leaflet-data-equity' data-equity-zipcode='", df$zipcode,
                "' data-equity-percentile='", df$pctile,
                "' data-equity-population='", format(df$pop, big.mark=","),
                "' data-equity-se-percentile='", round(df$safe_environments_pctile,1),
@@ -182,4 +182,45 @@ index_map(df=df, indicator=indicator, colorpalette=colorpalette, data_popup=data
 
 
 </style>
+
+```{js}
+var mapsPlaceholder = [];
+L.Map.addInitHook(function () {
+  mapsPlaceholder.push(this);
+  mapsPlaceholder.forEach(map => {
+    // pre-populate map pop-up (when map loads/before user clicks anywhere)
+    map.on('load', (e) => {
+    setTimeout(() => {
+    document.querySelector('.equity-zipcode').innerHTML = '90037'
+    document.querySelector('.equity-percentile').innerHTML = '89.3'
+    document.querySelector('.equity-population').innerHTML = '69,064'
+    document.querySelector('.equity-se-percentile').innerHTML = '79.8'
+    document.querySelector('.equity-eo-percentile').innerHTML = '87.4'
+    document.querySelector('.equity-dp-percentile').innerHTML = '94.2'
+    document.querySelector('.equity-lv-percentile').innerHTML = '91.3'
+    }, 500)
+  })
+    // hide default leaflet popup
+    map.on('popupopen', (e) => {
+    let popups = document.querySelectorAll('.leaflet-data-equity');
+    // console.log(popups);
+
+    document.querySelectorAll('.equity').forEach(equity => {
+    equity.parentElement.parentElement.parentElement.classList.add('hidden')
+  })
+  
+  // populate custom pop-up when user clicks map
+  //console.log('click')
+  let popup = popups[popups.length-1]
+  document.querySelector('.equity-zipcode').innerHTML = popupPd2.getAttribute('data-equity-zipcode')
+  document.querySelector('.equity-percentile').innerHTML = popup.getAttribute('data-equity-percentile')
+  document.querySelector('.equity-population').innerHTML = popup.getAttribute('data-equity-population')
+  document.querySelector('.equity-se-percentile').innerHTML = popup.getAttribute('data-equity-se-percentile')
+  document.querySelector('.equity-eo-percentile').innerHTML = popup.getAttribute('data-equity-eo-percentile')
+  document.querySelector('.equity-dp-percentile').innerHTML = popup.getAttribute('data-equity-dp-percentile')
+  document.querySelector('.equity-lv-percentile').innerHTML = popup.getAttribute('data-equity-lv-percentile')
+
+})})});
+
+```
 
