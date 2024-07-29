@@ -164,12 +164,13 @@ index_map(df=equity_df, indicator=equity_indicator, colorpalette=equity_colorpal
 <!-- This function is used to format MLAW data in the chloropleth map "popup"/sidebar feature -->
 
 <!-- Captures  -->
+// Standard set up for using JS with a leaflet map
 var mapsPlaceholder = [];
 L.Map.addInitHook(function () {
   mapsPlaceholder.push(this);
   mapsPlaceholder.forEach(map => {
       
-      // pre-populate map pop-up (when map loads/before user clicks anywhere)
+      // to pre-populate map pop-up (when map loads/before user clicks anywhere)
       map.on('load', (e) => {
         setTimeout(() => {
         document.querySelector('.equity-zipcode').innerHTML = "test"
@@ -179,7 +180,7 @@ L.Map.addInitHook(function () {
         document.querySelector('.equity-eo-percentile').innerHTML= "test"
         document.querySelector('.equity-dp-percentile').innerHTML = "test"
         document.querySelector('.equity-lv-percentile').innerHTML = "test"
-        }, 500)
+        }, 500) //assumes the map will load within 500ms - if the initial popup is blank, the map is taking longer than 500ms to load; this can happen if a webpage has many other elements to load
       })
   
       // hide default leaflet popup
@@ -204,7 +205,6 @@ L.Map.addInitHook(function () {
       })
   })
 });
-
 
 
 ```
