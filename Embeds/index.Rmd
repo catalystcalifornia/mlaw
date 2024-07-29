@@ -87,7 +87,7 @@ equity_data_popup <- paste0("<div class='equity'> <div class='leaflet-data-equit
 # to style with CSS AND insert the data stored in data_popup
 # Note: the <span> "class" names are using the SAME naming as in the data_popup (only difference is no "data-" prefix) - this makes things clear and convenient for JS coding (end of script)
 
-custom_equity_popup <- paste0("<div class='leaflet-popup-scrolled' equity-sidebar><div class='popup-instruction'>Please click an LA City zip code to read more about that community's equity needs.</div><div class ='zipcode-header'>Zip Code: <span class='equity-zipcode'></span></div><br><b>Equity Index Percentile*: <span class='equity-percentile'></span></b><br><b>Population:</b> <span class='equity-population'></span><br><br><b>Domain Percentiles*:</b><br>Safe Environments: <span class='equity-se-percentile'></span><br>Economy and Opportunity: <span class='equity-eo-percentile'></span><br>Democracy and Power: <span class='equity-dp-percentile'></span><br>Longevity and Vitality: <span class='equity-lv-percentile'></span><br><br>","<i>*Percentiles range from 0-100. The higher the percentile, the ", direction," the need.</i>","</br></br>","</div>")
+custom_equity_popup <- paste0("<div class='leaflet-popup-scrolled equity-sidebar'><div class='popup-instruction'>Please click an LA City zip code to read more about that community's equity needs.</div><div class ='zipcode-header'>Zip Code: <span class='equity-zipcode'></span></div><br><b>Equity Index Percentile*: <span class='equity-percentile'></span></b><br><b>Population:</b> <span class='equity-population'></span><br><br><b>Domain Percentiles*:</b><br>Safe Environments: <span class='equity-se-percentile'></span><br>Economy and Opportunity: <span class='equity-eo-percentile'></span><br>Democracy and Power: <span class='equity-dp-percentile'></span><br>Longevity and Vitality: <span class='equity-lv-percentile'></span><br><br>","<i>*Percentiles range from 0-100. The higher the percentile, the ", direction," the need.</i>","</br></br>","</div>")
 
 ```
 
@@ -97,9 +97,10 @@ custom_equity_popup <- paste0("<div class='leaflet-popup-scrolled' equity-sideba
 index_map(df=equity_df, indicator=equity_indicator, colorpalette=equity_colorpalette, data_popup=equity_data_popup, custom_popup=custom_equity_popup)
 
 ```
+
 <style type="text/css">
 
-<!-- minimum required css for leaflet maps with custom sidebars -->
+/* minimum required css for leaflet maps with custom sidebars */ 
 .leaflet-popup-scrolled {
   max-height: 580px;
   opacity: 1;
@@ -141,7 +142,7 @@ index_map(df=equity_df, indicator=equity_indicator, colorpalette=equity_colorpal
   display: none;
 }
 
-<!-- css styling that can change depending on the map data and custom styling needs -->
+/* css styling that can change depending on the map data and custom styling needs */
 .popup-instruction {
   font-style: italic;
   font-weight: 600; 
@@ -159,7 +160,6 @@ index_map(df=equity_df, indicator=equity_indicator, colorpalette=equity_colorpal
    color: #000000;
    font-size: 14px; 
 }
-
 
 </style>
 
