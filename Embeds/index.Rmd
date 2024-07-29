@@ -31,6 +31,8 @@ cd <- st_read(con2, query="SELECT * FROM geographies_la.lacitygeohub_lacity_coun
   st_transform(4326) %>%
   ms_simplify()
 
+dbDisconnect(con2)
+
 index <- dbGetQuery(con, "SELECT * FROM pctiles_index")
 
 df <- index %>%
@@ -40,6 +42,8 @@ df <- index %>%
 zip_xwalk <- st_read(con, query="SELECT * FROM crosswalk_zip_city_2022", geom="geom") %>%
   st_transform(4326) %>%
   ms_simplify()
+
+dbDisconnect(con)
 
 # join index table with population data to the zip xwalk with our zip geoms
 equity_df <- zip_xwalk %>%
