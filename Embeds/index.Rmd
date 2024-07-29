@@ -42,7 +42,7 @@ zip_xwalk <- st_read(con, query="SELECT * FROM crosswalk_zip_city_2022", geom="g
   ms_simplify()
 
 # join index table with population data to the zip xwalk with our zip geoms
-df <- zip_xwalk %>%
+equity_df <- zip_xwalk %>%
   left_join(df, by=c("zipcode"="geoid"))
 
 ```
@@ -52,22 +52,22 @@ df <- zip_xwalk %>%
 # Map using map function -----
 
 # feed in indicator label for mapping popup and legend and group overlay
-indicator <- "Equity Index"
+equity_indicator <- "Equity Index"
 direction <- "higher"
 
 # define colorpalette
-colorpalette <- c("#E2D9FF", "#BDAFE9", "#8E7ACA", "#362178", "#211447")
+equity_colorpalette <- c("#E2D9FF", "#BDAFE9", "#8E7ACA", "#362178", "#211447")
 ```
 
-```{r index-map-popups}
+```{r index-map-popups, include=FALSE}
 ## Create data popup
-# This stores only the data values we'll insert into the custom_popup 
+# This stores only the data values we'll insert into the custom_popup
 # Note: naming structure in the html tags: [data-][variable-name]
 # Note: multiple maps will be on the same report page, so we must add a unique prefix for common data tags so the JS works correctly
 # in this case, we'll use these prefixes: equity, d1, d2, d3, and d4 (d for domain)
 # Note: only use hyphens (no underscores or other symbols for whitespace)
 # We'll use the html tag names again when formatting popup behavior in JS (end of script)
-data_popup <- paste0("<div class='equity'> <div class='leaflet-data-equity' data-equity-zipcode='", df$zipcode,
+equity_data_popup <- paste0("<div class='equity'> <div class='leaflet-data-equity' data-equity-zipcode='", df$zipcode,
                "' data-equity-percentile='", df$pctile,
                "' data-equity-population='", format(df$pop, big.mark=","),
                "' data-equity-se-percentile='", round(df$safe_environments_pctile,1),
@@ -77,150 +77,69 @@ data_popup <- paste0("<div class='equity'> <div class='leaflet-data-equity' data
                "'></div></div>")
 
 ## Create custom popup
-# We are using <div> "class" names (e.g. popup-instruction, division-header) 
+# We are using <div> "class" names (e.g. popup-instruction, division-header)
 # to apply CSS styling (end of script, before JS)
-# We are using <span> "class" names (e.g. data-emphasis, division-name) 
+# We are using <span> "class" names (e.g. data-emphasis, division-name)
 # to style with CSS AND insert the data stored in data_popup
 # Note: the <span> "class" names are using the SAME naming as in the data_popup (only difference is no "data-" prefix) - this makes things clear and convenient for JS coding (end of script)
-custom_popup <- paste0("<div class='leaflet-popup-scrolled'><div class='popup-instruction'>Please click an LA City zip code to read more about that community's equity needs.</div><div class ='zipcode-header'>Zip Code: <span class='equity-zipcode'></span>)</div>
-<br>
-<b>Equity Index Percentile*: <span class='equity-percentile'></span></b>
-<br>
-<b>Population:</b> <span class='equity-population'></span>
-<br>
-<br>
-<b>Domain Percentiles*:</b>
-<br>
-Safe Environments: <span class='equity-se-percentile'></span>
-<br>
-Economy and Opportunity: <span class='equity-eo-percentile'></span>
-<br>
-Democracy and Power: <span class='equity-dp-percentile'></span>
-<br>
-Longevity and Vitality: <span class='equity-lv-percentile'></span>
-<br>
-<br>",
-"<i>*Percentiles range from 0-100. The higher the percentile, the ", direction," the need.</i>",
-"</br></br>",
-"</div>")
+
+custom_equity_popup <- paste0("<div class='leaflet-popup-scrolled' equity-sidebar><div class='popup-instruction'>Please click an LA City zip code to read more about that community's equity needs.</div><div class ='zipcode-header'>Zip Code: <span class='equity-zipcode'></span></div><br><b>Equity Index Percentile*: <span class='equity-percentile'></span></b><br><b>Population:</b> <span class='equity-population'></span><br><br><b>Domain Percentiles*:</b><br>Safe Environments: <span class='equity-se-percentile'></span><br>Economy and Opportunity: <span class='equity-eo-percentile'></span><br>Democracy and Power: <span class='equity-dp-percentile'></span><br>Longevity and Vitality: <span class='equity-lv-percentile'></span><br><br>","<i>*Percentiles range from 0-100. The higher the percentile, the ", direction," the need.</i>","</br></br>","</div>")
 
 ```
 
 # Equity Index
 ```{r index-map}
 
-index_map(df=df, indicator=indicator, colorpalette=colorpalette, data_popup=data_popup, custom_popup=custom_popup)
+index_map(df=equity_df, indicator=equity_indicator, colorpalette=equity_colorpalette, data_popup=equity_data_popup, custom_popup=custom_equity_popup)
 
 ```
 
-<style type="text/css">
-
-.zipcode-header {
-   margin-bottom: 8px; 
-   font-weight: 700; 
-   color: #000000;
-   font-size: 14px; 
-}
-
-.leaflet-popup-scrolled {
-  max-height: 580px;
-  opacity: 1;
-  border-bottom: 0;
-  border-top: 0;
-}
-
-.info {
-  background: white;
-  opacity: 1;
-  border-radius: 0;
-}
-
-.leaflet-left {
-  width: 33%;
-}
-
-.leaflet-left .leaflet-control {
-  font-size: 12px;
-  margin-left: 0;
-  border-left: 1px solid #ddd;
-  border-top: 1px solid #ddd;
-  border-bottom: 1px solid #ddd;
-}
-
-.leaflet-right .leaflet-control {
-  margin-right: 0;
-}
-
-.leaflet-top .leaflet-control {
-  margin-top: 0;
-}
-
-.leaflet-control-container {
-  color: #000000;
-}
-
-.hidden {
-  display: none;
-}
-
-.popup-instruction {
-  font-style: italic;
-  font-weight: 600; 
-  font-size: 12px; 
-  line-height: 16px;
-  color: #000000;
-  border-bottom: 1px solid #000000;
-  padding-bottom: 16px;
-  margin-bottom: 16px;
-}
-
-.legend {
-  color: #000000;
-  border-top: 1px solid #000000;
-  padding-top: 1.2em;
-}
-
-
-</style>
-
 ```{js}
+<!-- This function is used to format MLAW data in the chloropleth map "popup"/sidebar feature -->
+
+<!-- Captures  -->
 var mapsPlaceholder = [];
 L.Map.addInitHook(function () {
   mapsPlaceholder.push(this);
   mapsPlaceholder.forEach(map => {
-    // pre-populate map pop-up (when map loads/before user clicks anywhere)
-    map.on('load', (e) => {
-    setTimeout(() => {
-    document.querySelector('.equity-zipcode').innerHTML = '90037'
-    document.querySelector('.equity-percentile').innerHTML = '89.3'
-    document.querySelector('.equity-population').innerHTML = '69,064'
-    document.querySelector('.equity-se-percentile').innerHTML = '79.8'
-    document.querySelector('.equity-eo-percentile').innerHTML = '87.4'
-    document.querySelector('.equity-dp-percentile').innerHTML = '94.2'
-    document.querySelector('.equity-lv-percentile').innerHTML = '91.3'
-    }, 500)
-  })
-    // hide default leaflet popup
-    map.on('popupopen', (e) => {
-    let popups = document.querySelectorAll('.leaflet-data-equity');
-    // console.log(popups);
-
-    document.querySelectorAll('.equity').forEach(equity => {
-    equity.parentElement.parentElement.parentElement.classList.add('hidden')
-  })
+      
+      // pre-populate map pop-up (when map loads/before user clicks anywhere)
+      map.on('load', (e) => {
+        setTimeout(() => {
+        document.querySelector('.equity-zipcode').innerHTML = "test"
+        document.querySelector('.equity-percentile').innerHTML = "test"
+        document.querySelector('.equity-population').innerHTML = "test"
+        document.querySelector('.equity-se-percentile').innerHTML = "test"
+        document.querySelector('.equity-eo-percentile').innerHTML= "test"
+        document.querySelector('.equity-dp-percentile').innerHTML = "test"
+        document.querySelector('.equity-lv-percentile').innerHTML = "test"
+        }, 500)
+      })
   
-  // populate custom pop-up when user clicks map
-  //console.log('click')
-  let popup = popups[popups.length-1]
-  document.querySelector('.equity-zipcode').innerHTML = popupPd2.getAttribute('data-equity-zipcode')
-  document.querySelector('.equity-percentile').innerHTML = popup.getAttribute('data-equity-percentile')
-  document.querySelector('.equity-population').innerHTML = popup.getAttribute('data-equity-population')
-  document.querySelector('.equity-se-percentile').innerHTML = popup.getAttribute('data-equity-se-percentile')
-  document.querySelector('.equity-eo-percentile').innerHTML = popup.getAttribute('data-equity-eo-percentile')
-  document.querySelector('.equity-dp-percentile').innerHTML = popup.getAttribute('data-equity-dp-percentile')
-  document.querySelector('.equity-lv-percentile').innerHTML = popup.getAttribute('data-equity-lv-percentile')
+      // hide default leaflet popup
+      map.on('popupopen', (e) => {
+        let popupsEquity = document.querySelectorAll('.leaflet-data-equity');
+        // console.log(popups);
 
-})})});
+        document.querySelectorAll('.equity').forEach(equity => {
+        equity.parentElement.parentElement.parentElement.classList.add('hidden')
+        })
+
+        // populate custom pop-up when user clicks map
+        //console.log('click')
+        let popupEquity = popupsEquity[popupsEquity.length-1]
+        document.querySelector('.equity-zipcode').innerHTML = popupEquity.getAttribute('data-equity-zipcode')
+        document.querySelector('.equity-percentile').innerHTML = popupEquity.getAttribute('data-equity-percentile')
+        document.querySelector('.equity-population').innerHTML = popupEquity.getAttribute('data-equity-population')
+        document.querySelector('.equity-se-percentile').innerHTML = popupEquity.getAttribute('data-equity-se-percentile')
+        document.querySelector('.equity-eo-percentile').innerHTML = popupEquity.getAttribute('data-equity-eo-percentile')
+        document.querySelector('.equity-dp-percentile').innerHTML = popupEquity.getAttribute('data-equity-dp-percentile')
+        document.querySelector('.equity-lv-percentile').innerHTML = popupEquity.getAttribute('data-equity-lv-percentile')
+      })
+  })
+});
+
+
 
 ```
 
