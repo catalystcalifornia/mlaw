@@ -67,13 +67,13 @@ equity_colorpalette <- c("#E2D9FF", "#BDAFE9", "#8E7ACA", "#362178", "#211447")
 # in this case, we'll use these prefixes: equity, d1, d2, d3, and d4 (d for domain)
 # Note: only use hyphens (no underscores or other symbols for whitespace)
 # We'll use the html tag names again when formatting popup behavior in JS (end of script)
-equity_data_popup <- paste0("<div class='equity'> <div class='leaflet-data-equity' data-equity-zipcode='", df$zipcode,
-               "' data-equity-percentile='", df$pctile,
-               "' data-equity-population='", format(df$pop, big.mark=","),
-               "' data-equity-se-percentile='", round(df$safe_environments_pctile,1),
-               "' data-equity-eo-percentile='", round(df$econ_opp_pctile,1),
-               "' data-equity-dp-percentile='", round(df$democracy_pctile,1),
-               "' data-equity-lv-percentile='", round(df$longevity_pctile,1),
+equity_data_popup <- paste0("<div class='equity'> <div class='leaflet-data-equity' data-equity-zipcode='", equity_df$zipcode,
+               "' data-equity-percentile='", equity_df$pctile,
+               "' data-equity-population='", format(equity_df$pop, big.mark=","),
+               "' data-equity-se-percentile='", round(equity_df$safe_environments_pctile,1),
+               "' data-equity-eo-percentile='", round(equity_df$econ_opp_pctile,1),
+               "' data-equity-dp-percentile='", round(equity_df$democracy_pctile,1),
+               "' data-equity-lv-percentile='", round(equity_df$longevity_pctile,1),
                "'></div></div>")
 
 ## Create custom popup
