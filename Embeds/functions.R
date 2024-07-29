@@ -1,7 +1,7 @@
 # load libraries
 library(leaflet)
 
-# copied from index.Rmd
+# copied from index.Rmd and updated
 index_map <- function(df, indicator, colorpalette, nacolor="#9B9A9A", data_popup, custom_popup){
   # Function also requires the following global variables: 
   # 'cd' spatial dataframe with 'district' column
@@ -23,39 +23,43 @@ index_map <- function(df, indicator, colorpalette, nacolor="#9B9A9A", data_popup
   
   # map
   map <- leaflet(width = "100%", height = "600px") %>%
-    # add base map
+    
+    # add base maps, panes, and set view
     addProviderTiles("CartoDB.PositronNoLabels") %>%
     addProviderTiles("CartoDB.PositronOnlyLabels", options = providerTileOptions(pane = "markerPane")) %>%
     
-    # add map panes
     addMapPane("indi_pane", zIndex = 400) %>%
     addMapPane("cd_pane", zIndex = 400) %>%
     
-    # set view and layer control
     setView( -118.353860, 34.068717, zoom = 9.5) %>%
     
-    addLayersControl(overlayGroups = c(indicator, "City Council District"), 
-                     options = layersControlOptions(collapsed = FALSE, autoZIndex = TRUE)) %>%
-    
-    # CD layer
-    addPolygons(data = cd, fillOpacity=0, color = '#CEEA01', weight = 2.2, 
-                label=~district, group = "City Council District", 
-                options = pathOptions(pane = "cd_pane", interactive = FALSE), 
-                highlight = highlightOptions(color = "white", weight = 3, bringToFront = TRUE),
-                popup = ~data_popup)%>%
+    # add custom sidebar
+    addControl(html=custom_popup, position = "topleft") %>%
     
     # Indicator layer
     addPolygons(data=df, fillColor = ~pal(df$pctile), color="white", weight = 1, 
                 smoothFactor = 0.5, fillOpacity = .80, 
                 highlight = highlightOptions(color = "white", weight = 3, bringToFront = TRUE, sendToBack = TRUE), 
-                group = indicator, options = pathOptions(pane = "indi_pane"))%>%
+                group = indicator, options = pathOptions(pane = "indi_pane"),
+                popup = ~data_popup) %>%
+    
+    # CD layer
+    addPolygons(data = cd, fillOpacity=0, color = '#CEEA01', weight = 2.2, 
+                label=~district, group = "City Council District", 
+                options = pathOptions(pane = "cd_pane", interactive = FALSE), 
+                highlight = highlightOptions(color = "white", weight = 3, bringToFront = TRUE))%>%
+    
+    # add layers control to toggle index and districts
+    addLayersControl(overlayGroups = c(indicator, "City Council District"), 
+                     options = layersControlOptions(collapsed = FALSE, autoZIndex = TRUE)) %>%
+    
+   
+    
     
     # add legend
     addLegend(position = "bottomleft", pal = pal, values = df$pctile, opacity = 1, 
               title = paste0(indicator, " Percentile"), labFormat = function(type, cuts, p){paste0(labels)}) %>%
     
-    ## add custom popup with full content
-    addControl(html=custom_popup, position = "topleft") %>%
     
     hideGroup("City Council District")
   
