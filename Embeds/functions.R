@@ -22,7 +22,8 @@ index_map <- function(df, indicator, colorpalette, nacolor="#9B9A9A", data_popup
   )
   
   # map
-  map <- leaflet(width = "100%", height = "600px") %>%
+  map <- leaflet(width = "100%", height = "600px",
+                 options = leafletOptions(zoomControl = FALSE, minZoom=10, maxZoom=10)) %>%
     
     # add base maps, panes, and set view
     addProviderTiles("CartoDB.PositronNoLabels") %>%
