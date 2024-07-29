@@ -23,7 +23,9 @@ index_map <- function(df, indicator, colorpalette, nacolor="#9B9A9A", data_popup
   
   # map
   map <- leaflet(width = "100%", height = "600px",
-                 options = leafletOptions(zoomControl = FALSE, minZoom=9.75, maxZoom=9.75)) %>%
+                 options = leafletOptions(zoomControl = FALSE, 
+                                          attributionControl=FALSE,
+                                          minZoom=9.8, maxZoom=9.8)) %>%
     
     # add base maps, panes, and set view
     addProviderTiles("CartoDB.PositronNoLabels") %>%
@@ -32,7 +34,7 @@ index_map <- function(df, indicator, colorpalette, nacolor="#9B9A9A", data_popup
     addMapPane("indi_pane", zIndex = 400) %>%
     addMapPane("cd_pane", zIndex = 400) %>%
     
-    setView( -118.55, 34.068717, zoom = 9.75) %>%
+    setView( -118.575, 34.095, zoom = 9.8) %>%
     
     # add custom sidebar
     addControl(html=custom_popup, position = "topleft") %>%
@@ -53,9 +55,6 @@ index_map <- function(df, indicator, colorpalette, nacolor="#9B9A9A", data_popup
     # add layers control to toggle index and districts
     addLayersControl(overlayGroups = c(indicator, "City Council District"), 
                      options = layersControlOptions(collapsed = FALSE, autoZIndex = TRUE)) %>%
-    
-   
-    
     
     # add legend
     addLegend(position = "bottomleft", pal = pal, values = df$pctile, opacity = 1, 
