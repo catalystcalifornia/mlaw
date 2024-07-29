@@ -93,6 +93,72 @@ custom_equity_popup <- paste0("<div class='leaflet-popup-scrolled' equity-sideba
 index_map(df=equity_df, indicator=equity_indicator, colorpalette=equity_colorpalette, data_popup=equity_data_popup, custom_popup=custom_equity_popup)
 
 ```
+<style type="text/css">
+
+<!-- minimum required css for leaflet maps with custom sidebars -->
+.leaflet-popup-scrolled {
+  max-height: 580px;
+  opacity: 1;
+  border-bottom: 0;
+  border-top: 0;
+}
+
+.info {
+  background: white;
+  opacity: 1;
+  border-radius: 0;
+}
+
+.leaflet-left {
+  width: 33%;
+}
+
+.leaflet-left .leaflet-control {
+  font-size: 12px;
+  margin-left: 0;
+  border-left: 1px solid #ddd;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+}
+
+.leaflet-right .leaflet-control {
+  margin-right: 0;
+}
+
+.leaflet-top .leaflet-control {
+  margin-top: 0;
+}
+
+.leaflet-control-container {
+  color: #000000;
+}
+
+.hidden {
+  display: none;
+}
+
+<!-- css styling that can change depending on the map data and custom styling needs -->
+.popup-instruction {
+  font-style: italic;
+  font-weight: 600; 
+  font-size: 12px; 
+  line-height: 16px;
+  color: #000000;
+  border-bottom: 1px solid #000000;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+}
+
+.zipcode-header {
+   margin-bottom: 8px; 
+   font-weight: 700; 
+   color: #000000;
+   font-size: 14px; 
+}
+
+
+</style>
+
 
 ```{js}
 <!-- This function is used to format MLAW data in the chloropleth map "popup"/sidebar feature -->
