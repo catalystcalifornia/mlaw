@@ -23,7 +23,7 @@ index_map <- function(df, indicator, colorpalette, nacolor="#9B9A9A", data_popup
   
   # map
   map <- leaflet(width = "100%", height = "600px",
-                 options = leafletOptions(zoomControl = FALSE, minZoom=10, maxZoom=10)) %>%
+                 options = leafletOptions(zoomControl = FALSE, minZoom=9.75, maxZoom=9.75)) %>%
     
     # add base maps, panes, and set view
     addProviderTiles("CartoDB.PositronNoLabels") %>%
@@ -32,7 +32,7 @@ index_map <- function(df, indicator, colorpalette, nacolor="#9B9A9A", data_popup
     addMapPane("indi_pane", zIndex = 400) %>%
     addMapPane("cd_pane", zIndex = 400) %>%
     
-    setView( -118.353860, 34.068717, zoom = 9.5) %>%
+    setView( -118.55, 34.068717, zoom = 9.75) %>%
     
     # add custom sidebar
     addControl(html=custom_popup, position = "topleft") %>%
