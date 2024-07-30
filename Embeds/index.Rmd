@@ -281,7 +281,7 @@ L.Map.addInitHook(function () {
 
 
         
-        // trying to add zip code header styling similar to JENI
+        // adding header styling similar to JENI (changes the color of the square block to match pctile category/legend)
         let block = document.querySelector('.square-icon')
 
         classes = ["equity-lowest-bg-color", "equity-low-bg-color", "equity-moderate-bg-color", "equity-high-bg-color", "equity-highest-bg-color", "category-color-error"]
