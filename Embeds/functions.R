@@ -25,7 +25,7 @@ index_map <- function(df, indicator, colorpalette, nacolor="#9B9A9A", data_popup
   map <- leaflet(width = "100%", height = "600px",
                  options = leafletOptions(zoomControl = FALSE, 
                                           attributionControl=FALSE,
-                                          minZoom=9.8, maxZoom=9.8)) %>%
+                                          minZoom=10, maxZoom=10)) %>%
     
     # add base maps, panes, and set view
     addProviderTiles("CartoDB.PositronNoLabels") %>%
@@ -34,13 +34,13 @@ index_map <- function(df, indicator, colorpalette, nacolor="#9B9A9A", data_popup
     addMapPane("indi_pane", zIndex = 400) %>%
     addMapPane("cd_pane", zIndex = 400) %>%
     
-    setView( -118.575, 34.095, zoom = 9.8) %>%
+    setView( -118.53, 34.045, zoom = 10) %>%
     
     # add custom sidebar
     addControl(html=custom_popup, position = "topleft") %>%
     
     # Indicator layer
-    addPolygons(data=df, fillColor = ~pal(df$pctile), color="white", weight = 1, 
+    addPolygons(data=df, fillColor = ~pal(df$pctile), color="black", weight = 1, 
                 smoothFactor = 0.5, fillOpacity = 1, 
                 highlight = highlightOptions(color = "white", weight = 3, bringToFront = TRUE, sendToBack = TRUE), 
                 group = indicator, options = pathOptions(pane = "indi_pane"),
