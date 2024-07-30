@@ -52,13 +52,21 @@ equity_df <- zip_xwalk %>%
 # add pctile category for equity_data_popup
 
 equity_df <- equity_df %>%
-  mutate(pctile_category = case_when(pctile < 20 ~ "Lowest",
+  mutate(equity_pctile_category = case_when(pctile < 20 ~ "Lowest",
                                      pctile >=20 & pctile < 40 ~ "Low",
                                      pctile >=40 & pctile < 60 ~ "Moderate",
                                      pctile >=60 & pctile < 80 ~ "High",
                                      pctile >=80 & pctile <= 100 ~ "Highest",
                                      .default = NA
-                                     ))
+                                     ),
+         safeenv_pctile_category = case_when(safe_environments_pctile < 20 ~ "Lowest",
+                                     safe_environments_pctile >=20 & safe_environments_pctile < 40 ~ "Low",
+                                     safe_environments_pctile >=40 & safe_environments_pctile < 60 ~ "Moderate",
+                                     safe_environments_pctile >=60 & safe_environments_pctile < 80 ~ "High",
+                                     safe_environments_pctile >=80 & safe_environments_pctile <= 100 ~ "Highest",
+                                     .default = NA
+                                     ),
+         )
 
 ```
 
@@ -84,9 +92,10 @@ equity_colorpalette <- c("#E2D9FF", "#BDAFE9", "#8E7ACA", "#362178", "#211447")
 # We'll use the html tag names again when formatting popup behavior in JS (end of script)
 equity_data_popup <- paste0("<div class='equity'> <div class='leaflet-data-equity' data-equity-zipcode='", equity_df$zipcode,
                "' data-equity-pctile='", round(equity_df$pctile,1),
-               "' data-equity-category='", equity_df$pctile_category,
+               "' data-equity-category='", equity_df$equity_pctile_category,
                "' data-equity-population='", format(equity_df$pop, big.mark=","),
-               "' data-equity-se-pctile='", round(equity_df$safe_environments_pctile,1),
+               "' data-safeenv-pctile='", round(equity_df$safe_environments_pctile,1),
+               "' data-safeenv-category='", equity_df$safeenv_pctile_category,
                "' data-equity-eo-pctile='", round(equity_df$econ_opp_pctile,1),
                "' data-equity-dp-pctile='", round(equity_df$democracy_pctile,1),
                "' data-equity-lv-pctile='", round(equity_df$longevity_pctile,1),
@@ -99,7 +108,7 @@ equity_data_popup <- paste0("<div class='equity'> <div class='leaflet-data-equit
 # to style with CSS AND insert the data stored in data_popup
 # Note: the <span> "class" names are using the SAME naming as in the data_popup (only difference is no "data-" prefix) - this makes things clear and convenient for JS coding (end of script)
 
-custom_equity_popup <- paste0("<div class='leaflet-popup-scrolled equity-sidebar'><div class='popup-instruction'>Please click an LA City zip code to read more about that community's equity needs.</div><div class ='location-header'><div class='zipcode-header'><span class='square-icon category-color-error'></span>  <span class='equity-zipcode'></span></div><div class='population-header'>Population:  <span class='equity-population'></span></div></div><br><div class='equity-domains'><b>Equity Index Percentile*: <span class='equity-pctile'></span></b><br><span style='display: block; width: 95%'><div class='pctile-bar'><div class='pctile-equity'></div></div></span><br><br><b>Domain Percentiles*:</b><br>Safe Environments: <span class='equity-se-pctile'></span><br>Economy and Opportunity: <span class='equity-eo-pctile'></span><br>Democracy and Power: <span class='equity-dp-pctile'></span><br>Longevity and Vitality: <span class='equity-lv-pctile'></span></div><br><br>","<div class='footnote'>*Percentiles range from 0-100. The higher the percentile, the ", direction," the need.</div>","</div>")
+custom_equity_popup <- paste0("<div class='leaflet-popup-scrolled equity-sidebar'><div class='popup-instruction'>Please click an LA City zip code to read more about that community's equity needs.</div><div class ='location-header'><div class='zipcode-header'><span class='square-icon category-color-error'></span>  <span class='equity-zipcode'></span></div><div class='population-header'>Population:  <span class='equity-population'></span></div></div><br><div class='equity-domains'><b>Equity Index Percentile*: <span class='equity-pctile'></span></b><br><span style='display: block; width: 95%'><div class='pctile-bar'><div class='pctile-equity'></div></div></span><br><br><div class='domains'><b>Domain Percentiles*:</b><br>Safe Environments: <span class='equity-safeenv-pctile'></span><div class='pctile-bar'><div class='pctile-safeenv'></div></div><br>Economy and Opportunity: <span class='equity-eo-pctile'></span><br>Democracy and Power: <span class='equity-dp-pctile'></span><br>Longevity and Vitality: <span class='equity-lv-pctile'></span></div></div><br><br>","<div class='footnote'>*Percentiles range from 0-100. The higher the percentile, the ", direction," the need.</div>","</div>")
 
 
 ```
@@ -187,10 +196,10 @@ index_map(df=equity_df, indicator=equity_indicator, colorpalette=equity_colorpal
 }
 
 .population-header {
-
 }
 
 /* css styling that can change depending on the map data and custom styling needs */
+
 .popup-instruction {
   font-style: italic;
   font-weight: 600; 
@@ -208,6 +217,7 @@ index_map(df=equity_df, indicator=equity_indicator, colorpalette=equity_colorpal
 }
 
 /* Styles the bar displaying index pctiles */
+
 .pctile-bar {
   width: 95%;
   display: flex;
@@ -217,6 +227,7 @@ index_map(df=equity_df, indicator=equity_indicator, colorpalette=equity_colorpal
   border-radius: 0.25em;
   position: relative;
 }
+
 .pctile {
   position: absolute;
   width: 50%;
@@ -254,6 +265,26 @@ index_map(df=equity_df, indicator=equity_indicator, colorpalette=equity_colorpal
   background-color: #E2D9FF; 
 }
 
+.safeenv-highest-bg-color {
+  background-color: #DF4007; 
+}
+
+.safeenv-high-bg-color {
+  background-color: #F25922; 
+}
+
+.safeenv-moderate-bg-color {
+  background-color: #FA7B4D; 
+}
+
+.safeenv-low-bg-color {
+  background-color: #FF9873; 
+}
+
+.safeenv-lowest-bg-color {
+  background-color: #FFBDA6; 
+}
+
 .category-color-error {
   background-color: #737373;
 }
@@ -276,7 +307,7 @@ L.Map.addInitHook(function () {
         document.querySelector('.equity-zipcode').innerHTML = "test"
         document.querySelector('.equity-pctile').innerHTML = "test"
         document.querySelector('.equity-population').innerHTML = "test"
-        document.querySelector('.equity-se-pctile').innerHTML = "test"
+        document.querySelector('.equity-safeenv-pctile').innerHTML = "test"
         document.querySelector('.equity-eo-pctile').innerHTML= "test"
         document.querySelector('.equity-dp-pctile').innerHTML = "test"
         document.querySelector('.equity-lv-pctile').innerHTML = "test"
@@ -298,7 +329,7 @@ L.Map.addInitHook(function () {
         document.querySelector('.equity-zipcode').innerHTML = popupEquity.getAttribute('data-equity-zipcode')
         document.querySelector('.equity-pctile').innerHTML = popupEquity.getAttribute('data-equity-pctile')
         document.querySelector('.equity-population').innerHTML = popupEquity.getAttribute('data-equity-population')
-        document.querySelector('.equity-se-pctile').innerHTML = popupEquity.getAttribute('data-equity-se-pctile')
+        document.querySelector('.equity-safeenv-pctile').innerHTML = popupEquity.getAttribute('data-safeenv-pctile')
         document.querySelector('.equity-eo-pctile').innerHTML = popupEquity.getAttribute('data-equity-eo-pctile')
         document.querySelector('.equity-dp-pctile').innerHTML = popupEquity.getAttribute('data-equity-dp-pctile')
         document.querySelector('.equity-lv-pctile').innerHTML = popupEquity.getAttribute('data-equity-lv-pctile')
