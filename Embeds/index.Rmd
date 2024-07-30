@@ -49,6 +49,17 @@ dbDisconnect(con)
 equity_df <- zip_xwalk %>%
   left_join(df, by=c("zipcode"="geoid"))
 
+# add pctile category for equity_data_popup
+
+equity_df <- equity_df %>%
+  mutate(pctile_category = case_when(pctile < 20 ~ "Lowest",
+                                     pctile >=20 & pctile < 40 ~ "Low",
+                                     pctile >=40 & pctile < 60 ~ "Moderate",
+                                     pctile >=60 & pctile < 80 ~ "High",
+                                     pctile >=80 & pctile <= 100 ~ "Highest",
+                                     .default = NA
+                                     ))
+
 ```
 
 ```{r index-map-setup, include=FALSE}
@@ -59,7 +70,7 @@ equity_df <- zip_xwalk %>%
 equity_indicator <- "Equity Index"
 direction <- "higher"
 
-# define colorpalette
+# define colorpalette(s)
 equity_colorpalette <- c("#E2D9FF", "#BDAFE9", "#8E7ACA", "#362178", "#211447")
 ```
 
@@ -72,7 +83,8 @@ equity_colorpalette <- c("#E2D9FF", "#BDAFE9", "#8E7ACA", "#362178", "#211447")
 # Note: only use hyphens (no underscores or other symbols for whitespace)
 # We'll use the html tag names again when formatting popup behavior in JS (end of script)
 equity_data_popup <- paste0("<div class='equity'> <div class='leaflet-data-equity' data-equity-zipcode='", equity_df$zipcode,
-               "' data-equity-percentile='", equity_df$pctile,
+               "' data-equity-percentile='", round(equity_df$pctile,1),
+               "' data-equity-percentile-category='", equity_df$pctile_category,
                "' data-equity-population='", format(equity_df$pop, big.mark=","),
                "' data-equity-se-percentile='", round(equity_df$safe_environments_pctile,1),
                "' data-equity-eo-percentile='", round(equity_df$econ_opp_pctile,1),
@@ -202,11 +214,25 @@ index_map(df=equity_df, indicator=equity_indicator, colorpalette=equity_colorpal
   background-color: #211447; 
 }
 
+.equity-high-bg-color {
+  background-color: #362178; 
+}
+
+.equity-moderate-bg-color {
+  background-color: #8E7ACA; 
+}
+
+.equity-low-bg-color {
+  background-color: #BDAFE9; 
+}
+
+.equity-lowest-bg-color {
+  background-color: #E2D9FF; 
+}
+
 .category-color-error {
   background-color: #737373;
 }
-
-
 
 </style>
 
@@ -230,7 +256,6 @@ L.Map.addInitHook(function () {
         document.querySelector('.equity-eo-percentile').innerHTML= "test"
         document.querySelector('.equity-dp-percentile').innerHTML = "test"
         document.querySelector('.equity-lv-percentile').innerHTML = "test"
-        document.querySelector('.equity-category').innerHTML = "Highest"
         }, 500) //assumes the map will load within 500ms - if the initial popup is blank, the map is taking longer than 500ms to load; this can happen if a webpage has many other elements to load
       })
   
@@ -264,10 +289,9 @@ L.Map.addInitHook(function () {
             block.classList.remove(class_)
         })
    
-        equityCategory = "Highest"
+        equityCategory = popupEquity.getAttribute('data-equity-percentile-category')
         
         console.log(equityCategory)
-        console.log(equityCategory.trim())
 
         if (equityCategory == "Lowest") {
             block.classList.add('equity-lowest-bg-color');
