@@ -87,7 +87,8 @@ equity_data_popup <- paste0("<div class='equity'> <div class='leaflet-data-equit
 # to style with CSS AND insert the data stored in data_popup
 # Note: the <span> "class" names are using the SAME naming as in the data_popup (only difference is no "data-" prefix) - this makes things clear and convenient for JS coding (end of script)
 
-custom_equity_popup <- paste0("<div class='leaflet-popup-scrolled equity-sidebar'><div class='popup-instruction'>Please click an LA City zip code to read more about that community's equity needs.</div><div class ='zipcode-header'>Zip Code: <span class='equity-zipcode'></span></div><br><b>Equity Index Percentile*: <span class='equity-percentile'></span></b><br><b>Population:</b> <span class='equity-population'></span><br><br><b>Domain Percentiles*:</b><br>Safe Environments: <span class='equity-se-percentile'></span><br>Economy and Opportunity: <span class='equity-eo-percentile'></span><br>Democracy and Power: <span class='equity-dp-percentile'></span><br>Longevity and Vitality: <span class='equity-lv-percentile'></span><br><br>","<div class='footnote'>*Percentiles range from 0-100. The higher the percentile, the ", direction," the need.</div>","</div>")
+custom_equity_popup <- paste0("<div class='leaflet-popup-scrolled equity-sidebar'><div class='popup-instruction'>Please click an LA City zip code to read more about that community's equity needs.</div><div class ='location-header'><div class='zipcode-header'><span class='square-icon category-color-error'></span>  <span class='equity-zipcode'></span></div><div class='population-header'>Population:  <span class='equity-population'></span></div></div><br><div class='equity-domains'><b>Equity Index Percentile*: <span class='equity-percentile'></span></b><br><br><br><b>Domain Percentiles*:</b><br>Safe Environments: <span class='equity-se-percentile'></span><br>Economy and Opportunity: <span class='equity-eo-percentile'></span><br>Democracy and Power: <span class='equity-dp-percentile'></span><br>Longevity and Vitality: <span class='equity-lv-percentile'></span></div><br><br>","<div class='footnote'>*Percentiles range from 0-100. The higher the percentile, the ", direction," the need.</div>","</div>")
+
 
 ```
 
@@ -147,6 +148,36 @@ index_map(df=equity_df, indicator=equity_indicator, colorpalette=equity_colorpal
   display: none;
 }
 
+/* css styling for zipcode header with color coded icon */
+.location-header {
+  display: flex;
+  justify-content: space-between;
+  align-items:center;
+  font-weight: 700; 
+  color: #000000;
+  font-size: 14px;
+}
+
+.zipcode-header {
+}
+
+.square-icon {
+  height: 14px;
+  width: 14px;
+  border-radius: 0.25em;
+  display: inline-flex;
+}
+
+.equity-zipcode {
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+}
+
+.population-header {
+
+}
+
 /* css styling that can change depending on the map data and custom styling needs */
 .popup-instruction {
   font-style: italic;
@@ -164,12 +195,18 @@ index_map(df=equity_df, indicator=equity_indicator, colorpalette=equity_colorpal
   border-top: 1px solid #000000;
 }
 
-.zipcode-header {
-   margin-bottom: 8px; 
-   font-weight: 700; 
-   color: #000000;
-   font-size: 14px; 
+
+
+/* MLAW-specific color styling */
+.equity-highest-bg-color {
+  background-color: #211447; 
 }
+
+.category-color-error {
+  background-color: #737373;
+}
+
+
 
 </style>
 
@@ -193,6 +230,7 @@ L.Map.addInitHook(function () {
         document.querySelector('.equity-eo-percentile').innerHTML= "test"
         document.querySelector('.equity-dp-percentile').innerHTML = "test"
         document.querySelector('.equity-lv-percentile').innerHTML = "test"
+        document.querySelector('.equity-category').innerHTML = "Highest"
         }, 500) //assumes the map will load within 500ms - if the initial popup is blank, the map is taking longer than 500ms to load; this can happen if a webpage has many other elements to load
       })
   
@@ -215,6 +253,37 @@ L.Map.addInitHook(function () {
         document.querySelector('.equity-eo-percentile').innerHTML = popupEquity.getAttribute('data-equity-eo-percentile')
         document.querySelector('.equity-dp-percentile').innerHTML = popupEquity.getAttribute('data-equity-dp-percentile')
         document.querySelector('.equity-lv-percentile').innerHTML = popupEquity.getAttribute('data-equity-lv-percentile')
+
+
+        
+        // trying to add zip code header styling similar to JENI
+        let block = document.querySelector('.square-icon')
+
+        classes = ["equity-lowest-bg-color", "equity-low-bg-color", "equity-moderate-bg-color", "equity-high-bg-color", "equity-highest-bg-color", "category-color-error"]
+        classes.forEach(class_ => {
+            block.classList.remove(class_)
+        })
+   
+        equityCategory = "Highest"
+        
+        console.log(equityCategory)
+        console.log(equityCategory.trim())
+
+        if (equityCategory == "Lowest") {
+            block.classList.add('equity-lowest-bg-color');
+        } else if (equityCategory == "Low") {
+            block.classList.add('equity-low-bg-color');
+        } else if (equityCategory == "Moderate") {
+            block.classList.add('equity-moderate-bg-color');
+        } else if (equityCategory == "High") {
+            block.classList.add('equity-high-bg-color');
+        } else if (equityCategory == "Highest") {
+            block.classList.add('equity-highest-bg-color');
+        } else {
+            block.classList.add('category-color-error');
+        }
+        
+        
       })
   })
 });
