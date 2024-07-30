@@ -66,6 +66,28 @@ equity_df <- equity_df %>%
                                      safe_environments_pctile >=80 & safe_environments_pctile <= 100 ~ "Highest",
                                      .default = NA
                                      ),
+         econopp_pctile_category = case_when(econ_opp_pctile < 20 ~ "Lowest",
+                                     econ_opp_pctile >=20 & econ_opp_pctile < 40 ~ "Low",
+                                     econ_opp_pctile >=40 & econ_opp_pctile < 60 ~ "Moderate",
+                                     econ_opp_pctile >=60 & econ_opp_pctile < 80 ~ "High",
+                                     econ_opp_pctile >=80 & econ_opp_pctile <= 100 ~ "Highest",
+                                     .default = NA
+                                     ),
+         democracy_pctile_category = case_when(democracy_pctile < 20 ~ "Lowest",
+                                     democracy_pctile >=20 & democracy_pctile < 40 ~ "Low",
+                                     democracy_pctile >=40 & democracy_pctile < 60 ~ "Moderate",
+                                     democracy_pctile >=60 & democracy_pctile < 80 ~ "High",
+                                     democracy_pctile >=80 & democracy_pctile <= 100 ~ "Highest",
+                                     .default = NA
+                                     ),
+         longevity_pctile_category = case_when(longevity_pctile < 20 ~ "Lowest",
+                                     longevity_pctile >=20 & longevity_pctile < 40 ~ "Low",
+                                     longevity_pctile >=40 & longevity_pctile < 60 ~ "Moderate",
+                                     longevity_pctile >=60 & longevity_pctile < 80 ~ "High",
+                                     longevity_pctile >=80 & longevity_pctile <= 100 ~ "Highest",
+                                     .default = NA
+                                     )
+         
          )
 
 ```
@@ -96,9 +118,12 @@ equity_data_popup <- paste0("<div class='equity'> <div class='leaflet-data-equit
                "' data-equity-population='", format(equity_df$pop, big.mark=","),
                "' data-safeenv-pctile='", round(equity_df$safe_environments_pctile,1),
                "' data-safeenv-category='", equity_df$safeenv_pctile_category,
-               "' data-equity-eo-pctile='", round(equity_df$econ_opp_pctile,1),
-               "' data-equity-dp-pctile='", round(equity_df$democracy_pctile,1),
-               "' data-equity-lv-pctile='", round(equity_df$longevity_pctile,1),
+               "' data-econopp-pctile='", round(equity_df$econ_opp_pctile,1),
+               "' data-econopp-category='", equity_df$econopp_pctile_category,
+               "' data-democracy-pctile='", round(equity_df$democracy_pctile,1),
+               "' data-democracy-category='", equity_df$democracy_pctile_category,
+               "' data-longevity-pctile='", round(equity_df$longevity_pctile,1),
+               "' data-longevity-category='", equity_df$longevity_pctile_category,
                "'></div></div>")
 
 ## Create custom popup
@@ -108,7 +133,7 @@ equity_data_popup <- paste0("<div class='equity'> <div class='leaflet-data-equit
 # to style with CSS AND insert the data stored in data_popup
 # Note: the <span> "class" names are using the SAME naming as in the data_popup (only difference is no "data-" prefix) - this makes things clear and convenient for JS coding (end of script)
 
-custom_equity_popup <- paste0("<div class='leaflet-popup-scrolled equity-sidebar'><div class='popup-instruction'>Please click an LA City zip code to read more about that community's equity needs.</div><div class ='location-header'><div class='zipcode-header'><span class='square-icon category-color-error'></span>  <span class='equity-zipcode'></span></div><div class='population-header'>Population:  <span class='equity-population'></span></div></div><br><div class='equity-domains'><b>Equity Index Percentile*: <span class='equity-pctile'></span></b><br><span style='display: block; width: 95%'><div class='pctile-bar'><div class='pctile-equity'></div></div></span><br><br><div class='domains'><b>Domain Percentiles*:</b><br>Safe Environments: <span class='equity-safeenv-pctile'></span><div class='pctile-bar'><div class='pctile-safeenv'></div></div><br>Economy and Opportunity: <span class='equity-eo-pctile'></span><br>Democracy and Power: <span class='equity-dp-pctile'></span><br>Longevity and Vitality: <span class='equity-lv-pctile'></span></div></div><br><br>","<div class='footnote'>*Percentiles range from 0-100. The higher the percentile, the ", direction," the need.</div>","</div>")
+custom_equity_popup <- paste0("<div class='leaflet-popup-scrolled equity-sidebar'><div class='popup-instruction'>Please click an LA City zip code to read more about that community's equity needs.</div><div class ='location-header'><div class='zipcode-header'><span class='square-icon category-color-error'></span>  <span class='equity-zipcode'></span></div><div class='population-header'>Population:  <span class='equity-population'></span></div></div><br><div class='equity-domains'><b>Equity Index Percentile*: <span class='equity-pctile'></span></b><br><span style='display: block; width: 95%'><div class='pctile-bar'><div class='pctile-equity'></div></div></span><br><br><div class='domains'><b>Domain Percentiles*:</b><br>Safe Environments: <span class='equity-safeenv-pctile'></span><div class='pctile-bar'><div class='pctile-safeenv'></div></div><br>Economy and Opportunity: <span class='equity-econopp-pctile'></span><div class='pctile-bar'><div class='pctile-econopp'></div></div><br>Democracy and Power: <span class='equity-democracy-pctile'></span><div class='pctile-bar'><div class='pctile-democracy'></div></div><br>Longevity and Vitality: <span class='equity-longevity-pctile'></span><div class='pctile-bar'><div class='pctile-longevity'></div></div></div></div><br><br>","<div class='footnote'>*Percentiles range from 0-100. The higher the percentile, the ", direction," the need.</div>","</div>")
 
 
 ```
@@ -285,6 +310,66 @@ index_map(df=equity_df, indicator=equity_indicator, colorpalette=equity_colorpal
   background-color: #FFBDA6; 
 }
 
+.econopp-highest-bg-color {
+  background-color: #601D42; 
+}
+
+.econopp-high-bg-color {
+  background-color: #733256; 
+}
+
+.econopp-moderate-bg-color {
+  background-color: #994E77; 
+}
+
+.econopp-low-bg-color {
+  background-color: #C27AA1; 
+}
+
+.econopp-lowest-bg-color {
+  background-color: #E7AECD; 
+}
+
+.democracy-highest-bg-color {
+  background-color: #EB8D00; 
+}
+
+.democracy-high-bg-color {
+  background-color: #FF9E0D; 
+}
+
+.democracy-moderate-bg-color {
+  background-color: #FFBC58; 
+}
+
+.democracy-low-bg-color {
+  background-color: #FFD28F; 
+}
+
+.democracy-lowest-bg-color {
+  background-color: #FFE4BB; 
+}
+
+.longevity-highest-bg-color {
+  background-color: #0860BC; 
+}
+
+.longevity-high-bg-color {
+  background-color: #177FEB; 
+}
+
+.longevity-moderate-bg-color {
+  background-color: #5FABF9; 
+}
+
+.longevity-low-bg-color {
+  background-color: #9BCCFF; 
+}
+
+.longevity-lowest-bg-color {
+  background-color: #C9E3FF; 
+}
+
 .category-color-error {
   background-color: #737373;
 }
@@ -308,9 +393,9 @@ L.Map.addInitHook(function () {
         document.querySelector('.equity-pctile').innerHTML = "test"
         document.querySelector('.equity-population').innerHTML = "test"
         document.querySelector('.equity-safeenv-pctile').innerHTML = "test"
-        document.querySelector('.equity-eo-pctile').innerHTML= "test"
-        document.querySelector('.equity-dp-pctile').innerHTML = "test"
-        document.querySelector('.equity-lv-pctile').innerHTML = "test"
+        document.querySelector('.equity-econopp-pctile').innerHTML= "test"
+        document.querySelector('.equity-democracy-pctile').innerHTML = "test"
+        document.querySelector('.equity-longevity-pctile').innerHTML = "test"
         }, 500) //assumes the map will load within 500ms - if the initial popup is blank, the map is taking longer than 500ms to load; this can happen if a webpage has many other elements to load
       })
   
@@ -330,9 +415,9 @@ L.Map.addInitHook(function () {
         document.querySelector('.equity-pctile').innerHTML = popupEquity.getAttribute('data-equity-pctile')
         document.querySelector('.equity-population').innerHTML = popupEquity.getAttribute('data-equity-population')
         document.querySelector('.equity-safeenv-pctile').innerHTML = popupEquity.getAttribute('data-safeenv-pctile')
-        document.querySelector('.equity-eo-pctile').innerHTML = popupEquity.getAttribute('data-equity-eo-pctile')
-        document.querySelector('.equity-dp-pctile').innerHTML = popupEquity.getAttribute('data-equity-dp-pctile')
-        document.querySelector('.equity-lv-pctile').innerHTML = popupEquity.getAttribute('data-equity-lv-pctile')
+        document.querySelector('.equity-econopp-pctile').innerHTML = popupEquity.getAttribute('data-econopp-pctile')
+        document.querySelector('.equity-democracy-pctile').innerHTML = popupEquity.getAttribute('data-democracy-pctile')
+        document.querySelector('.equity-longevity-pctile').innerHTML = popupEquity.getAttribute('data-longevity-pctile')
 
 
         
