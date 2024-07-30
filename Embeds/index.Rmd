@@ -305,7 +305,7 @@ L.Map.addInitHook(function () {
 
 
         
-        // adding header styling similar to JENI (changes the color of the square block to match pctile category/legend)
+        // adding header styling similar to JENI popup (changes the color of the square block to match pctile category)
         let block = document.querySelector('.square-icon')
 
         classes = ["equity-lowest-bg-color", "equity-low-bg-color", "equity-moderate-bg-color", "equity-high-bg-color", "equity-highest-bg-color", "category-color-error"]
@@ -334,30 +334,6 @@ L.Map.addInitHook(function () {
         // add pctile-bar styling
         let components = ["equity", "safeenv", "econopp", "democracy", "longevity"]
         components.forEach(component => {
- 
-            let nodes = document.querySelectorAll('.color-format-' + component);
-                nodes.forEach(el => {
-                    let categoryClasses = [component + "-lowest", component + "-low", component + "-moderate", component + "-high", component + "-highest", "category-color-error"]
-                          categoryClasses.forEach(categoryClass => {
-                              el.classList.remove(categoryClass)
-                          })
-                          
-                    console.log(el.innerHTML.trim())
-              
-                    if (el.innerHTML.trim() == "Lowest") {
-                        el.classList.add(component + '-lowest');
-                    } else if (el.innerHTML.trim() == "Low") {
-                        el.classList.add(component + '-low');
-                    } else if (el.innerHTML.trim() == "Moderate") {
-                        el.classList.add(component + '-moderate');
-                    } else if (el.innerHTML.trim() == "High") {
-                        el.classList.add(component + '-high');
-                    } else if (el.innerHTML.trim() == "Highest") {
-                        el.classList.add(component + '-highest');
-                    } else {
-                        el.classList.add('category-color-error');
-                    }
-                })
                           
                           
             let pctileBar = document.querySelector('.pctile-' + component)
