@@ -133,7 +133,7 @@ equity_data_popup <- paste0("<div class='equity'> <div class='leaflet-data-equit
 # to style with CSS AND insert the data stored in data_popup
 # Note: the <span> "class" names are using the SAME naming as in the data_popup (only difference is no "data-" prefix) - this makes things clear and convenient for JS coding (end of script)
 
-custom_equity_popup <- paste0("<div class='leaflet-popup-scrolled equity-sidebar'><div class='popup-instruction'>Please click an LA City zip code to read more about that community's equity needs.</div><div class ='location-header'><div class='zipcode-header'><span class='square-icon category-color-error'></span>  <span class='equity-zipcode'></span></div><div class='population-header'>Population:  <span class='equity-population'></span></div></div><div class='equity-domains'><b>Equity Index Percentile*: <span class='equity-pctile'></span></b><span style='display: block; width: 95%'><div class='pctile-bar'><div class='pctile-equity'></div></div></span><div class='domains'><b>Domain Percentiles*:</b>Safe Environments: <span class='equity-safeenv-pctile'></span><div class='pctile-bar'><div class='pctile-safeenv'></div></div>Economy and Opportunity: <span class='equity-econopp-pctile'></span><div class='pctile-bar'><div class='pctile-econopp'></div></div>Democracy and Power: <span class='equity-democracy-pctile'></span><div class='pctile-bar'><div class='pctile-democracy'></div></div>Longevity and Vitality: <span class='equity-longevity-pctile'></span><div class='pctile-bar'><div class='pctile-longevity'></div></div></div></div><br>","<div class='footnote'>*Percentiles range from 0-100. The higher the percentile, the ", direction," the need.</div>","</div>")
+custom_equity_popup <- paste0("<div class='leaflet-popup-scrolled equity-sidebar'><div class='popup-instruction'>Please click an LA City ZIP Code to read more about that community's equity needs.</div><div class ='location-header'><div class='zipcode-header'><span class='square-icon equity-highest-bg-color'></span>  <span class='equity-zipcode'></span></div><div class='population-header'>Population:  <span class='equity-population'></span></div></div><div class='equity-domains'><b>Equity Index Percentile*: <span class='equity-pctile'></span></b><span style='display: block; width: 95%'><div class='pctile-bar'><div class='pctile-equity equity-highest-bg-color'></div></div></span><br><div class='domains'><b>Domain Percentiles*:</b><br>Safe Environments: <span class='equity-safeenv-pctile'></span><div class='pctile-bar'><div class='pctile-safeenv safeenv-highest-bg-color'></div></div>Economy and Opportunity: <span class='equity-econopp-pctile'></span><div class='pctile-bar'><div class='pctile-econopp econopp-highest-bg-color'></div></div>Democracy and Power: <span class='equity-democracy-pctile'></span><div class='pctile-bar'><div class='pctile-democracy democracy-highest-bg-color'></div></div>Longevity and Vitality: <span class='equity-longevity-pctile'></span><div class='pctile-bar'><div class='pctile-longevity longevity-highest-bg-color'></div></div></div></div><br>","<div class='footnote'>*Percentiles range from 0-100. The higher the percentile, the ", direction," the need.</div>","</div>")
 
 
 ```
@@ -241,7 +241,7 @@ index_map(df=equity_df, indicator=equity_indicator, colorpalette=equity_colorpal
   border-top: 1px solid #000000;
 }
 
-/* Styles the bar displaying index pctiles */
+/* Styles the bar displaying index pctiles in pop up */
 
 .pctile-bar {
   width: 95%;
@@ -263,7 +263,43 @@ index_map(df=equity_df, indicator=equity_indicator, colorpalette=equity_colorpal
 .pctile-equity {
   position: absolute;
   height: 100%;
-  width: 0%;
+  width: 93.2%; /* width is set to value for prepopulated ZIP Code*/
+  border-radius: 0.25em;
+  box-shadow: 0 0 1px black;
+  
+}
+
+.pctile-safeenv {
+  position: absolute;
+  height: 100%;
+  width: 99.0%; /* width is set to value for prepopulated ZIP Code*/
+  border-radius: 0.25em;
+  box-shadow: 0 0 1px black;
+  
+}
+
+.pctile-econopp {
+  position: absolute;
+  height: 100%;
+  width: 85.4%; /* width is set to value for prepopulated ZIP Code*/
+  border-radius: 0.25em;
+  box-shadow: 0 0 1px black;
+  
+}
+
+.pctile-democracy {
+  position: absolute;
+  height: 100%;
+  width: 87.5%; /* width is set to value for prepopulated ZIP Code*/
+  border-radius: 0.25em;
+  box-shadow: 0 0 1px black;
+  
+}
+
+.pctile-longevity {
+  position: absolute;
+  height: 100%;
+  width: 87.5%; /* width is set to value for prepopulated ZIP Code*/
   border-radius: 0.25em;
   box-shadow: 0 0 1px black;
   
@@ -389,13 +425,13 @@ L.Map.addInitHook(function () {
       // to pre-populate map pop-up (when map loads/before user clicks anywhere)
       map.on('load', (e) => {
         setTimeout(() => {
-        document.querySelector('.equity-zipcode').innerHTML = "test"
-        document.querySelector('.equity-pctile').innerHTML = "test"
-        document.querySelector('.equity-population').innerHTML = "test"
-        document.querySelector('.equity-safeenv-pctile').innerHTML = "test"
-        document.querySelector('.equity-econopp-pctile').innerHTML= "test"
-        document.querySelector('.equity-democracy-pctile').innerHTML = "test"
-        document.querySelector('.equity-longevity-pctile').innerHTML = "test"
+        document.querySelector('.equity-zipcode').innerHTML = "90012"
+        document.querySelector('.equity-pctile').innerHTML = "93.2"
+        document.querySelector('.equity-population').innerHTML = "38430"
+        document.querySelector('.equity-safeenv-pctile').innerHTML = "99.0"
+        document.querySelector('.equity-econopp-pctile').innerHTML= "85.4"
+        document.querySelector('.equity-democracy-pctile').innerHTML = "87.5"
+        document.querySelector('.equity-longevity-pctile').innerHTML = "87.5"
         }, 500) //assumes the map will load within 500ms - if the initial popup is blank, the map is taking longer than 500ms to load; this can happen if a webpage has many other elements to load
       })
   
