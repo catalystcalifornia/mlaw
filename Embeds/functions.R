@@ -41,7 +41,7 @@ index_map <- function(df, indicator, colorpalette, nacolor="#9B9A9A", data_popup
     
     # Indicator layer
     addPolygons(data=df, fillColor = ~pal(df$pctile), color="white", weight = 1, 
-                smoothFactor = 0.5, fillOpacity = .80, 
+                smoothFactor = 0.5, fillOpacity = 1, 
                 highlight = highlightOptions(color = "white", weight = 3, bringToFront = TRUE, sendToBack = TRUE), 
                 group = indicator, options = pathOptions(pane = "indi_pane"),
                 popup = ~data_popup) %>%
