@@ -83,13 +83,13 @@ equity_colorpalette <- c("#E2D9FF", "#BDAFE9", "#8E7ACA", "#362178", "#211447")
 # Note: only use hyphens (no underscores or other symbols for whitespace)
 # We'll use the html tag names again when formatting popup behavior in JS (end of script)
 equity_data_popup <- paste0("<div class='equity'> <div class='leaflet-data-equity' data-equity-zipcode='", equity_df$zipcode,
-               "' data-equity-percentile='", round(equity_df$pctile,1),
-               "' data-equity-percentile-category='", equity_df$pctile_category,
+               "' data-equity-pctile='", round(equity_df$pctile,1),
+               "' data-equity-category='", equity_df$pctile_category,
                "' data-equity-population='", format(equity_df$pop, big.mark=","),
-               "' data-equity-se-percentile='", round(equity_df$safe_environments_pctile,1),
-               "' data-equity-eo-percentile='", round(equity_df$econ_opp_pctile,1),
-               "' data-equity-dp-percentile='", round(equity_df$democracy_pctile,1),
-               "' data-equity-lv-percentile='", round(equity_df$longevity_pctile,1),
+               "' data-equity-se-pctile='", round(equity_df$safe_environments_pctile,1),
+               "' data-equity-eo-pctile='", round(equity_df$econ_opp_pctile,1),
+               "' data-equity-dp-pctile='", round(equity_df$democracy_pctile,1),
+               "' data-equity-lv-pctile='", round(equity_df$longevity_pctile,1),
                "'></div></div>")
 
 ## Create custom popup
@@ -99,7 +99,7 @@ equity_data_popup <- paste0("<div class='equity'> <div class='leaflet-data-equit
 # to style with CSS AND insert the data stored in data_popup
 # Note: the <span> "class" names are using the SAME naming as in the data_popup (only difference is no "data-" prefix) - this makes things clear and convenient for JS coding (end of script)
 
-custom_equity_popup <- paste0("<div class='leaflet-popup-scrolled equity-sidebar'><div class='popup-instruction'>Please click an LA City zip code to read more about that community's equity needs.</div><div class ='location-header'><div class='zipcode-header'><span class='square-icon category-color-error'></span>  <span class='equity-zipcode'></span></div><div class='population-header'>Population:  <span class='equity-population'></span></div></div><br><div class='equity-domains'><b>Equity Index Percentile*: <span class='equity-percentile'></span></b><br><br><br><b>Domain Percentiles*:</b><br>Safe Environments: <span class='equity-se-percentile'></span><br>Economy and Opportunity: <span class='equity-eo-percentile'></span><br>Democracy and Power: <span class='equity-dp-percentile'></span><br>Longevity and Vitality: <span class='equity-lv-percentile'></span></div><br><br>","<div class='footnote'>*Percentiles range from 0-100. The higher the percentile, the ", direction," the need.</div>","</div>")
+custom_equity_popup <- paste0("<div class='leaflet-popup-scrolled equity-sidebar'><div class='popup-instruction'>Please click an LA City zip code to read more about that community's equity needs.</div><div class ='location-header'><div class='zipcode-header'><span class='square-icon category-color-error'></span>  <span class='equity-zipcode'></span></div><div class='population-header'>Population:  <span class='equity-population'></span></div></div><br><div class='equity-domains'><b>Equity Index Percentile*: <span class='equity-pctile'></span></b><br><span style='display: block; width: 95%'><div class='pctile-bar'><div class='pctile-equity'></div></div></span><br><br><b>Domain Percentiles*:</b><br>Safe Environments: <span class='equity-se-pctile'></span><br>Economy and Opportunity: <span class='equity-eo-pctile'></span><br>Democracy and Power: <span class='equity-dp-pctile'></span><br>Longevity and Vitality: <span class='equity-lv-pctile'></span></div><br><br>","<div class='footnote'>*Percentiles range from 0-100. The higher the percentile, the ", direction," the need.</div>","</div>")
 
 
 ```
@@ -207,7 +207,31 @@ index_map(df=equity_df, indicator=equity_indicator, colorpalette=equity_colorpal
   border-top: 1px solid #000000;
 }
 
-
+/* Styles the bar displaying index pctiles */
+.pctile-bar {
+  width: 95%;
+  display: flex;
+  height: 1em;
+  background-color: #FBFBFB;
+  box-shadow: 0 0 1px black;
+  border-radius: 0.25em;
+  position: relative;
+}
+.pctile {
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  border-radius: 0.25em;
+  
+}
+.pctile-equity {
+  position: absolute;
+  height: 100%;
+  width: 0%;
+  border-radius: 0.25em;
+  box-shadow: 0 0 1px black;
+  
+}
 
 /* MLAW-specific color styling */
 .equity-highest-bg-color {
@@ -250,12 +274,12 @@ L.Map.addInitHook(function () {
       map.on('load', (e) => {
         setTimeout(() => {
         document.querySelector('.equity-zipcode').innerHTML = "test"
-        document.querySelector('.equity-percentile').innerHTML = "test"
+        document.querySelector('.equity-pctile').innerHTML = "test"
         document.querySelector('.equity-population').innerHTML = "test"
-        document.querySelector('.equity-se-percentile').innerHTML = "test"
-        document.querySelector('.equity-eo-percentile').innerHTML= "test"
-        document.querySelector('.equity-dp-percentile').innerHTML = "test"
-        document.querySelector('.equity-lv-percentile').innerHTML = "test"
+        document.querySelector('.equity-se-pctile').innerHTML = "test"
+        document.querySelector('.equity-eo-pctile').innerHTML= "test"
+        document.querySelector('.equity-dp-pctile').innerHTML = "test"
+        document.querySelector('.equity-lv-pctile').innerHTML = "test"
         }, 500) //assumes the map will load within 500ms - if the initial popup is blank, the map is taking longer than 500ms to load; this can happen if a webpage has many other elements to load
       })
   
@@ -272,12 +296,12 @@ L.Map.addInitHook(function () {
         //console.log('click')
         let popupEquity = popupsEquity[popupsEquity.length-1]
         document.querySelector('.equity-zipcode').innerHTML = popupEquity.getAttribute('data-equity-zipcode')
-        document.querySelector('.equity-percentile').innerHTML = popupEquity.getAttribute('data-equity-percentile')
+        document.querySelector('.equity-pctile').innerHTML = popupEquity.getAttribute('data-equity-pctile')
         document.querySelector('.equity-population').innerHTML = popupEquity.getAttribute('data-equity-population')
-        document.querySelector('.equity-se-percentile').innerHTML = popupEquity.getAttribute('data-equity-se-percentile')
-        document.querySelector('.equity-eo-percentile').innerHTML = popupEquity.getAttribute('data-equity-eo-percentile')
-        document.querySelector('.equity-dp-percentile').innerHTML = popupEquity.getAttribute('data-equity-dp-percentile')
-        document.querySelector('.equity-lv-percentile').innerHTML = popupEquity.getAttribute('data-equity-lv-percentile')
+        document.querySelector('.equity-se-pctile').innerHTML = popupEquity.getAttribute('data-equity-se-pctile')
+        document.querySelector('.equity-eo-pctile').innerHTML = popupEquity.getAttribute('data-equity-eo-pctile')
+        document.querySelector('.equity-dp-pctile').innerHTML = popupEquity.getAttribute('data-equity-dp-pctile')
+        document.querySelector('.equity-lv-pctile').innerHTML = popupEquity.getAttribute('data-equity-lv-pctile')
 
 
         
@@ -289,7 +313,7 @@ L.Map.addInitHook(function () {
             block.classList.remove(class_)
         })
    
-        equityCategory = popupEquity.getAttribute('data-equity-percentile-category')
+        equityCategory = popupEquity.getAttribute('data-equity-category')
         
         console.log(equityCategory)
 
@@ -306,6 +330,60 @@ L.Map.addInitHook(function () {
         } else {
             block.classList.add('category-color-error');
         }
+
+        // add pctile-bar styling
+        let components = ["equity", "safeenv", "econopp", "democracy", "longevity"]
+        components.forEach(component => {
+ 
+            let nodes = document.querySelectorAll('.color-format-' + component);
+                nodes.forEach(el => {
+                    let categoryClasses = [component + "-lowest", component + "-low", component + "-moderate", component + "-high", component + "-highest", "category-color-error"]
+                          categoryClasses.forEach(categoryClass => {
+                              el.classList.remove(categoryClass)
+                          })
+                          
+                    console.log(el.innerHTML.trim())
+              
+                    if (el.innerHTML.trim() == "Lowest") {
+                        el.classList.add(component + '-lowest');
+                    } else if (el.innerHTML.trim() == "Low") {
+                        el.classList.add(component + '-low');
+                    } else if (el.innerHTML.trim() == "Moderate") {
+                        el.classList.add(component + '-moderate');
+                    } else if (el.innerHTML.trim() == "High") {
+                        el.classList.add(component + '-high');
+                    } else if (el.innerHTML.trim() == "Highest") {
+                        el.classList.add(component + '-highest');
+                    } else {
+                        el.classList.add('category-color-error');
+                    }
+                })
+                          
+                          
+            let pctileBar = document.querySelector('.pctile-' + component)
+            let classes = [component + "-lowest-bg-color", component + "-low-bg-color", component + "-moderate-bg-color", component + "-high-bg-color", component + "-highest-bg-color"]
+        
+            classes.forEach(class_ => {
+                pctileBar.classList.remove(class_)
+            })
+        
+            pctileBar.style.width = popupEquity.getAttribute('data-' + component + '-pctile').trim() + "%"
+            category = popupEquity.getAttribute('data-' + component + '-category').trim()
+        
+            if (category == "Lowest") {
+                pctileBar.classList.add(component + '-lowest-bg-color');
+            } else if (category == "Low") {
+                pctileBar.classList.add(component + '-low-bg-color');
+            } else if (category == "Moderate") {
+                pctileBar.classList.add(component + '-moderate-bg-color');
+            } else if (category == "High") {
+                pctileBar.classList.add(component + '-high-bg-color');
+            } else if (category.trim() == "Highest") {
+                pctileBar.classList.add(component + '-highest-bg-color');
+            } else {
+                pctileBar.classList.add('category-color-error');
+            }
+          })
         
         
       })
