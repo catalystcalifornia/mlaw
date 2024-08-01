@@ -6,156 +6,518 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(comment = FALSE, message = FALSE, warning = FALSE, echo = FALSE
-)
+knitr::opts_chunk$set(comment = FALSE, message = FALSE, warning = FALSE, echo = FALSE)
 
-library(RPostgreSQL)
-library(knitr)
-library(dplyr)
 library(sf)
-library(leaflet)
-library(htmltools)
-library(stringr)
-library(rgdal)
-library(rpostgis)
-library(leaflet)
-library(RColorBrewer)
-library(stringr)
-library(scales)
-library(colorspace)
-library(highcharter) 
-library(devtools)
+library(highcharter)
 library(rmapshaper)
-# library(maptools)
-library(rgeos)
-# install.packages("corrplot")
-library(corrplot)
-# install.packages("Hmisc")
-library(Hmisc)
+
 options(highcharter.theme = hc_theme_smpl(tooltip = list(valueDecimals = 2)))
 options(scipen=999)
 
 source("W:\\RDA Team\\R\\credentials_source.R")
+source("functions.R")
 
 con <- connect_to_db("eci_mlaw")
 con2 <- connect_to_db("rda_shared_data")
+```
 
-# Map function -------------------------
-
-index_map<-function(df,indicator,direction,colorpalette,nacolor){
-# add color palette for Indicator Percentiles
-
-pctl.bins <-c(0, 20, 40, 60, 80, 100)
-
-pal <- colorBin( palette = colorpalette, bins=pctl.bins, na.color = nacolor)
-
-# create custom legend labels
-
-labels <- c(
-  "LOWEST NEED (0-19th Percentile)",
-  "LOW NEED (20-39th Percentile)",
-  "MODERATE NEED (40-59th Percentile)",
-  "HIGH NEED (60-79th Percentile)",
-"HIGHEST NEED (80-100th Percentile)"
-)
-# map
-
-map<-leaflet(width = "100%", height = "600px")%>%
-  
-  # add base map
-addProviderTiles("CartoDB.PositronNoLabels") %>%
-addProviderTiles("CartoDB.PositronOnlyLabels", options = providerTileOptions(pane = "markerPane")) %>%
-
-# add map panes
-addMapPane("indi_pane", zIndex = 400) %>%
-  addMapPane("cd_pane", zIndex = 400) %>%
-  
-  # set view and layer control
-  setView( -118.353860, 34.068717, zoom = 9.5) %>%
-
-  addLayersControl(overlayGroups = c(indicator, "City Council District"), 
-                   options = layersControlOptions(collapsed = FALSE, autoZIndex = TRUE)) %>%
-  
-     # CD layer
-addPolygons(data = cd, fillOpacity=0, color = '#CEEA01', weight = 2.2, label=~district, group = "City Council District", options = pathOptions(pane = "cd_pane", interactive = FALSE), highlight = highlightOptions(color = "white", weight = 3, bringToFront = TRUE))%>%
-  
-  # Indicator layer
-
-  addPolygons(data=df, fillColor = ~pal(df$pctile), color="white", weight = 1, smoothFactor = 0.5, fillOpacity = .80, highlight = highlightOptions(color = "white", weight = 3, bringToFront = TRUE, sendToBack = TRUE), 
-popup = ~popup,
-group = indicator, options = pathOptions(pane = "indi_pane"))%>%
-  
-  # add legend
-  
-addLegend(position = "bottomleft", pal = pal, values = df$pctile, opacity = 1, title = paste0(indicator, " Percentile"), labFormat = function(type, cuts, p){paste0(labels)}) %>%
- hideGroup("City Council District")
-
-map}
+```{r load-data, include=FALSE}
 
 # Read in postgres tables------------------------
 
 # Read in LA city council districts shape
-cd<-st_read(con2, query="SELECT * FROM geographies_la.lacitygeohub_lacity_council_districts_2023", geom="geom")%>%
-  st_transform(4326)%>%
+cd <- st_read(con2, query="SELECT * FROM geographies_la.lacitygeohub_lacity_council_districts_2023", geom="geom") %>%
+  st_transform(4326) %>%
   ms_simplify()
 
-index<-dbGetQuery(con, "SELECT * FROM pctiles_index")
+dbDisconnect(con2)
 
-df<-index%>%
-  # select(geoid,index_pctile)%>% # narrow columns
-   mutate(pctile=index_pctile) 
+index <- dbGetQuery(con, "SELECT * FROM pctiles_index")
+
+df <- index %>%
+  mutate(pctile=index_pctile) 
 
 # Read in la city zipcode xwalk
-zip_xwalk<-st_read(con, query="SELECT * FROM crosswalk_zip_city_2022", geom="geom")%>%
-  st_transform(4326)%>%
+zip_xwalk <- st_read(con, query="SELECT * FROM crosswalk_zip_city_2022", geom="geom") %>%
+  st_transform(4326) %>%
   ms_simplify()
 
+dbDisconnect(con)
 
 # join index table with population data to the zip xwalk with our zip geoms
-df<-zip_xwalk%>%
+equity_df <- zip_xwalk %>%
   left_join(df, by=c("zipcode"="geoid"))
+
+# add pctile category for equity_data_popup
+
+equity_df <- equity_df %>%
+  mutate(equity_pctile_category = case_when(pctile < 20 ~ "Lowest",
+                                     pctile >=20 & pctile < 40 ~ "Low",
+                                     pctile >=40 & pctile < 60 ~ "Moderate",
+                                     pctile >=60 & pctile < 80 ~ "High",
+                                     pctile >=80 & pctile <= 100 ~ "Highest",
+                                     .default = NA
+                                     ),
+         safeenv_pctile_category = case_when(safe_environments_pctile < 20 ~ "Lowest",
+                                     safe_environments_pctile >=20 & safe_environments_pctile < 40 ~ "Low",
+                                     safe_environments_pctile >=40 & safe_environments_pctile < 60 ~ "Moderate",
+                                     safe_environments_pctile >=60 & safe_environments_pctile < 80 ~ "High",
+                                     safe_environments_pctile >=80 & safe_environments_pctile <= 100 ~ "Highest",
+                                     .default = NA
+                                     ),
+         econopp_pctile_category = case_when(econ_opp_pctile < 20 ~ "Lowest",
+                                     econ_opp_pctile >=20 & econ_opp_pctile < 40 ~ "Low",
+                                     econ_opp_pctile >=40 & econ_opp_pctile < 60 ~ "Moderate",
+                                     econ_opp_pctile >=60 & econ_opp_pctile < 80 ~ "High",
+                                     econ_opp_pctile >=80 & econ_opp_pctile <= 100 ~ "Highest",
+                                     .default = NA
+                                     ),
+         democracy_pctile_category = case_when(democracy_pctile < 20 ~ "Lowest",
+                                     democracy_pctile >=20 & democracy_pctile < 40 ~ "Low",
+                                     democracy_pctile >=40 & democracy_pctile < 60 ~ "Moderate",
+                                     democracy_pctile >=60 & democracy_pctile < 80 ~ "High",
+                                     democracy_pctile >=80 & democracy_pctile <= 100 ~ "Highest",
+                                     .default = NA
+                                     ),
+         longevity_pctile_category = case_when(longevity_pctile < 20 ~ "Lowest",
+                                     longevity_pctile >=20 & longevity_pctile < 40 ~ "Low",
+                                     longevity_pctile >=40 & longevity_pctile < 60 ~ "Moderate",
+                                     longevity_pctile >=60 & longevity_pctile < 80 ~ "High",
+                                     longevity_pctile >=80 & longevity_pctile <= 100 ~ "Highest",
+                                     .default = NA
+                                     )
+         
+         )
 
 ```
 
-```{r}
+```{r index-map-setup, include=FALSE}
 
 # Map using map function -----
 
 # feed in indicator label for mapping popup and legend and group overlay
-indicator<-paste0("Equity Index")
-direction<-paste0("higher")
+equity_indicator <- "Equity Index"
+direction <- "higher"
 
-# feed in colorpalette
-colorpalette <- c( "#E2D9FF" ,"#BDAFE9",  "#8E7ACA","#362178","#211447")
-nacolor<-"#9B9A9A"
+# define colorpalette(s)
+equity_colorpalette <- c("#E2D9FF", "#BDAFE9", "#8E7ACA", "#362178", "#211447")
+```
 
+```{r index-map-popups, include=FALSE}
+## Create data popup
+# This stores only the data values we'll insert into the custom_popup
+# Note: naming structure in the html tags: [data-][variable-name]
+# Note: multiple maps will be on the same report page, so we must add a unique prefix for common data tags so the JS works correctly
+# in this case, we'll use these prefixes: equity, d1, d2, d3, and d4 (d for domain)
+# Note: only use hyphens (no underscores or other symbols for whitespace)
+# We'll use the html tag names again when formatting popup behavior in JS (end of script)
+equity_data_popup <- paste0("<div class='equity'> <div class='leaflet-data-equity' data-equity-zipcode='", equity_df$zipcode,
+               "' data-equity-pctile='", round(equity_df$pctile,1),
+               "' data-equity-category='", equity_df$equity_pctile_category,
+               "' data-equity-population='", format(equity_df$pop, big.mark=","),
+               "' data-safeenv-pctile='", round(equity_df$safe_environments_pctile,1),
+               "' data-safeenv-category='", equity_df$safeenv_pctile_category,
+               "' data-econopp-pctile='", round(equity_df$econ_opp_pctile,1),
+               "' data-econopp-category='", equity_df$econopp_pctile_category,
+               "' data-democracy-pctile='", round(equity_df$democracy_pctile,1),
+               "' data-democracy-category='", equity_df$democracy_pctile_category,
+               "' data-longevity-pctile='", round(equity_df$longevity_pctile,1),
+               "' data-longevity-category='", equity_df$longevity_pctile_category,
+               "'></div></div>")
 
-## Map pop-ups SEPARATE------------------------
+## Create custom popup
+# We are using <div> "class" names (e.g. popup-instruction, division-header)
+# to apply CSS styling (end of script, before JS)
+# We are using <span> "class" names (e.g. data-emphasis, division-name)
+# to style with CSS AND insert the data stored in data_popup
+# Note: the <span> "class" names are using the SAME naming as in the data_popup (only difference is no "data-" prefix) - this makes things clear and convenient for JS coding (end of script)
 
-# create popup: 
+custom_equity_popup <- paste0("<div class='leaflet-popup-scrolled equity-sidebar'><div class='popup-instruction'>Please click an LA City ZIP Code to read more about that community's equity needs.</div><div class ='location-header'><div class='zipcode-header'><span class='square-icon equity-highest-bg-color'></span>  <span class='equity-zipcode'></span></div><div class='population-header'>Population:  <span class='equity-population'></span></div></div><br><div class='equity-domains'><b>Equity Index Percentile*: <span class='equity-pctile'></span></b><span style='display: block; width: 95%'><div class='pctile-bar'><div class='pctile-equity equity-highest-bg-color'></div></div></span><br><div class='domains'><b>Domain Percentiles*:</b><br>Safe Environments: <span class='equity-safeenv-pctile'></span><div class='pctile-bar'><div class='pctile-safeenv safeenv-highest-bg-color'></div></div>Economy and Opportunity: <span class='equity-econopp-pctile'></span><div class='pctile-bar'><div class='pctile-econopp econopp-highest-bg-color'></div></div>Democracy and Power: <span class='equity-democracy-pctile'></span><div class='pctile-bar'><div class='pctile-democracy democracy-highest-bg-color'></div></div>Longevity and Vitality: <span class='equity-longevity-pctile'></span><div class='pctile-bar'><div class='pctile-longevity longevity-highest-bg-color'></div></div></div></div><br>","<div class='footnote'>*Percentiles range from 0-100. The higher the percentile, the ", direction," the need.</div>","</div>")
 
-popup<- paste("<div class='leaflet-popup-scrolled' style='max-width:800px;max-height:200px'> <b>ZIP Code:</b> ", df$zipcode, "</br>",
- "<b>","Equity Index"," Percentile*: ", round(df$pctile,1),"</b></br>",
-  "<b>Population:</b> ", format(df$pop, big.mark=","), "</br>",
- "</br>",
- "<b>","Domain Percentiles:","</b></br>",
-  "","Safe Environments*: ", round(df$safe_environments_pctile,1),"</br>",
-   "","Economy and Opportunity*: ", round(df$econ_opp_pctile,1),"</br>",
-   "","Democracy and Power*: ", round(df$democracy_pctile,1),"</br>",
-    "","Longevity and Vitality*: ", round(df$longevity_pctile,1),"</br>",
-  "</br>",
-
-"<i>*Percentiles range from 0-100. The higher the percentile, the ", direction," the need.</i>","</br>",
-"</br></div>")
 
 ```
 
 # Equity Index
-```{r}
+```{r index-map}
 
-index_map(df,indicator,direction,colorpalette,nacolor)
+index_map(df=equity_df, indicator=equity_indicator, colorpalette=equity_colorpalette, data_popup=equity_data_popup, custom_popup=custom_equity_popup)
 
 ```
 
+<style type="text/css">
 
+/* minimum required css for leaflet maps with custom sidebars */ 
+.info {
+    padding: 6px 8px;
+    font-size: 12px;
+    background: white;
+    background: rgba(255,255,255,0.8);
+    border-radius: 5px;
+}
+
+.legend {
+    opacity:  1;
+    border-left:1px solid #737373;
+    border-right:1px solid #737373;
+    border-top:1px solid #737373;
+    border-bottom:1px solid #737373;
+}
+
+.leaflet-touch .leaflet-control-layers {
+  border-left:1px solid #737373;
+  border-right:1px solid #737373;
+}
+
+.leaflet-popup-scrolled {
+  max-height: 350px;
+  overflow: auto;
+  padding: 2%;
+  border: none;
+}
+
+.leaflet-left {
+  width: 33%;
+}
+
+.leaflet-left .leaflet-control {
+  background-color: white;
+  opacity: 1.0;
+}
+
+.leaflet-control-layers .leaflet-control .leaflet-control-layers-expanded {
+  background-color: white;
+  opacity: 1.0;
+}
+
+.hidden {
+  display: none;
+}
+
+/* css styling for zipcode header with color coded icon */
+.location-header {
+  display: flex;
+  justify-content: space-between;
+  align-items:center;
+  font-weight: 700; 
+  color: #000000;
+  font-size: 14px;
+}
+
+.zipcode-header {
+}
+
+.square-icon {
+  height: 14px;
+  width: 14px;
+  border-radius: 0.25em;
+  display: inline-flex;
+}
+
+.equity-zipcode {
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+}
+
+.population-header {
+}
+
+/* css styling that can change depending on the map data and custom styling needs */
+
+.popup-instruction {
+  font-style: italic;
+  font-weight: 600; 
+  line-height: 16px;
+  color: #000000;
+  border-bottom: 1px solid #000000;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+}
+
+.footnote {
+  font-style: italic;
+  padding-top: 16px;
+  border-top: 1px solid #000000;
+}
+
+/* Styles the bar displaying index pctiles in pop up */
+
+.pctile-bar {
+  width: 95%;
+  display: flex;
+  height: 1em;
+  background-color: #FBFBFB;
+  box-shadow: 0 0 1px black;
+  border-radius: 0.25em;
+  position: relative;
+}
+
+.pctile {
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  border-radius: 0.25em;
+  
+}
+.pctile-equity {
+  position: absolute;
+  height: 100%;
+  width: 93.2%; /* width is set to value for prepopulated ZIP Code*/
+  border-radius: 0.25em;
+  box-shadow: 0 0 1px black;
+  
+}
+
+.pctile-safeenv {
+  position: absolute;
+  height: 100%;
+  width: 99.0%; /* width is set to value for prepopulated ZIP Code*/
+  border-radius: 0.25em;
+  box-shadow: 0 0 1px black;
+  
+}
+
+.pctile-econopp {
+  position: absolute;
+  height: 100%;
+  width: 85.4%; /* width is set to value for prepopulated ZIP Code*/
+  border-radius: 0.25em;
+  box-shadow: 0 0 1px black;
+  
+}
+
+.pctile-democracy {
+  position: absolute;
+  height: 100%;
+  width: 87.5%; /* width is set to value for prepopulated ZIP Code*/
+  border-radius: 0.25em;
+  box-shadow: 0 0 1px black;
+  
+}
+
+.pctile-longevity {
+  position: absolute;
+  height: 100%;
+  width: 87.5%; /* width is set to value for prepopulated ZIP Code*/
+  border-radius: 0.25em;
+  box-shadow: 0 0 1px black;
+  
+}
+
+/* MLAW-specific color styling */
+.equity-highest-bg-color {
+  background-color: #211447; 
+}
+
+.equity-high-bg-color {
+  background-color: #362178; 
+}
+
+.equity-moderate-bg-color {
+  background-color: #8E7ACA; 
+}
+
+.equity-low-bg-color {
+  background-color: #BDAFE9; 
+}
+
+.equity-lowest-bg-color {
+  background-color: #E2D9FF; 
+}
+
+.safeenv-highest-bg-color {
+  background-color: #DF4007; 
+}
+
+.safeenv-high-bg-color {
+  background-color: #F25922; 
+}
+
+.safeenv-moderate-bg-color {
+  background-color: #FA7B4D; 
+}
+
+.safeenv-low-bg-color {
+  background-color: #FF9873; 
+}
+
+.safeenv-lowest-bg-color {
+  background-color: #FFBDA6; 
+}
+
+.econopp-highest-bg-color {
+  background-color: #601D42; 
+}
+
+.econopp-high-bg-color {
+  background-color: #733256; 
+}
+
+.econopp-moderate-bg-color {
+  background-color: #994E77; 
+}
+
+.econopp-low-bg-color {
+  background-color: #C27AA1; 
+}
+
+.econopp-lowest-bg-color {
+  background-color: #E7AECD; 
+}
+
+.democracy-highest-bg-color {
+  background-color: #EB8D00; 
+}
+
+.democracy-high-bg-color {
+  background-color: #FF9E0D; 
+}
+
+.democracy-moderate-bg-color {
+  background-color: #FFBC58; 
+}
+
+.democracy-low-bg-color {
+  background-color: #FFD28F; 
+}
+
+.democracy-lowest-bg-color {
+  background-color: #FFE4BB; 
+}
+
+.longevity-highest-bg-color {
+  background-color: #0860BC; 
+}
+
+.longevity-high-bg-color {
+  background-color: #177FEB; 
+}
+
+.longevity-moderate-bg-color {
+  background-color: #5FABF9; 
+}
+
+.longevity-low-bg-color {
+  background-color: #9BCCFF; 
+}
+
+.longevity-lowest-bg-color {
+  background-color: #C9E3FF; 
+}
+
+.category-color-error {
+  background-color: #737373;
+}
+
+</style>
+
+
+```{js}
+// This function is used to format MLAW data in the chloropleth map "popup"/sidebar feature
+
+// Standard set up for using JS with a leaflet map
+var mapsPlaceholder = [];
+L.Map.addInitHook(function () {
+  mapsPlaceholder.push(this);
+  mapsPlaceholder.forEach(map => {
+      
+      // to pre-populate map pop-up (when map loads/before user clicks anywhere)
+      map.on('load', (e) => {
+        setTimeout(() => {
+        document.querySelector('.equity-zipcode').innerHTML = "90012"
+        document.querySelector('.equity-pctile').innerHTML = "93.2"
+        document.querySelector('.equity-population').innerHTML = "38430"
+        document.querySelector('.equity-safeenv-pctile').innerHTML = "99.0"
+        document.querySelector('.equity-econopp-pctile').innerHTML= "85.4"
+        document.querySelector('.equity-democracy-pctile').innerHTML = "87.5"
+        document.querySelector('.equity-longevity-pctile').innerHTML = "87.5"
+        }, 500) //assumes the map will load within 500ms - if the initial popup is blank, the map is taking longer than 500ms to load; this can happen if a webpage has many other elements to load
+      })
+  
+      // hide default leaflet popup
+      map.on('popupopen', (e) => {
+        let popupsEquity = document.querySelectorAll('.leaflet-data-equity');
+        // console.log(popups);
+
+        document.querySelectorAll('.equity').forEach(equity => {
+        equity.parentElement.parentElement.parentElement.classList.add('hidden')
+        })
+
+        // populate custom pop-up when user clicks map
+        //console.log('click')
+        let popupEquity = popupsEquity[popupsEquity.length-1]
+        document.querySelector('.equity-zipcode').innerHTML = popupEquity.getAttribute('data-equity-zipcode')
+        document.querySelector('.equity-pctile').innerHTML = popupEquity.getAttribute('data-equity-pctile')
+        document.querySelector('.equity-population').innerHTML = popupEquity.getAttribute('data-equity-population')
+        document.querySelector('.equity-safeenv-pctile').innerHTML = popupEquity.getAttribute('data-safeenv-pctile')
+        document.querySelector('.equity-econopp-pctile').innerHTML = popupEquity.getAttribute('data-econopp-pctile')
+        document.querySelector('.equity-democracy-pctile').innerHTML = popupEquity.getAttribute('data-democracy-pctile')
+        document.querySelector('.equity-longevity-pctile').innerHTML = popupEquity.getAttribute('data-longevity-pctile')
+
+
+        
+        // adding header styling similar to JENI popup (changes the color of the square block to match pctile category)
+        let block = document.querySelector('.square-icon')
+
+        classes = ["equity-lowest-bg-color", "equity-low-bg-color", "equity-moderate-bg-color", "equity-high-bg-color", "equity-highest-bg-color", "category-color-error"]
+        classes.forEach(class_ => {
+            block.classList.remove(class_)
+        })
+   
+        equityCategory = popupEquity.getAttribute('data-equity-category')
+        
+        console.log(equityCategory)
+
+        if (equityCategory == "Lowest") {
+            block.classList.add('equity-lowest-bg-color');
+        } else if (equityCategory == "Low") {
+            block.classList.add('equity-low-bg-color');
+        } else if (equityCategory == "Moderate") {
+            block.classList.add('equity-moderate-bg-color');
+        } else if (equityCategory == "High") {
+            block.classList.add('equity-high-bg-color');
+        } else if (equityCategory == "Highest") {
+            block.classList.add('equity-highest-bg-color');
+        } else {
+            block.classList.add('category-color-error');
+        }
+
+        // add pctile-bar styling
+        let components = ["equity", "safeenv", "econopp", "democracy", "longevity"]
+        components.forEach(component => {
+                          
+                          
+            let pctileBar = document.querySelector('.pctile-' + component)
+            let classes = [component + "-lowest-bg-color", component + "-low-bg-color", component + "-moderate-bg-color", component + "-high-bg-color", component + "-highest-bg-color"]
+        
+            classes.forEach(class_ => {
+                pctileBar.classList.remove(class_)
+            })
+        
+            pctileBar.style.width = popupEquity.getAttribute('data-' + component + '-pctile').trim() + "%"
+            category = popupEquity.getAttribute('data-' + component + '-category').trim()
+        
+            if (category == "Lowest") {
+                pctileBar.classList.add(component + '-lowest-bg-color');
+            } else if (category == "Low") {
+                pctileBar.classList.add(component + '-low-bg-color');
+            } else if (category == "Moderate") {
+                pctileBar.classList.add(component + '-moderate-bg-color');
+            } else if (category == "High") {
+                pctileBar.classList.add(component + '-high-bg-color');
+            } else if (category.trim() == "Highest") {
+                pctileBar.classList.add(component + '-highest-bg-color');
+            } else {
+                pctileBar.classList.add('category-color-error');
+            }
+          })
+        
+        
+      })
+  })
+});
+
+
+```
 
