@@ -492,7 +492,7 @@ domains_map(df=equity_df, four_domains=equity_domains, colorpalette=color_palett
 }
 
 .baselayer-selected {
-  background-color: #E9E9E9;
+  background-color: #D6D6D6;
 }
 
 </style>
