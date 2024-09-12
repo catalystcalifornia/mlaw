@@ -145,10 +145,12 @@ custom_equity_popup <- paste0("<div class='leaflet-popup-scrolled domain-sidebar
 
 # Equity Index
 ```{r index-map}
-
 domains_map(df=equity_df, four_domains=equity_domains, colorpalette=color_palettes, data_popup=equity_data_popup, custom_popup=custom_equity_popup)
-
 ```
+<div class="caption" align="left" style="line-height: 12px;font-size: 10px;">
+Need categories are based on percentiles: 0-19 (Lowest), 20-39 (Low), 40-59 (Moderate), 60-79 (High), 80-100 (Highest).<br>
+All domains are calculated with a Race Composite Score (Black, Latine, AIAN, NHPI, Asian) and the following indicators -
+Safe Environments: Particulate Matter (PM) 2.5; Proximity to Hazardous Waste Facilities; Pedestrian and Bicyclist Fatalities and Injuries; Arrests; Hospitalizations for Gun Injuries. Economy and Opportunity: Early Childhood Education (ECE) Enrollment; Rent Burden; Evictions; Per Capita Income. Democracy and Power: Limited English Speaking Households; Voter Turnout for the 2022 General Election. Longevity and Vitality: Diabetes Hospitalizations; Impervious Land Cover; Health and Mental Health Care Services Access.</div>
 
 <style type="text/css">
 
