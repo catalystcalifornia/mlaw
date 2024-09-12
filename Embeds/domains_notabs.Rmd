@@ -143,7 +143,6 @@ custom_equity_popup <- paste0("<div class='leaflet-popup-scrolled domain-sidebar
 
 ```
 
-# Equity Index
 ```{r index-map}
 domains_map(df=equity_df, four_domains=equity_domains, colorpalette=color_palettes, data_popup=equity_data_popup, custom_popup=custom_equity_popup)
 ```
