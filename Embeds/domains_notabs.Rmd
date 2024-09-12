@@ -1,0 +1,617 @@
+---
+title: ''
+author: "Catalyst California"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(comment = FALSE, message = FALSE, warning = FALSE, echo = FALSE)
+
+library(sf)
+library(highcharter)
+library(rmapshaper)
+
+options(highcharter.theme = hc_theme_smpl(tooltip = list(valueDecimals = 2)))
+options(scipen=999)
+
+source("W:\\RDA Team\\R\\credentials_source.R")
+source("functions.R")
+
+con <- connect_to_db("eci_mlaw")
+con2 <- connect_to_db("rda_shared_data")
+```
+
+```{r load-data, include=FALSE}
+
+# Read in postgres tables------------------------
+
+# Read in LA city council districts shape
+cd <- st_read(con2, query="SELECT * FROM geographies_la.lacitygeohub_lacity_council_districts_2023", geom="geom") %>%
+  st_transform(4326) %>%
+  ms_simplify()
+
+dbDisconnect(con2)
+
+index <- dbGetQuery(con, "SELECT * FROM pctiles_index")
+
+df <- index %>%
+  mutate(pctile=index_pctile) 
+
+# Read in la city zipcode xwalk
+zip_xwalk <- st_read(con, query="SELECT * FROM crosswalk_zip_city_2022", geom="geom") %>%
+  st_transform(4326) %>%
+  ms_simplify()
+
+dbDisconnect(con)
+
+# join index table with population data to the zip xwalk with our zip geoms
+equity_df <- zip_xwalk %>%
+  left_join(df, by=c("zipcode"="geoid"))
+
+# add pctile category for equity_data_popup
+
+equity_df <- equity_df %>%
+  mutate(equity_pctile_category = case_when(pctile < 20 ~ "lowest",
+                                     pctile >=20 & pctile < 40 ~ "low",
+                                     pctile >=40 & pctile < 60 ~ "moderate",
+                                     pctile >=60 & pctile < 80 ~ "high",
+                                     pctile >=80 & pctile <= 100 ~ "highest",
+                                     .default = NA
+                                     ),
+         safeenv_pctile_category = case_when(safe_environments_pctile < 20 ~ "lowest",
+                                     safe_environments_pctile >=20 & safe_environments_pctile < 40 ~ "low",
+                                     safe_environments_pctile >=40 & safe_environments_pctile < 60 ~ "moderate",
+                                     safe_environments_pctile >=60 & safe_environments_pctile < 80 ~ "high",
+                                     safe_environments_pctile >=80 & safe_environments_pctile <= 100 ~ "highest",
+                                     .default = NA
+                                     ),
+         econopp_pctile_category = case_when(econ_opp_pctile < 20 ~ "lowest",
+                                     econ_opp_pctile >=20 & econ_opp_pctile < 40 ~ "low",
+                                     econ_opp_pctile >=40 & econ_opp_pctile < 60 ~ "moderate",
+                                     econ_opp_pctile >=60 & econ_opp_pctile < 80 ~ "high",
+                                     econ_opp_pctile >=80 & econ_opp_pctile <= 100 ~ "highest",
+                                     .default = NA
+                                     ),
+         democracy_pctile_category = case_when(democracy_pctile < 20 ~ "lowest",
+                                     democracy_pctile >=20 & democracy_pctile < 40 ~ "low",
+                                     democracy_pctile >=40 & democracy_pctile < 60 ~ "moderate",
+                                     democracy_pctile >=60 & democracy_pctile < 80 ~ "high",
+                                     democracy_pctile >=80 & democracy_pctile <= 100 ~ "highest",
+                                     .default = NA
+                                     ),
+         longevity_pctile_category = case_when(longevity_pctile < 20 ~ "lowest",
+                                     longevity_pctile >=20 & longevity_pctile < 40 ~ "low",
+                                     longevity_pctile >=40 & longevity_pctile < 60 ~ "moderate",
+                                     longevity_pctile >=60 & longevity_pctile < 80 ~ "high",
+                                     longevity_pctile >=80 & longevity_pctile <= 100 ~ "highest",
+                                     .default = NA
+                                     )
+         
+         )
+
+```
+
+```{r index-map-setup, include=FALSE}
+
+# Map using map function -----
+
+# feed in indicator label for mapping popup and legend and group overlay
+equity_indicator <- "Equity Index"
+equity_domains <- c("Safe Environments", "Economy and Opportunity", "Democracy and Power", "Longevity and Vitality")
+direction <- "higher"
+
+# define colorpalette(s)
+color_palettes <- list(c("#E2D9FF", "#BDAFE9", "#8E7ACA", "#362178", "#211447"),
+                       c( "#FFBDA6" ,"#FF9873",  "#FA7B4D","#F25922","#DF4007"),
+                       c( "#E7AECD" ,"#C27AA1",  "#994E77","#733256","#601D42"),
+                       c( "#FFE4BB" ,"#FFD28F",  "#FFBC58","#FF9E0D","#EB8D00"),
+                       c( "#C9E3FF" ,"#9BCCFF",  "#5FABF9", "#177FEB","#0860BC"))
+```
+
+```{r index-map-popups, include=FALSE}
+## Create data popup
+# This stores only the data values we'll insert into the custom_popup
+# Note: naming structure in the html tags: [data-][variable-name]
+# Note: multiple maps will be on the same report page, so we must add a unique prefix for common data tags so the JS works correctly
+# in this case, we'll use these prefixes: equity, d1, d2, d3, and d4 (d for domain)
+# Note: only use hyphens (no underscores or other symbols for whitespace)
+# We'll use the html tag names again when formatting popup behavior in JS (end of script)
+equity_data_popup <- paste0("<div class='equity'> <div class='leaflet-data-equity' data-equity-zipcode='", equity_df$zipcode,
+               "' data-equity-pctile='", round(equity_df$pctile,1),
+               "' data-equity-category='", equity_df$equity_pctile_category,
+               "' data-equity-population='", format(equity_df$pop, big.mark=","),
+               "' data-safeenv-pctile='", round(equity_df$safe_environments_pctile,1),
+               "' data-safeenv-category='", equity_df$safeenv_pctile_category,
+               "' data-econopp-pctile='", round(equity_df$econ_opp_pctile,1),
+               "' data-econopp-category='", equity_df$econopp_pctile_category,
+               "' data-democracy-pctile='", round(equity_df$democracy_pctile,1),
+               "' data-democracy-category='", equity_df$democracy_pctile_category,
+               "' data-longevity-pctile='", round(equity_df$longevity_pctile,1),
+               "' data-longevity-category='", equity_df$longevity_pctile_category,
+               "'></div></div>")
+
+## Create custom popup
+# We are using <div> "class" names (e.g. popup-instruction, division-header)
+# to apply CSS styling (end of script, before JS)
+# We are using <span> "class" names (e.g. data-emphasis, division-name)
+# to style with CSS AND insert the data stored in data_popup
+# Note: the <span> "class" names are using the SAME naming as in the data_popup (only difference is no "data-" prefix) - this makes things clear and convenient for JS coding (end of script)
+
+custom_equity_popup <- paste0("<div class='leaflet-popup-scrolled domain-sidebar'><div class='popup-instruction'>Please click an LA City ZIP Code to read more about that community's equity needs.</div><div class ='location-header'><div class='zipcode-header'>ZIP Code:  <span class='equity-zipcode'></span></div><div class='population-header'>Population:  <span class='equity-population'></span></div></div><br><div class='domains'><b>Domain Percentiles*:</b><div class='domain safe-environment baselayer-selected'>Safe Environments: <span class='equity-safeenv-pctile'></span><div class='pctile-bar'><div class='pctile-safeenv safeenv-highest-bg-color'></div></div><div class='safeenv-statement'>Residents have <span class='equity-safeenv-category category-safeenv safeenv-highest-bg-color'></span> need for safeguards against pollution, traffic injuries, and harmful policing.</div></div><div class='domain economy-and-opportunity'>Economy and Opportunity: <span class='equity-econopp-pctile'></span><div class='pctile-bar'><div class='pctile-econopp econopp-highest-bg-color'></div></div><div class='econopp-statement'>Residents have <span class='equity-econopp-category category-econopp econopp-highest-bg-color'></span> need for opportunities to equitably engage in the economy.</div></div><div class='domain democracy-and-power'>Democracy and Power: <span class='equity-democracy-pctile'></span><div class='pctile-bar'><div class='pctile-democracy democracy-highest-bg-color'></div></div><div class='democracy-statement'>Residents have <span class='equity-democracy-category category-democracy democracy-highest-bg-color'></span> need for opportunities to equitably participate and influence democracy.</div></div><div class='domain longevity-and-vitality'>Longevity and Vitality: <span class='equity-longevity-pctile'></span><div class='pctile-bar'><div class='pctile-longevity longevity-highest-bg-color'></div></div><div class='longevity-statement'>Residents have <span class='equity-longevity-category category-longevity longevity-highest-bg-color'></span> need for lives free from disease and illness, and access to community wellness resources.</div></div><div class='domain equity-index'><b>Equity Index Percentile*: </b><span class='equity-pctile'></span><div class='pctile-bar'><div class='pctile-equity equity-highest-bg-color'></div></div><div class='equity-statement'>Across the four domains above, this community has <span class='equity-category category-equity equity-highest-bg-color'></span> equity needs.</div></div>","<div class='footnote'>*Percentiles range from 0-100. The higher the percentile, the ", direction," the need (and the deeper the color).</div>","</div>")
+
+
+```
+
+# Equity Index
+```{r index-map}
+
+domains_map(df=equity_df, four_domains=equity_domains, colorpalette=color_palettes, data_popup=equity_data_popup, custom_popup=custom_equity_popup)
+
+```
+
+<style type="text/css">
+
+/* minimum required css for leaflet maps with custom sidebars */ 
+.info {
+    padding: 6px 8px;
+    font-size: 12px;
+    background: white;
+    background: rgba(255,255,255,0.8);
+    border-radius: 5px;
+    color: #000000;
+}
+
+.legend {
+    opacity:  1;
+    border-left:1px solid #737373;
+    border-right:1px solid #737373;
+    border-top:1px solid #737373;
+    border-bottom:1px solid #737373;
+}
+
+.leaflet-touch .leaflet-control-layers {
+  border-left:1px solid #737373;
+  border-right:1px solid #737373;
+}
+
+.leaflet-popup-scrolled {
+  border: none;
+}
+
+.leaflet-left {
+  width: 35%;
+}
+
+.leaflet-left .leaflet-control {
+  background-color: white;
+  opacity: 1.0;
+  overflow: auto;
+  padding: 2%;
+  max-height: 596px;
+  margin: 2px;
+}
+
+.leaflet-right .leaflet-control {
+  background-color: white;
+  opacity: 1.0;
+  padding: 2%;
+  margin: 2px;
+}
+
+.leaflet-control-layers .leaflet-control .leaflet-control-layers-expanded {
+  background-color: white;
+  opacity: 1.0;
+}
+
+.hidden {
+  display: none;
+}
+
+/* css styling for zipcode header with color coded icon */
+.location-header {
+  display: flex;
+  justify-content: space-between;
+  align-items:center;
+  font-weight: 700; 
+  color: #000000;
+  font-size: 14px;
+}
+
+.zipcode-header {
+}
+
+.square-icon {
+  height: 14px;
+  width: 14px;
+  border-radius: 0.25em;
+  display: inline-flex;
+}
+
+.equity-zipcode {
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+}
+
+.population-header {
+}
+
+.domain {
+  margin-top: 2px;
+  margin-bottom: 2px;
+  padding: 4px;
+  border-radius: 0.25em;
+}
+
+/* css styling that can change depending on the map data and custom styling needs */
+
+.popup-instruction {
+  font-style: italic;
+  font-weight: 600; 
+  line-height: 16px;
+  color: #000000;
+  border-bottom: 1px solid #000000;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+}
+
+.equity-index {
+  padding-top: 16px;
+  border-top: 1px solid #000000;
+}
+
+.footnote {
+  font-style: italic;
+  padding-top: 16px;
+  border-top: 1px solid #000000;
+}
+
+/* Styles the bar displaying index pctiles in pop up */
+
+.pctile-bar {
+  width: 95%;
+  display: flex;
+  height: 1em;
+  background-color: #FBFBFB;
+  box-shadow: 0 0 1px black;
+  border-radius: 0.25em;
+  position: relative;
+}
+
+.pctile {
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  border-radius: 0.25em;
+  
+}
+.pctile-equity {
+  position: absolute;
+  height: 100%;
+  width: 93.2%; /* width is set to value for prepopulated ZIP Code*/
+  border-radius: 0.25em;
+  box-shadow: 0 0 1px black;
+  
+}
+
+.pctile-safeenv {
+  position: absolute;
+  height: 100%;
+  width: 99.0%; /* width is set to value for prepopulated ZIP Code*/
+  border-radius: 0.25em;
+  box-shadow: 0 0 1px black;
+  
+}
+
+.pctile-econopp {
+  position: absolute;
+  height: 100%;
+  width: 85.4%; /* width is set to value for prepopulated ZIP Code*/
+  border-radius: 0.25em;
+  box-shadow: 0 0 1px black;
+  
+}
+
+.pctile-democracy {
+  position: absolute;
+  height: 100%;
+  width: 87.5%; /* width is set to value for prepopulated ZIP Code*/
+  border-radius: 0.25em;
+  box-shadow: 0 0 1px black;
+  
+}
+
+.pctile-longevity {
+  position: absolute;
+  height: 100%;
+  width: 87.5%; /* width is set to value for prepopulated ZIP Code*/
+  border-radius: 0.25em;
+  box-shadow: 0 0 1px black;
+  
+}
+
+.category-equity {
+  height: 100%;
+  width: 100%;
+  border-radius: 0.25em;
+  padding-left: 1px;
+  padding-right: 1px;
+
+}
+
+.category-safeenv {
+  height: 100%;
+  width: 100%;
+  border-radius: 0.25em;
+  padding-left: 1px;
+  padding-right: 1px;
+
+}
+
+.category-econopp {
+  height: 100%;
+  width: 100%;
+  border-radius: 0.25em;
+  padding-left: 1px;
+  padding-right: 1px;
+}
+
+.category-democracy {
+  height: 100%;
+  width: 100%;
+  border-radius: 0.25em;
+  padding-left: 1px;
+  padding-right: 1px;
+
+}
+
+.category-longevity {
+  height: 100%;
+  width: 100%;
+  border-radius: 0.25em;
+  padding-left: 1px;
+  padding-right: 1px;
+}
+
+/* MLAW-specific color styling */
+.equity-highest-bg-color {
+  background-color: #211447; 
+  color: white;
+}
+
+.equity-high-bg-color {
+  background-color: #362178; 
+  color: white;
+}
+
+.equity-moderate-bg-color {
+  background-color: #8E7ACA; 
+  color: white;
+}
+
+.equity-low-bg-color {
+  background-color: #BDAFE9; 
+}
+
+.equity-lowest-bg-color {
+  background-color: #E2D9FF; 
+}
+
+.safeenv-highest-bg-color {
+  background-color: #DF4007;
+  color: white;
+}
+
+.safeenv-high-bg-color {
+  background-color: #F25922; 
+  color: white;
+}
+
+.safeenv-moderate-bg-color {
+  background-color: #FA7B4D; 
+}
+
+.safeenv-low-bg-color {
+  background-color: #FF9873; 
+}
+
+.safeenv-lowest-bg-color {
+  background-color: #FFBDA6; 
+}
+
+.econopp-highest-bg-color {
+  background-color: #601D42;
+  color: white;
+}
+
+.econopp-high-bg-color {
+  background-color: #733256; 
+  color: white;
+}
+
+.econopp-moderate-bg-color {
+  background-color: #994E77; 
+  color: white;
+}
+
+.econopp-low-bg-color {
+  background-color: #C27AA1; 
+}
+
+.econopp-lowest-bg-color {
+  background-color: #E7AECD; 
+}
+
+.democracy-highest-bg-color {
+  background-color: #EB8D00;
+  color: white;
+}
+
+.democracy-high-bg-color {
+  background-color: #FF9E0D; 
+  color: white;
+}
+
+.democracy-moderate-bg-color {
+  background-color: #FFBC58; 
+}
+
+.democracy-low-bg-color {
+  background-color: #FFD28F; 
+}
+
+.democracy-lowest-bg-color {
+  background-color: #FFE4BB; 
+}
+
+.longevity-highest-bg-color {
+  background-color: #0860BC;
+  color: white;
+}
+
+.longevity-high-bg-color {
+  background-color: #177FEB; 
+  color: white;
+}
+
+.longevity-moderate-bg-color {
+  background-color: #5FABF9; 
+}
+
+.longevity-low-bg-color {
+  background-color: #9BCCFF; 
+}
+
+.longevity-lowest-bg-color {
+  background-color: #C9E3FF; 
+}
+
+.category-color-error {
+  background-color: #737373;
+}
+
+.baselayer-selected {
+  background-color: #E9E9E9;
+}
+
+</style>
+
+
+```{js}
+// This function is used to format MLAW data in the chloropleth map "popup"/sidebar feature
+
+// Standard set up for using JS with a leaflet map
+var mapsPlaceholder = [];
+L.Map.addInitHook(function () {
+  mapsPlaceholder.push(this);
+  mapsPlaceholder.forEach(map => {
+      map.on('baselayerchange', (e) => {
+        domains = ['.safe-environment', '.economy-and-opportunity', '.democracy-and-power', '.longevity-and-vitality']
+        domains.forEach(domain => {
+          document.querySelector(domain).classList.remove('baselayer-selected')
+        })
+        
+        let selectedBaselayer = e.name
+        if (selectedBaselayer == "Safe Environments") {
+          document.querySelector('.safe-environment').classList.add('baselayer-selected');
+        } else if (selectedBaselayer == "Economy and Opportunity") {
+          document.querySelector('.economy-and-opportunity').classList.add('baselayer-selected');
+        } else if (selectedBaselayer == "Democracy and Power") {
+          document.querySelector('.democracy-and-power').classList.add('baselayer-selected');
+        } else if (selectedBaselayer == "Longevity and Vitality") {
+          document.querySelector('.longevity-and-vitality').classList.add('baselayer-selected');
+        };
+        
+      }); // end baselayerchange check
+      
+      // to pre-populate map pop-up (when map loads/before user clicks anywhere)
+      map.on('load', (e) => {
+        setTimeout(() => {
+        document.querySelector('.equity-zipcode').innerHTML = "90012"
+        document.querySelector('.equity-population').innerHTML = "38,430"
+        document.querySelector('.equity-pctile').innerHTML = "93.2"
+        document.querySelector('.equity-safeenv-pctile').innerHTML = "99.0"
+        document.querySelector('.equity-econopp-pctile').innerHTML= "85.4"
+        document.querySelector('.equity-democracy-pctile').innerHTML = "87.5"
+        document.querySelector('.equity-longevity-pctile').innerHTML = "87.5"
+        document.querySelector('.equity-category').innerHTML = "highest"
+        document.querySelector('.equity-safeenv-category').innerHTML = "highest"
+        document.querySelector('.equity-econopp-category').innerHTML= "highest"
+        document.querySelector('.equity-democracy-category').innerHTML = "highest"
+        document.querySelector('.equity-longevity-category').innerHTML = "highest"
+        }, 500) //assumes the map will load within 500ms - if the initial popup is blank, the map is taking longer than 500ms to load; this can happen if a webpage has many other elements to load
+      }) // end map load check
+  
+      // hide default leaflet popup
+      map.on('popupopen', (e) => {
+        let popupsEquity = document.querySelectorAll('.leaflet-data-equity');
+        // console.log(popups);
+
+        document.querySelectorAll('.equity').forEach(equity => {
+        equity.parentElement.parentElement.parentElement.classList.add('hidden')
+        })
+
+        // populate custom pop-up when user clicks map
+        //console.log('click')
+        let popupEquity = popupsEquity[popupsEquity.length-1]
+        document.querySelector('.equity-zipcode').innerHTML = popupEquity.getAttribute('data-equity-zipcode')
+        document.querySelector('.equity-population').innerHTML = popupEquity.getAttribute('data-equity-population')
+        document.querySelector('.equity-pctile').innerHTML = popupEquity.getAttribute('data-equity-pctile')
+        document.querySelector('.equity-safeenv-pctile').innerHTML = popupEquity.getAttribute('data-safeenv-pctile')
+        document.querySelector('.equity-econopp-pctile').innerHTML = popupEquity.getAttribute('data-econopp-pctile')
+        document.querySelector('.equity-democracy-pctile').innerHTML = popupEquity.getAttribute('data-democracy-pctile')
+        document.querySelector('.equity-longevity-pctile').innerHTML = popupEquity.getAttribute('data-longevity-pctile')
+        document.querySelector('.equity-category').innerHTML = popupEquity.getAttribute('data-equity-category')
+        document.querySelector('.equity-safeenv-category').innerHTML = popupEquity.getAttribute('data-safeenv-category')
+        document.querySelector('.equity-econopp-category').innerHTML = popupEquity.getAttribute('data-econopp-category')
+        document.querySelector('.equity-democracy-category').innerHTML = popupEquity.getAttribute('data-democracy-category')
+        document.querySelector('.equity-longevity-category').innerHTML = popupEquity.getAttribute('data-longevity-category')
+
+
+        // add pctile-bar and category tag styling
+        let components = ["equity", "safeenv", "econopp", "democracy", "longevity"]
+        components.forEach(component => {
+                          
+                          
+            let pctileBar = document.querySelector('.pctile-' + component)
+            let categoryTag = document.querySelector('.category-' + component)
+            let classes = [component + "-lowest-bg-color", component + "-low-bg-color", component + "-moderate-bg-color", component + "-high-bg-color", component + "-highest-bg-color"]
+        
+            classes.forEach(class_ => {
+                pctileBar.classList.remove(class_)
+                categoryTag.classList.remove(class_)
+            })
+        
+            pctileBar.style.width = popupEquity.getAttribute('data-' + component + '-pctile').trim() + "%"
+            category = popupEquity.getAttribute('data-' + component + '-category').trim()
+        
+            if (category == "lowest") {
+                pctileBar.classList.add(component + '-lowest-bg-color')
+                categoryTag.classList.add(component + '-lowest-bg-color');
+            } else if (category == "low") {
+                pctileBar.classList.add(component + '-low-bg-color')
+                categoryTag.classList.add(component + '-low-bg-color');
+            } else if (category == "moderate") {
+                pctileBar.classList.add(component + '-moderate-bg-color')
+                categoryTag.classList.add(component + '-moderate-bg-color');
+            } else if (category == "high") {
+                pctileBar.classList.add(component + '-high-bg-color')
+                categoryTag.classList.add(component + '-high-bg-color');
+            } else if (category.trim() == "highest") {
+                pctileBar.classList.add(component + '-highest-bg-color')
+                categoryTag.classList.add(component + '-highest-bg-color');
+            } else {
+                pctileBar.classList.add('category-color-error')
+                categoryTag.classList.add('category-color-error');
+            }
+          })
+        
+        
+      }) // end popupopen check
+  })
+});
+
+
+```
+
