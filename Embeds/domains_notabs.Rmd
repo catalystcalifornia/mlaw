@@ -1,7 +1,10 @@
 ---
-title: 'LA City Equity Index Domains'
-output: html_document
+title: "<span style='font-size: 24px; color: #3A207D;'>LA City Equity Index Domains</span>"
+output: 
+  html_document:
+    css: "W:\\RDA Team\\R\\cc_brandguide.css"
 ---
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(comment = FALSE, message = FALSE, warning = FALSE, echo = FALSE)
@@ -175,6 +178,7 @@ domains_map(df=equity_df, four_domains=equity_domains, colorpalette=color_palett
 <style type="text/css">
 
 /* minimum required css for leaflet maps with custom sidebars */ 
+
 .info {
     padding: 6px 8px;
     font-size: 12px;
