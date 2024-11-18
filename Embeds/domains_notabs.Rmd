@@ -189,6 +189,7 @@ domains_map(df=equity_df, four_domains=equity_domains, colorpalette=color_palett
 }
 
 .legend {
+    width:325px;
     opacity:  1;
     border-left:1px solid #737373;
     border-right:1px solid #737373;
@@ -199,14 +200,16 @@ domains_map(df=equity_df, four_domains=equity_domains, colorpalette=color_palett
 .leaflet-touch .leaflet-control-layers {
   border-left:1px solid #737373;
   border-right:1px solid #737373;
+  border-top:1px solid #737373;
+  border-bottom:1px solid #737373;
 }
 
 .leaflet-popup-scrolled {
-  border: none;
-}
-
-.leaflet-left {
-  width: 35%;
+  max-height: 575px;
+  overflow: auto;
+  padding-left: 2%;
+  border-bottom: 1px solid #dddddd00;
+  border-top: 1px solid #dddddd00;
 }
 
 .leaflet-left .leaflet-control {
