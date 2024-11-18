@@ -140,7 +140,11 @@ custom_equity_popup <- paste0("<div class='leaflet-popup-scrolled equity-sidebar
 
 ```{r index-map}
 
-index_map(df=equity_df, indicator=equity_indicator, colorpalette=equity_colorpalette, data_popup=equity_data_popup, custom_popup=custom_equity_popup)
+index_map(df=equity_df, 
+          indicator=equity_indicator, 
+          colorpalette=equity_colorpalette, 
+          data_popup=equity_data_popup, 
+          custom_popup=custom_equity_popup)
 
 ```
 
@@ -426,7 +430,7 @@ L.Map.addInitHook(function () {
         setTimeout(() => {
         document.querySelector('.equity-zipcode').innerHTML = "90012"
         document.querySelector('.equity-pctile').innerHTML = "93.2"
-        document.querySelector('.equity-population').innerHTML = "38430"
+        document.querySelector('.equity-population').innerHTML = "38,430"
         document.querySelector('.equity-safeenv-pctile').innerHTML = "99.0"
         document.querySelector('.equity-econopp-pctile').innerHTML= "85.4"
         document.querySelector('.equity-democracy-pctile').innerHTML = "87.5"
