@@ -15,11 +15,11 @@ index_map <- function(df, indicator, colorpalette, nacolor="#9B9A9A", data_popup
   
   # create custom legend labels
   labels <- c(
-    "LOWEST NEED (0-19th Percentile)",
-    "LOW NEED (20-39th Percentile)",
-    "MODERATE NEED (40-59th Percentile)",
-    "HIGH NEED (60-79th Percentile)",
-    "HIGHEST NEED (80-100th Percentile)"
+    "Lowest (0-19th Percentile)",
+    "Low (20-39th Percentile)",
+    "Moderate (40-59th Percentile)",
+    "High (60-79th Percentile)",
+    "Highest (80-100th Percentile)"
   )
   
   # map
@@ -73,7 +73,7 @@ index_map <- function(df, indicator, colorpalette, nacolor="#9B9A9A", data_popup
     
     # add legend
     addLegend(position = "bottomleft", pal = pal, values = df$pctile, opacity = 1, 
-              title = paste0(indicator, " Percentile"), labFormat = function(type, cuts, p){paste0(labels)}) %>%
+              title = paste0(indicator, " Need Level"), labFormat = function(type, cuts, p){paste0(labels)}) %>%
     
     
     hideGroup("City Council District") 

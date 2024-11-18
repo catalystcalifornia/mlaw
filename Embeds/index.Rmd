@@ -1,7 +1,10 @@
 ---
-title: 'LA City Equity Index'
-output: html_document
+title: "<span style='font-size: 24px; color: #3A207D;'>LA City Equity Index</span>"
+output: 
+  html_document:
+    css: "W:\\RDA Team\\R\\cc_brandguide.css"
 ---
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(comment = FALSE, message = FALSE, warning = FALSE, echo = FALSE)
@@ -112,16 +115,16 @@ equity_colorpalette <- c("#E2D9FF", "#BDAFE9", "#8E7ACA", "#362178", "#211447")
 # We'll use the html tag names again when formatting popup behavior in JS (end of script)
 equity_data_popup <- paste0("<div class='equity'> <div class='leaflet-data-equity' data-equity-zipcode='", equity_df$zipcode,
                "' data-equity-pctile='", round(equity_df$pctile,1),
-               "' data-equity-category='", equity_df$equity_pctile_category,
+               "' data-equity-category='", tolower(equity_df$equity_pctile_category),
                "' data-equity-population='", format(equity_df$pop, big.mark=","),
                "' data-safeenv-pctile='", round(equity_df$safe_environments_pctile,1),
-               "' data-safeenv-category='", equity_df$safeenv_pctile_category,
+               "' data-safeenv-category='", tolower(equity_df$safeenv_pctile_category),
                "' data-econopp-pctile='", round(equity_df$econ_opp_pctile,1),
-               "' data-econopp-category='", equity_df$econopp_pctile_category,
+               "' data-econopp-category='", tolower(equity_df$econopp_pctile_category),
                "' data-democracy-pctile='", round(equity_df$democracy_pctile,1),
-               "' data-democracy-category='", equity_df$democracy_pctile_category,
+               "' data-democracy-category='", tolower(equity_df$democracy_pctile_category),
                "' data-longevity-pctile='", round(equity_df$longevity_pctile,1),
-               "' data-longevity-category='", equity_df$longevity_pctile_category,
+               "' data-longevity-category='", tolower(equity_df$longevity_pctile_category),
                "'></div></div>")
 
 ## Create custom popup
@@ -131,7 +134,29 @@ equity_data_popup <- paste0("<div class='equity'> <div class='leaflet-data-equit
 # to style with CSS AND insert the data stored in data_popup
 # Note: the <span> "class" names are using the SAME naming as in the data_popup (only difference is no "data-" prefix) - this makes things clear and convenient for JS coding (end of script)
 
-custom_equity_popup <- paste0("<div class='leaflet-popup-scrolled equity-sidebar'><div class='popup-instruction'>Please click on a ZIP Code to read more about that community's equity needs.</div><div class ='location-header'><div class='zipcode-header'><span class='square-icon equity-highest-bg-color'></span>  <span class='equity-zipcode'></span></div><div class='population-header'>Population:  <span class='equity-population'></span></div></div><br><div class='equity-domains'><b>Equity Index Percentile*: <span class='equity-pctile'></span></b><span style='display: block; width: 95%'><div class='pctile-bar'><div class='pctile-equity equity-highest-bg-color'></div></div></span><br><div class='domains'><b>Domain Percentiles*:</b><br>Safe Environments: <span class='equity-safeenv-pctile'></span><div class='pctile-bar'><div class='pctile-safeenv safeenv-highest-bg-color'></div></div>Economy and Opportunity: <span class='equity-econopp-pctile'></span><div class='pctile-bar'><div class='pctile-econopp econopp-highest-bg-color'></div></div>Democracy and Power: <span class='equity-democracy-pctile'></span><div class='pctile-bar'><div class='pctile-democracy democracy-highest-bg-color'></div></div>Longevity and Vitality: <span class='equity-longevity-pctile'></span><div class='pctile-bar'><div class='pctile-longevity longevity-highest-bg-color'></div></div></div></div><br>","<div class='footnote'>*Percentiles range from 0-100. The higher the percentile (and the deeper the color), the ", direction," the need.</div>","</div>")
+custom_equity_popup <- paste0("<div class='leaflet-popup-scrolled equity-sidebar'>",
+"<div class='popup-instruction'>Please click on a ZIP Code to read more about that community's equity needs.</div>",
+"<div class ='location-header'><div class='zipcode-header'><span class='square-icon equity-highest-bg-color'></span>",
+"<span class='equity-zipcode'></span></div>", 
+"<div class='population-header'>Population:  <span class='equity-population'></span></div></div>", 
+"<br>", 
+"<div class='equity-domains'><b>Equity Index Percentile*: <span class='equity-pctile'></span></b>", 
+"<span style='display: block; width: 95%'><div class='pctile-bar'><div class='pctile-equity equity-highest-bg-color'></div></div></span>", 
+"<br>", 
+"<div class='summary-statement'>This community has <span class='equity-category category-equity equity-highest-bg-color'></span> need overall compared to other LA City ZIP Codes. ", 
+"It has <span class='equity-safeenv-category category-safeenv safeenv-highest-bg-color'></span> need in Safe Environments, ",
+"<span class='equity-econopp-category category-econopp econopp-highest-bg-color'></span> need in Economy and Opportunity, ", 
+"<span class='equity-democracy-category category-democracy democracy-highest-bg-color'></span> need in Democracy and Power, and ",
+"<span class='equity-longevity-category category-longevity longevity-highest-bg-color'></span> need in Longevity and Vitality.</div>", 
+"<br>",
+"<div class='domains'><b>Domain Percentiles*:</b><br>Safe Environments: <span class='equity-safeenv-pctile'></span>",
+"<div class='pctile-bar'><div class='pctile-safeenv safeenv-highest-bg-color'></div></div>", 
+"Economy and Opportunity: <span class='equity-econopp-pctile'></span><div class='pctile-bar'><div class='pctile-econopp econopp-highest-bg-color'></div></div>", 
+"Democracy and Power: <span class='equity-democracy-pctile'></span><div class='pctile-bar'><div class='pctile-democracy democracy-highest-bg-color'></div></div>", 
+"Longevity and Vitality: <span class='equity-longevity-pctile'></span><div class='pctile-bar'><div class='pctile-longevity longevity-highest-bg-color'></div></div>", 
+"</div></div>", 
+"<br>",
+"<div class='footnote'>*Percentiles range from 0-100. The higher the percentile (and the deeper the color), the ", direction," the need.</div>","</div>")
 
 
 ```
@@ -159,6 +184,7 @@ index_map(df=equity_df,
 }
 
 .legend {
+    width:325px;
     opacity:  1;
     border-left:1px solid #737373;
     border-right:1px solid #737373;
@@ -169,17 +195,16 @@ index_map(df=equity_df,
 .leaflet-touch .leaflet-control-layers {
   border-left:1px solid #737373;
   border-right:1px solid #737373;
+  border-top:1px solid #737373;
+  border-bottom:1px solid #737373;
 }
 
 .leaflet-popup-scrolled {
-  max-height: 350px;
+  max-height: 420px;
   overflow: auto;
-  padding: 2%;
-  border: none;
-}
-
-.leaflet-left {
-  width: 33%;
+  padding-left: 2%;
+  border-bottom: 1px solid #dddddd00;
+  border-top: 1px solid #dddddd00;
 }
 
 .leaflet-left .leaflet-control {
@@ -307,17 +332,64 @@ index_map(df=equity_df,
   
 }
 
+
+.category-equity {
+  height: 100%;
+  width: 100%;
+  border-radius: 0.25em;
+  padding-left: 1px;
+  padding-right: 1px;
+
+}
+
+.category-safeenv {
+  height: 100%;
+  width: 100%;
+  border-radius: 0.25em;
+  padding-left: 1px;
+  padding-right: 1px;
+
+}
+
+.category-econopp {
+  height: 100%;
+  width: 100%;
+  border-radius: 0.25em;
+  padding-left: 1px;
+  padding-right: 1px;
+}
+
+.category-democracy {
+  height: 100%;
+  width: 100%;
+  border-radius: 0.25em;
+  padding-left: 1px;
+  padding-right: 1px;
+
+}
+
+.category-longevity {
+  height: 100%;
+  width: 100%;
+  border-radius: 0.25em;
+  padding-left: 1px;
+  padding-right: 1px;
+}
+
 /* MLAW-specific color styling */
 .equity-highest-bg-color {
   background-color: #211447; 
+  color: white;
 }
 
 .equity-high-bg-color {
   background-color: #362178; 
+  color: white;
 }
 
 .equity-moderate-bg-color {
   background-color: #8E7ACA; 
+  color: white;
 }
 
 .equity-low-bg-color {
@@ -329,11 +401,13 @@ index_map(df=equity_df,
 }
 
 .safeenv-highest-bg-color {
-  background-color: #DF4007; 
+  background-color: #DF4007;
+  color: white;
 }
 
 .safeenv-high-bg-color {
   background-color: #F25922; 
+  color: white;
 }
 
 .safeenv-moderate-bg-color {
@@ -349,15 +423,18 @@ index_map(df=equity_df,
 }
 
 .econopp-highest-bg-color {
-  background-color: #601D42; 
+  background-color: #601D42;
+  color: white;
 }
 
 .econopp-high-bg-color {
   background-color: #733256; 
+  color: white;
 }
 
 .econopp-moderate-bg-color {
   background-color: #994E77; 
+  color: white;
 }
 
 .econopp-low-bg-color {
@@ -369,11 +446,13 @@ index_map(df=equity_df,
 }
 
 .democracy-highest-bg-color {
-  background-color: #EB8D00; 
+  background-color: #EB8D00;
+  color: white;
 }
 
 .democracy-high-bg-color {
   background-color: #FF9E0D; 
+  color: white;
 }
 
 .democracy-moderate-bg-color {
@@ -389,11 +468,13 @@ index_map(df=equity_df,
 }
 
 .longevity-highest-bg-color {
-  background-color: #0860BC; 
+  background-color: #0860BC;
+  color: white;
 }
 
 .longevity-high-bg-color {
   background-color: #177FEB; 
+  color: white;
 }
 
 .longevity-moderate-bg-color {
@@ -434,6 +515,11 @@ L.Map.addInitHook(function () {
         document.querySelector('.equity-econopp-pctile').innerHTML= "85.4"
         document.querySelector('.equity-democracy-pctile').innerHTML = "87.5"
         document.querySelector('.equity-longevity-pctile').innerHTML = "87.5"
+        document.querySelector('.equity-category').innerHTML = "highest"
+        document.querySelector('.equity-safeenv-category').innerHTML = "highest"
+        document.querySelector('.equity-econopp-category').innerHTML= "highest"
+        document.querySelector('.equity-democracy-category').innerHTML = "highest"
+        document.querySelector('.equity-longevity-category').innerHTML = "highest"
         }, 500) //assumes the map will load within 500ms - if the initial popup is blank, the map is taking longer than 500ms to load; this can happen if a webpage has many other elements to load
       })
   
@@ -456,6 +542,11 @@ L.Map.addInitHook(function () {
         document.querySelector('.equity-econopp-pctile').innerHTML = popupEquity.getAttribute('data-econopp-pctile')
         document.querySelector('.equity-democracy-pctile').innerHTML = popupEquity.getAttribute('data-democracy-pctile')
         document.querySelector('.equity-longevity-pctile').innerHTML = popupEquity.getAttribute('data-longevity-pctile')
+        document.querySelector('.equity-category').innerHTML = popupEquity.getAttribute('data-equity-category')
+        document.querySelector('.equity-safeenv-category').innerHTML = popupEquity.getAttribute('data-safeenv-category')
+        document.querySelector('.equity-econopp-category').innerHTML = popupEquity.getAttribute('data-econopp-category')
+        document.querySelector('.equity-democracy-category').innerHTML = popupEquity.getAttribute('data-democracy-category')
+        document.querySelector('.equity-longevity-category').innerHTML = popupEquity.getAttribute('data-longevity-category')
 
 
         
@@ -471,47 +562,55 @@ L.Map.addInitHook(function () {
         
         console.log(equityCategory)
 
-        if (equityCategory == "Lowest") {
+        if (equityCategory == "lowest") {
             block.classList.add('equity-lowest-bg-color');
-        } else if (equityCategory == "Low") {
+        } else if (equityCategory == "low") {
             block.classList.add('equity-low-bg-color');
-        } else if (equityCategory == "Moderate") {
+        } else if (equityCategory == "moderate") {
             block.classList.add('equity-moderate-bg-color');
-        } else if (equityCategory == "High") {
+        } else if (equityCategory == "high") {
             block.classList.add('equity-high-bg-color');
-        } else if (equityCategory == "Highest") {
+        } else if (equityCategory == "highest") {
             block.classList.add('equity-highest-bg-color');
         } else {
             block.classList.add('category-color-error');
         }
 
-        // add pctile-bar styling
+        // add pctile-bar and category tag styling
         let components = ["equity", "safeenv", "econopp", "democracy", "longevity"]
         components.forEach(component => {
                           
                           
             let pctileBar = document.querySelector('.pctile-' + component)
+            let categoryTag = document.querySelector('.category-' + component)
             let classes = [component + "-lowest-bg-color", component + "-low-bg-color", component + "-moderate-bg-color", component + "-high-bg-color", component + "-highest-bg-color"]
         
             classes.forEach(class_ => {
                 pctileBar.classList.remove(class_)
+                categoryTag.classList.remove(class_)
             })
         
             pctileBar.style.width = popupEquity.getAttribute('data-' + component + '-pctile').trim() + "%"
             category = popupEquity.getAttribute('data-' + component + '-category').trim()
         
-            if (category == "Lowest") {
-                pctileBar.classList.add(component + '-lowest-bg-color');
-            } else if (category == "Low") {
-                pctileBar.classList.add(component + '-low-bg-color');
-            } else if (category == "Moderate") {
-                pctileBar.classList.add(component + '-moderate-bg-color');
-            } else if (category == "High") {
-                pctileBar.classList.add(component + '-high-bg-color');
-            } else if (category.trim() == "Highest") {
-                pctileBar.classList.add(component + '-highest-bg-color');
+            if (category == "lowest") {
+                pctileBar.classList.add(component + '-lowest-bg-color')
+                categoryTag.classList.add(component + '-lowest-bg-color');
+            } else if (category == "low") {
+                pctileBar.classList.add(component + '-low-bg-color')
+                categoryTag.classList.add(component + '-low-bg-color');
+            } else if (category == "moderate") {
+                pctileBar.classList.add(component + '-moderate-bg-color')
+                categoryTag.classList.add(component + '-moderate-bg-color');
+            } else if (category == "high") {
+                pctileBar.classList.add(component + '-high-bg-color')
+                categoryTag.classList.add(component + '-high-bg-color');
+            } else if (category.trim() == "highest") {
+                pctileBar.classList.add(component + '-highest-bg-color')
+                categoryTag.classList.add(component + '-highest-bg-color');
             } else {
-                pctileBar.classList.add('category-color-error');
+                pctileBar.classList.add('category-color-error')
+                categoryTag.classList.add('category-color-error');
             }
           })
         
