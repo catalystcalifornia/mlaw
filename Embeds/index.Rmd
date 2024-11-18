@@ -1,7 +1,5 @@
 ---
-title: ''
-author: "Catalyst California"
-date: "`r Sys.Date()`"
+title: 'LA City Equity Index'
 output: html_document
 ---
 
@@ -133,7 +131,7 @@ equity_data_popup <- paste0("<div class='equity'> <div class='leaflet-data-equit
 # to style with CSS AND insert the data stored in data_popup
 # Note: the <span> "class" names are using the SAME naming as in the data_popup (only difference is no "data-" prefix) - this makes things clear and convenient for JS coding (end of script)
 
-custom_equity_popup <- paste0("<div class='leaflet-popup-scrolled equity-sidebar'><div class='popup-instruction'>Please click an LA City ZIP Code to read more about that community's equity needs.</div><div class ='location-header'><div class='zipcode-header'><span class='square-icon equity-highest-bg-color'></span>  <span class='equity-zipcode'></span></div><div class='population-header'>Population:  <span class='equity-population'></span></div></div><br><div class='equity-domains'><b>Equity Index Percentile*: <span class='equity-pctile'></span></b><span style='display: block; width: 95%'><div class='pctile-bar'><div class='pctile-equity equity-highest-bg-color'></div></div></span><br><div class='domains'><b>Domain Percentiles*:</b><br>Safe Environments: <span class='equity-safeenv-pctile'></span><div class='pctile-bar'><div class='pctile-safeenv safeenv-highest-bg-color'></div></div>Economy and Opportunity: <span class='equity-econopp-pctile'></span><div class='pctile-bar'><div class='pctile-econopp econopp-highest-bg-color'></div></div>Democracy and Power: <span class='equity-democracy-pctile'></span><div class='pctile-bar'><div class='pctile-democracy democracy-highest-bg-color'></div></div>Longevity and Vitality: <span class='equity-longevity-pctile'></span><div class='pctile-bar'><div class='pctile-longevity longevity-highest-bg-color'></div></div></div></div><br>","<div class='footnote'>*Percentiles range from 0-100. The higher the percentile (and the deeper the color), the ", direction," the need.</div>","</div>")
+custom_equity_popup <- paste0("<div class='leaflet-popup-scrolled equity-sidebar'><div class='popup-instruction'>Please click on a ZIP Code to read more about that community's equity needs.</div><div class ='location-header'><div class='zipcode-header'><span class='square-icon equity-highest-bg-color'></span>  <span class='equity-zipcode'></span></div><div class='population-header'>Population:  <span class='equity-population'></span></div></div><br><div class='equity-domains'><b>Equity Index Percentile*: <span class='equity-pctile'></span></b><span style='display: block; width: 95%'><div class='pctile-bar'><div class='pctile-equity equity-highest-bg-color'></div></div></span><br><div class='domains'><b>Domain Percentiles*:</b><br>Safe Environments: <span class='equity-safeenv-pctile'></span><div class='pctile-bar'><div class='pctile-safeenv safeenv-highest-bg-color'></div></div>Economy and Opportunity: <span class='equity-econopp-pctile'></span><div class='pctile-bar'><div class='pctile-econopp econopp-highest-bg-color'></div></div>Democracy and Power: <span class='equity-democracy-pctile'></span><div class='pctile-bar'><div class='pctile-democracy democracy-highest-bg-color'></div></div>Longevity and Vitality: <span class='equity-longevity-pctile'></span><div class='pctile-bar'><div class='pctile-longevity longevity-highest-bg-color'></div></div></div></div><br>","<div class='footnote'>*Percentiles range from 0-100. The higher the percentile (and the deeper the color), the ", direction," the need.</div>","</div>")
 
 
 ```
@@ -147,6 +145,7 @@ index_map(df=equity_df,
           custom_popup=custom_equity_popup)
 
 ```
+<span style='float: left; font-size: 12px;'>Catalyst California, LA City Equity Index, 2024; <u>[catalystcalifornia.org](https://www.catalystcalifornia.org/)</u>. For more information about data methodology, please visit the [GitHub repository](https://github.com/catalystcalifornia/mlaw?tab=readme-ov-file#data-methodology).</span>
 
 <style type="text/css">
 
