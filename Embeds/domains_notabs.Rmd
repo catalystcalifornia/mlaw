@@ -418,91 +418,111 @@ domains_map(df=equity_df, four_domains=equity_domains, colorpalette=color_palett
 .equity-highest-bg-color {
   background-color: #211447; 
   color: white;
+  font-weight: bold;
 }
 
 .equity-high-bg-color {
   background-color: #362178; 
   color: white;
+  font-weight: bold;
 }
 
 .equity-moderate-bg-color {
   background-color: #8E7ACA; 
   color: white;
+  font-weight: bold;
 }
 
 .equity-low-bg-color {
   background-color: #BDAFE9; 
+  font-weight: bold;
 }
 
 .equity-lowest-bg-color {
-  background-color: #E2D9FF; 
+  background-color: #E2D9FF;
+  font-weight: bold;
 }
 
 .safeenv-highest-bg-color {
   background-color: #DF4007;
   color: white;
+  font-weight: bold;
 }
 
 .safeenv-high-bg-color {
   background-color: #F25922; 
   color: white;
+  font-weight: bold;
 }
 
 .safeenv-moderate-bg-color {
   background-color: #FA7B4D; 
+  font-weight: bold;
 }
 
 .safeenv-low-bg-color {
   background-color: #FF9873; 
+  font-weight: bold;
 }
 
 .safeenv-lowest-bg-color {
-  background-color: #FFBDA6; 
+  background-color: #FFBDA6;
+  font-weight: bold;
 }
 
 .econopp-highest-bg-color {
   background-color: #601D42;
   color: white;
+  font-weight: bold;
 }
 
 .econopp-high-bg-color {
   background-color: #733256; 
   color: white;
+  font-weight: bold;
 }
 
 .econopp-moderate-bg-color {
   background-color: #994E77; 
   color: white;
+  font-weight: bold;
 }
 
 .econopp-low-bg-color {
-  background-color: #C27AA1; 
+  background-color: #C27AA1;
+  font-weight: bold;
 }
 
 .econopp-lowest-bg-color {
   background-color: #E7AECD; 
+  font-weight: bold;
 }
 
 .democracy-highest-bg-color {
   background-color: #EB8D00;
   color: white;
+  font-weight: bold;
 }
 
 .democracy-high-bg-color {
   background-color: #FF9E0D; 
   color: white;
+  font-weight: bold;
 }
 
 .democracy-moderate-bg-color {
-  background-color: #FFBC58; 
+  background-color: #FFBC58;
+  font-weight: bold; 
 }
 
 .democracy-low-bg-color {
-  background-color: #FFD28F; 
+  background-color: #FFD28F;
+  font-weight: bold; 
 }
 
 .democracy-lowest-bg-color {
   background-color: #FFE4BB; 
+  font-weight: bold;
 }
 
 .longevity-highest-bg-color {
@@ -513,22 +533,27 @@ domains_map(df=equity_df, four_domains=equity_domains, colorpalette=color_palett
 .longevity-high-bg-color {
   background-color: #177FEB; 
   color: white;
+  font-weight: bold;
 }
 
 .longevity-moderate-bg-color {
   background-color: #5FABF9; 
+  font-weight: bold;
 }
 
 .longevity-low-bg-color {
   background-color: #9BCCFF; 
+  font-weight: bold;
 }
 
 .longevity-lowest-bg-color {
   background-color: #C9E3FF; 
+  font-weight: bold;
 }
 
 .category-color-error {
   background-color: #737373;
+  font-weight: bold;
 }
 
 .baselayer-selected {
