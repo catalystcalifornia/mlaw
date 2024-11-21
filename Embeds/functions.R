@@ -1,5 +1,6 @@
 # load libraries
 library(leaflet)
+library(htmlwidgets)
 
 # copied from index.Rmd and updated
 index_map <- function(df, indicator, colorpalette, nacolor="#9B9A9A", data_popup, custom_popup){
@@ -14,18 +15,18 @@ index_map <- function(df, indicator, colorpalette, nacolor="#9B9A9A", data_popup
   
   # create custom legend labels
   labels <- c(
-    "LOWEST NEED (0-19th Percentile)",
-    "LOW NEED (20-39th Percentile)",
-    "MODERATE NEED (40-59th Percentile)",
-    "HIGH NEED (60-79th Percentile)",
-    "HIGHEST NEED (80-100th Percentile)"
+    "Lowest (0-19th Percentile)",
+    "Low (20-39th Percentile)",
+    "Moderate (40-59th Percentile)",
+    "High (60-79th Percentile)",
+    "Highest (80-100th Percentile)"
   )
   
   # map
-  map <- leaflet(width = "100%", height = "600px",
+  map <- leaflet(width = "100%", 
+                 height = "600px",
                  options = leafletOptions(zoomControl = FALSE, 
-                                          attributionControl=FALSE,
-                                          minZoom=10, maxZoom=10)) %>%
+                                          attributionControl=FALSE)) %>%
     
     # add base maps, panes, and set view
     addProviderTiles("CartoDB.PositronNoLabels") %>%
@@ -40,17 +41,31 @@ index_map <- function(df, indicator, colorpalette, nacolor="#9B9A9A", data_popup
     addControl(html=custom_popup, position = "topleft") %>%
     
     # Indicator layer
-    addPolygons(data=df, fillColor = ~pal(df$pctile), color="black", weight = 1, 
-                smoothFactor = 0.5, fillOpacity = 1, 
-                highlight = highlightOptions(color = "white", weight = 3, bringToFront = TRUE, sendToBack = TRUE), 
-                group = indicator, options = pathOptions(pane = "indi_pane"),
+    addPolygons(data=df, 
+                color="white",
+                weight = 1, 
+                smoothFactor = 0.5,
+                opacity = 1.0,
+                fillOpacity = 0.85, 
+                fillColor = ~pal(df$pctile), 
+                highlight = highlightOptions(color = "white",
+                                             weight = 5, 
+                                             bringToFront = TRUE, 
+                                             sendToBack = TRUE), 
+                group = indicator, 
+                options = pathOptions(pane = "indi_pane"),
                 popup = ~data_popup) %>%
     
     # CD layer
-    addPolygons(data = cd, fillOpacity=0, color = '#CEEA01', weight = 2.2, 
-                label=~district, group = "City Council District", 
-                options = pathOptions(pane = "cd_pane", interactive = FALSE), 
-                highlight = highlightOptions(color = "white", weight = 3, bringToFront = TRUE))%>%
+    addPolygons(data = cd, 
+                opacity = 1,
+                fillOpacity=0, 
+                color = '#CEEA01', 
+                weight = 3, 
+                label=~district, 
+                group = "City Council District", 
+                options = pathOptions(pane = "cd_pane", 
+                                      interactive = FALSE))%>%
     
     # add layers control to toggle index and districts
     addLayersControl(overlayGroups = c(indicator, "City Council District"), 
@@ -58,12 +73,12 @@ index_map <- function(df, indicator, colorpalette, nacolor="#9B9A9A", data_popup
     
     # add legend
     addLegend(position = "bottomleft", pal = pal, values = df$pctile, opacity = 1, 
-              title = paste0(indicator, " Percentile"), labFormat = function(type, cuts, p){paste0(labels)}) %>%
+              title = paste0(indicator, " Need Level"), labFormat = function(type, cuts, p){paste0(labels)}) %>%
     
     
-    hideGroup("City Council District")
+    hideGroup("City Council District") 
   
-  map
+  return(map)
   
 }
 
@@ -94,8 +109,7 @@ domains_map <- function(df, four_domains=c(), colorpalette, nacolor="#9B9A9A", d
   # map
   map <- leaflet(width = "100%", height = "600px",
                  options = leafletOptions(zoomControl = FALSE, 
-                                          attributionControl=FALSE,
-                                          minZoom=10, maxZoom=10)) %>%
+                                          attributionControl=FALSE)) %>%
     
     # add base maps, panes, and set view
     addProviderTiles("CartoDB.PositronNoLabels") %>%
@@ -109,58 +123,90 @@ domains_map <- function(df, four_domains=c(), colorpalette, nacolor="#9B9A9A", d
     # add custom sidebar
     addControl(html=custom_popup, position = "topleft") %>%
     
-    # Index layer
-    # addPolygons(data=df, fillColor = ~index_pal(df$pctile), color="black", weight = 1, 
-    #             smoothFactor = 0.5, fillOpacity = 1, 
-    #             highlight = highlightOptions(color = "white", weight = 3, bringToFront = TRUE, sendToBack = TRUE), 
-    #             group = index_indicator, options = pathOptions(pane = "indi_pane"),
-    #             popup = ~data_popup) %>%
-    
     # Domain #1 layer
-    addPolygons(data=df, fillColor = ~domain1_pal(df$safe_environments_pctile), color="black", weight = 1, 
-                smoothFactor = 0.5, fillOpacity = 1, 
-                highlight = highlightOptions(color = "white", weight = 3, bringToFront = TRUE, sendToBack = TRUE), 
-                group = four_domains[[1]], options = pathOptions(pane = "indi_pane"),
+    addPolygons(data=df, 
+                color="white",
+                weight = 1, 
+                smoothFactor = 0.5,
+                opacity = 1.0,
+                fillOpacity = 0.85, 
+                fillColor = ~domain1_pal(df$safe_environments_pctile), 
+                highlight = highlightOptions(color = "white",
+                                             weight = 5, 
+                                             bringToFront = TRUE, 
+                                             sendToBack = TRUE), 
+                group = four_domains[[1]], 
+                options = pathOptions(pane = "indi_pane"),
                 popup = ~data_popup) %>%
     
     # Domain #2 layer
-    addPolygons(data=df, fillColor = ~domain2_pal(df$econ_opp_pctile), color="black", weight = 1, 
-                smoothFactor = 0.5, fillOpacity = 1, 
-                highlight = highlightOptions(color = "white", weight = 3, bringToFront = TRUE, sendToBack = TRUE), 
-                group = four_domains[[2]], options = pathOptions(pane = "indi_pane"),
+    addPolygons(data=df, 
+                color="white",
+                weight = 1, 
+                smoothFactor = 0.5,
+                opacity = 1.0,
+                fillOpacity = 0.85,
+                fillColor = ~domain2_pal(df$econ_opp_pctile), 
+                highlight = highlightOptions(color = "white", 
+                                             weight = 5, 
+                                             bringToFront = TRUE, 
+                                             sendToBack = TRUE), 
+                group = four_domains[[2]],
+                options = pathOptions(pane = "indi_pane"),
                 popup = ~data_popup) %>%
     
     # Domain #3 layer
-    addPolygons(data=df, fillColor = ~domain3_pal(df$democracy_pctile), color="black", weight = 1, 
-                smoothFactor = 0.5, fillOpacity = 1, 
-                highlight = highlightOptions(color = "white", weight = 3, bringToFront = TRUE, sendToBack = TRUE), 
-                group = four_domains[[3]], options = pathOptions(pane = "indi_pane"),
+    addPolygons(data=df, 
+                color="white",
+                weight = 1, 
+                smoothFactor = 0.5,
+                opacity = 1.0,
+                fillOpacity = 0.85,
+                fillColor = ~domain3_pal(df$democracy_pctile), 
+                highlight = highlightOptions(color = "white", 
+                                             weight = 5, 
+                                             bringToFront = TRUE, 
+                                             sendToBack = TRUE), 
+                group = four_domains[[3]], 
+                options = pathOptions(pane = "indi_pane"),
                 popup = ~data_popup) %>%
     
     # Domain #4 layer
-    addPolygons(data=df, fillColor = ~domain4_pal(df$longevity_pctile), color="black", weight = 1, 
-                smoothFactor = 0.5, fillOpacity = 1, 
-                highlight = highlightOptions(color = "white", weight = 3, bringToFront = TRUE, sendToBack = TRUE), 
-                group = four_domains[[4]], options = pathOptions(pane = "indi_pane"),
+    addPolygons(data=df, 
+                color="white",
+                weight = 1, 
+                smoothFactor = 0.5,
+                opacity = 1.0,
+                fillOpacity = 0.85,
+                fillColor = ~domain4_pal(df$longevity_pctile),
+                highlight = highlightOptions(color = "white", 
+                                             weight = 5, 
+                                             bringToFront = TRUE, 
+                                             sendToBack = TRUE), 
+                group = four_domains[[4]], 
+                options = pathOptions(pane = "indi_pane"),
                 popup = ~data_popup) %>%
     
     # CD layer
-    addPolygons(data = cd, fillOpacity=0, color = '#CEEA01', weight = 2.2, 
-                label=~district, group = "City Council District", 
-                options = pathOptions(pane = "cd_pane", interactive = FALSE), 
-                highlight = highlightOptions(color = "white", weight = 3, bringToFront = TRUE))%>%
+    addPolygons(data = cd, 
+                opacity = 1,
+                fillOpacity=0, 
+                color = '#CEEA01', 
+                weight = 3, 
+                label=~district, 
+                group = "City Council District", 
+                options = pathOptions(pane = "cd_pane", 
+                                      interactive = FALSE))%>%
     
     # add layers control to toggle index, domains, and districts
     addLayersControl(
       baseGroups = c(four_domains),
       overlayGroups = c("City Council District"),
-      options = layersControlOptions(collapsed = FALSE, autoZIndex = TRUE)
-    ) %>%
+      options = layersControlOptions(collapsed = FALSE, autoZIndex = TRUE)) %>%
     
-    
-    hideGroup("City Council District")
+    hideGroup("City Council District") 
   
-  map
+  return(map)
   
 }
 
