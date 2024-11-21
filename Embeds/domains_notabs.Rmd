@@ -528,6 +528,7 @@ domains_map(df=equity_df, four_domains=equity_domains, colorpalette=color_palett
 .longevity-highest-bg-color {
   background-color: #0860BC;
   color: white;
+  font-weight: bold;
 }
 
 .longevity-high-bg-color {

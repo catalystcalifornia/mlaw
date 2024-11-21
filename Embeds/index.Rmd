@@ -490,6 +490,7 @@ index_map(df=equity_df,
 .longevity-highest-bg-color {
   background-color: #0860BC;
   color: white;
+  font-weight: bold;
 }
 
 .longevity-high-bg-color {
