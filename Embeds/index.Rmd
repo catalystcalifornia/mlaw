@@ -12,6 +12,7 @@ knitr::opts_chunk$set(comment = FALSE, message = FALSE, warning = FALSE, echo = 
 library(sf)
 library(highcharter)
 library(rmapshaper)
+library(htmltools)
 
 options(highcharter.theme = hc_theme_smpl(tooltip = list(valueDecimals = 2)))
 options(scipen=999)
@@ -162,15 +163,26 @@ custom_equity_popup <- paste0("<div class='leaflet-popup-scrolled equity-sidebar
 ```
 
 ```{r index-map}
-
+# Create map
 index_map(df=equity_df, 
           indicator=equity_indicator, 
           colorpalette=equity_colorpalette, 
           data_popup=equity_data_popup, 
           custom_popup=custom_equity_popup)
 
+# Add caption
+caption_html <- HTML("
+<span style='float: left; font-size: 12px;'>
+  Catalyst California, LA City Equity Index, 2024; 
+  <u><a href='https://www.catalystcalifornia.org/' target='_blank'>catalystcalifornia.org</a></u>. 
+  For more information about data methodology, please visit the 
+  <a href='https://github.com/catalystcalifornia/mlaw?tab=readme-ov-file#data-methodology' target='_blank'>GitHub repository</a>.
+</span>
+")
+
+caption_html
+
 ```
-<span style='float: left; font-size: 12px;'>Catalyst California, LA City Equity Index, 2024; <u>[catalystcalifornia.org](https://www.catalystcalifornia.org/)</u>. For more information about data methodology, please visit the [GitHub repository](https://github.com/catalystcalifornia/mlaw?tab=readme-ov-file#data-methodology).</span>
 
 <style type="text/css">
 
