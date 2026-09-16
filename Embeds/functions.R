@@ -29,8 +29,19 @@ index_map <- function(df, indicator, colorpalette, nacolor="#9B9A9A", data_popup
                                           attributionControl=FALSE)) %>%
     
     # add base maps, panes, and set view
-    addProviderTiles("CartoDB.PositronNoLabels") %>%
-    addProviderTiles("CartoDB.PositronOnlyLabels", options = providerTileOptions(pane = "markerPane")) %>%
+    # addProviderTiles("CartoDB.PositronNoLabels") %>%
+    # addProviderTiles("CartoDB.PositronOnlyLabels", options = providerTileOptions(pane = "markerPane")) %>%
+    
+    # new code: add base map
+    addTiles(
+      urlTemplate = paste0("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png?key=", carto_key),
+      attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>'
+    ) %>%
+    addTiles(
+      urlTemplate = paste0("https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png?key=", carto_key),
+      # attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      options = providerTileOptions(pane = "markerPane") # retain unique setting 
+    )%>%
     
     addMapPane("indi_pane", zIndex = 400) %>%
     addMapPane("cd_pane", zIndex = 400) %>%
@@ -111,9 +122,20 @@ domains_map <- function(df, four_domains=c(), colorpalette, nacolor="#9B9A9A", d
                  options = leafletOptions(zoomControl = FALSE, 
                                           attributionControl=FALSE)) %>%
     
-    # add base maps, panes, and set view
-    addProviderTiles("CartoDB.PositronNoLabels") %>%
-    addProviderTiles("CartoDB.PositronOnlyLabels", options = providerTileOptions(pane = "markerPane")) %>%
+    # # add base maps, panes, and set view
+    # addProviderTiles("CartoDB.PositronNoLabels") %>%
+    # addProviderTiles("CartoDB.PositronOnlyLabels", options = providerTileOptions(pane = "markerPane")) %>%
+    
+    # new code: add base map
+    addTiles(
+      urlTemplate = paste0("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png?key=", carto_key),
+      attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>'
+    ) %>%
+    addTiles(
+      urlTemplate = paste0("https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png?key=", carto_key),
+      # attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      options = providerTileOptions(pane = "markerPane") # retain unique setting 
+    ) %>%
     
     addMapPane("indi_pane", zIndex = 400) %>%
     addMapPane("cd_pane", zIndex = 400) %>%
@@ -209,65 +231,3 @@ domains_map <- function(df, four_domains=c(), colorpalette, nacolor="#9B9A9A", d
   return(map)
   
 }
-
-
-# # copied from domains.Rmd - can probably delete
-# 
-# index_map2<-function(df,indicator,colorpalette,nacolor){
-#   # add color palette for Indicator Percentiles
-#   
-#   pctl.bins <-c(0, 20, 40, 60, 80, 100)
-#   
-#   pal <- colorBin( palette = colorpalette, bins=pctl.bins, na.color = nacolor)
-#   
-#   # create custom legend labels
-#   
-#   labels <- c(
-#     "LOWEST NEED (0-19th Percentile)",
-#     "LOW NEED (20-39th Percentile)",
-#     "MODERATE NEED (40-59th Percentile)",
-#     "HIGH NEED (60-79th Percentile)",
-#     "HIGHEST NEED (80-100th Percentile)"
-#   )
-#   # map
-#   
-#   map <- leaflet(width = "100%", height = "600px")%>%
-#     
-#     # add base map
-#     addProviderTiles("CartoDB.PositronNoLabels") %>%
-#     addProviderTiles("CartoDB.PositronOnlyLabels", options = providerTileOptions(pane = "markerPane")) %>%
-#     
-#     # add map panes
-#     addMapPane("indi_pane", zIndex = 400) %>%
-#     addMapPane("cd_pane", zIndex = 400) %>%
-#     
-#     # set view and layer control
-#     setView( -118.353860, 34.068717, zoom = 9.5) %>%
-#     
-#     addLayersControl(overlayGroups = c(indicator, "City Council District"), 
-#                      options = layersControlOptions(collapsed = FALSE, autoZIndex = TRUE)) %>%
-#     
-#     # CD layer
-#     addPolygons(data = cd, fillOpacity=0, color = '#CEEA01', weight = 2.2, 
-#                 label=~district, group = "City Council District", 
-#                 options = pathOptions(pane = "cd_pane", interactive = FALSE), 
-#                 highlight = highlightOptions(color = "white", weight = 3, 
-#                                              bringToFront = TRUE))%>%
-#     
-#     # Indicator layer
-#     addPolygons(data=df, fillColor = ~pal(df$pctile), color="white", weight = 1, 
-#                 smoothFactor = 0.5, fillOpacity = .80, 
-#                 highlight = highlightOptions(color = "white", weight = 3, 
-#                                              bringToFront = TRUE, sendToBack = TRUE), 
-#                 popup = ~popup, group = indicator, 
-#                 options = pathOptions(pane = "indi_pane"))%>%
-#     
-#     # add legend
-#     addLegend(position = "bottomleft", pal = pal, values = df$pctile, opacity = 1, 
-#               title = paste0(indicator, " Percentile"), 
-#               labFormat = function(type, cuts, p){paste0(labels)}) %>%
-#     
-#     hideGroup("City Council District")
-#   
-#   map
-#   }
