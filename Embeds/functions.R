@@ -28,10 +28,16 @@ index_map <- function(df, indicator, colorpalette, nacolor="#9B9A9A", data_popup
                  options = leafletOptions(zoomControl = FALSE, 
                                           attributionControl=FALSE)) %>%
     
-    # add base maps, panes, and set view
-    addProviderTiles("CartoDB.PositronNoLabels") %>%
-    addProviderTiles("CartoDB.PositronOnlyLabels", options = providerTileOptions(pane = "markerPane")) %>%
-    
+    # new code: add base map
+    addTiles(
+      urlTemplate = paste0("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png?key=", carto_key),
+      attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>'
+    ) %>%
+    addTiles(
+      urlTemplate = paste0("https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png?key=", carto_key),
+      # attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      options = providerTileOptions(pane = "markerPane") # retain unique setting 
+    ) %>%
     addMapPane("indi_pane", zIndex = 400) %>%
     addMapPane("cd_pane", zIndex = 400) %>%
     
@@ -111,10 +117,16 @@ domains_map <- function(df, four_domains=c(), colorpalette, nacolor="#9B9A9A", d
                  options = leafletOptions(zoomControl = FALSE, 
                                           attributionControl=FALSE)) %>%
     
-    # add base maps, panes, and set view
-    addProviderTiles("CartoDB.PositronNoLabels") %>%
-    addProviderTiles("CartoDB.PositronOnlyLabels", options = providerTileOptions(pane = "markerPane")) %>%
-    
+    # new code: add base map
+    addTiles(
+      urlTemplate = paste0("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png?key=", carto_key),
+      attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>'
+    ) %>%
+    addTiles(
+      urlTemplate = paste0("https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png?key=", carto_key),
+      # attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      options = providerTileOptions(pane = "markerPane") # retain unique setting 
+    ) %>%
     addMapPane("indi_pane", zIndex = 400) %>%
     addMapPane("cd_pane", zIndex = 400) %>%
     
