@@ -23,7 +23,7 @@ library(sf)
 library(leaflet)
 library(htmltools)
 library(stringr)
-library(rgdal)
+# library(rgdal)
 library(rpostgis)
 library(leaflet)
 library(RColorBrewer)
@@ -34,7 +34,7 @@ library(highcharter)
 library(devtools)
 library(rmapshaper)
 # library(maptools)
-library(rgeos)
+# library(rgeos)
 # install.packages("corrplot")
 library(corrplot)
 # install.packages("Hmisc")
@@ -231,8 +231,19 @@ labels <- c(
 map<-leaflet(width = "100%", height = "600px")%>%
   
   # add base map
-addProviderTiles("CartoDB.PositronNoLabels") %>%
-addProviderTiles("CartoDB.PositronOnlyLabels", options = providerTileOptions(pane = "markerPane")) %>%
+# addProviderTiles("CartoDB.PositronNoLabels") %>%
+# addProviderTiles("CartoDB.PositronOnlyLabels", options = providerTileOptions(pane = "markerPane")) %>%
+  
+  # new code: add base map
+    addTiles(
+      urlTemplate = paste0("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png?key=", carto_key),
+      attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>'
+    ) %>%
+    addTiles(
+      urlTemplate = paste0("https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png?key=", carto_key),
+      # attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      options = providerTileOptions(pane = "markerPane") # retain unique setting 
+    ) %>%
 
 # add map panes
 addMapPane("indi_pane", zIndex = 400) %>%
@@ -295,8 +306,19 @@ labels <- c(
 map<-leaflet(width = "100%", height = "600px")%>%
   
   # add base map
-addProviderTiles("CartoDB.PositronNoLabels") %>%
-addProviderTiles("CartoDB.PositronOnlyLabels", options = providerTileOptions(pane = "markerPane")) %>%
+# addProviderTiles("CartoDB.PositronNoLabels") %>%
+# addProviderTiles("CartoDB.PositronOnlyLabels", options = providerTileOptions(pane = "markerPane")) %>%
+  
+  # new code: add base map
+    addTiles(
+      urlTemplate = paste0("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png?key=", carto_key),
+      attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>'
+    ) %>%
+    addTiles(
+      urlTemplate = paste0("https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png?key=", carto_key),
+      # attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      options = providerTileOptions(pane = "markerPane") # retain unique setting 
+    ) %>%
 
 # add map panes
 addMapPane("indi_pane", zIndex = 400) %>%
